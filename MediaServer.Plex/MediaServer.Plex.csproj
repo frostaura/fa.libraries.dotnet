@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Http\Http.csproj" />
+    <ProjectReference Include="..\MediaServer.Core\MediaServer.Core.csproj">
+      <Project>{FA530FC7-6AD7-4D95-9FFE-42B40118234B}</Project>
+      <Name>MediaServer.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>
