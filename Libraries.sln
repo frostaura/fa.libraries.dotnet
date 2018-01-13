@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaServer.Core.Tests", "M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaServer.Plex.Tests.Integration", "MediaServer.Plex.Tests.Integration\MediaServer.Plex.Tests.Integration.csproj", "{ECC4935F-D97A-41F6-A753-9C2E07E18DDA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaServer.Core.Tests.Integration", "MediaServer.Core.Tests.Integration\MediaServer.Core.Tests.Integration.csproj", "{50EAE1DB-30DE-4E04-88B7-9E8AF82E7412}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,6 +78,10 @@ Global
 		{ECC4935F-D97A-41F6-A753-9C2E07E18DDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECC4935F-D97A-41F6-A753-9C2E07E18DDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECC4935F-D97A-41F6-A753-9C2E07E18DDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50EAE1DB-30DE-4E04-88B7-9E8AF82E7412}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50EAE1DB-30DE-4E04-88B7-9E8AF82E7412}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50EAE1DB-30DE-4E04-88B7-9E8AF82E7412}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50EAE1DB-30DE-4E04-88B7-9E8AF82E7412}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{28E07C59-A68A-466F-8841-5FF0A398C80B} = {B55A0203-A73A-4A98-898C-D3B17F923F62}
@@ -89,5 +95,6 @@ Global
 		{FA530FC7-6AD7-4D95-9FFE-42B40118234B} = {DADBB14E-11D3-4EF9-AC66-5860768EFE25}
 		{71DD643C-BAB2-45AE-839E-B8D0F1C8A4FA} = {DADBB14E-11D3-4EF9-AC66-5860768EFE25}
 		{ECC4935F-D97A-41F6-A753-9C2E07E18DDA} = {DADBB14E-11D3-4EF9-AC66-5860768EFE25}
+		{50EAE1DB-30DE-4E04-88B7-9E8AF82E7412} = {DADBB14E-11D3-4EF9-AC66-5860768EFE25}
 	EndGlobalSection
 EndGlobal

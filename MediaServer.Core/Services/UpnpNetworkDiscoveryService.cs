@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FrostAura.Libraries.Core.Extensions.Validation;
@@ -59,6 +61,8 @@ namespace MediaServer.Core.Services
         /// <param name="token">Cancellation token instance.</param>
         public async Task BackgroundQueueDiscovery(CancellationToken token)
         {
+            SendDiscoveryMessage();
+            
             UdpClient client = await CreateUdpClientAsync(token);
 
             // Run an infinite retry loop for discovery.
@@ -82,8 +86,7 @@ namespace MediaServer.Core.Services
                         }
                     }
                     catch (Exception ex)
-                    {
-                    }
+                    { }
                 } while (client.Client != null);
 
                 try
@@ -127,6 +130,26 @@ namespace MediaServer.Core.Services
 
                 // If the UDP client creation fails, timeout and retry.
                 await Task.Delay(10000, token);
+            }
+        }
+
+        /// <summary>
+        /// Broadcast a message for devices to send discovery messages.
+        /// </summary>
+        private void SendDiscoveryMessage()
+        {
+            try
+            {
+                using (UdpClient udpClient = new UdpClient())
+                {
+                    IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(_ipAddress), _port);
+                    byte[] bytes = Encoding.ASCII.GetBytes("M-SEARCH * HTTP/1.0");
+                    udpClient.Send(bytes, bytes.Length, endPoint);
+                    udpClient.Close();
+                }
+            }
+            catch (Exception ex)
+            {
             }
         }
     }
