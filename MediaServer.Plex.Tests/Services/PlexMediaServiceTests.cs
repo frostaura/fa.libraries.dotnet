@@ -1,24 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using FrostAura.Libraries.Core.Extensions.Decoration;
-using FrostAura.Libraries.Http.Extensions;
+using FrostAura.Libraries.Core.Models.Auth;
 using FrostAura.Libraries.Http.Interfaces;
-using FrostAura.Libraries.Http.Models.Requests;
-using FrostAura.Libraries.Http.Models.Responses;
-using FrostAura.Libraries.Http.Services;
 using MediaServer.Core.Enums;
 using MediaServer.Core.Models.Content;
-using MediaServer.Plex.Enums;
-using MediaServer.Plex.Models.Collections;
+using MediaServer.Plex.Interfaces;
 using MediaServer.Plex.Models.Config;
-using MediaServer.Plex.Models.Content;
 using MediaServer.Plex.Models.Responses;
 using MediaServer.Plex.Services;
-using Newtonsoft.Json;
 using NSubstitute;
 using Xunit;
 
@@ -26,776 +18,381 @@ namespace MediaServer.Plex.Tests.Services
 {
     public class PlexMediaServiceTests
     {
-        #region Functional Tests
-        
         [Fact]
         public void Constructor_WithInvalidConfig_ShouldThrowArgumentNullException()
         {
             // Setup
+            PlexMediaServerConfig config = null;
             var httpService = Substitute.For<IHttpService>();
+            var authenticator = Substitute.For<IPlexAuthenticator>();
+            var settingsProvider = Substitute.For<IPlexServerSettingsProvider>();
+            var mediaProvider = Substitute.For<IPlexMediaProvider>();
             
-            // Perform action 'Constructor'
+            // Perform
             var exception = Assert.Throws<ArgumentNullException>(() =>
-            {
-                var instance = new PlexMediaService(null, httpService);
-            });
+                new PlexMediaService(config, httpService, authenticator, settingsProvider, mediaProvider));
 
-            // Assert that 'ShouldThrowArgumentNullException' = 'WithInvalidConfig'
+            // Assert
+            Assert.Equal("configuration", exception.ParamName);
         }
         
         [Fact]
-        public void Constructor_WithValidConfigButNoToken_ShouldThrowValidationException()
+        public void Constructor_WithInvalidHttpService_ShouldThrowArgumentNullException()
         {
             // Setup
-            var config = new PlexMediaServerConfig();
-            var httpService = Substitute.For<IHttpService>();
-            
-            // Perform action 'Constructor'
-            var exception = Assert.Throws<FrostAura.Libraries.Core.Exceptions.Validation.ValidationException>(() =>
+            PlexMediaServerConfig config = new PlexMediaServerConfig
             {
-                var instance = new PlexMediaService(config, httpService);
-            });
-            
-            // Assert that 'ShouldThrowValidationException' = 'WithValidConfigButNoToken'
-            Assert.True(exception.ValidationResults.Count() == 1);
-        }
-        
-        [Fact]
-        public void Constructor_WithValidConfigButNoHttpService_ShouldThrowArgumentNullException()
-        {
-            // Setup
-            var config = new PlexMediaServerConfig
-            {
-                PlexToken = "Test Token"
+                ServerAddress = "http://192.168.0.5:32400",
+                PlexAuthenticationRequestUser = new BasicAuth
+                {
+                    Username = "test username",
+                    Password = "test password"
+                }
             };
+            IHttpService httpService = null;
+            var authenticator = Substitute.For<IPlexAuthenticator>();
+            var settingsProvider = Substitute.For<IPlexServerSettingsProvider>();
+            var mediaProvider = Substitute.For<IPlexMediaProvider>();
             
-            // Perform action 'Constructor'
+            // Perform
             var exception = Assert.Throws<ArgumentNullException>(() =>
-            {
-                var instance = new PlexMediaService(config, null);
-            });
-            
-            // Assert that 'ShouldThrowArgumentNullException' = 'WithValidConfigButNoHttpService'
+                new PlexMediaService(config, httpService, authenticator, settingsProvider, mediaProvider));
+
+            // Assert
+            Assert.Equal("httpService", exception.ParamName);
         }
         
         [Fact]
-        public void Constructor_WithAllValidParams_ShouldConstruct()
+        public void Constructor_WithInvalidAuthenticator_ShouldThrowArgumentNullException()
         {
             // Setup
-            var config = new PlexMediaServerConfig
+            PlexMediaServerConfig config = new PlexMediaServerConfig
             {
-                PlexToken = "Test Token"
+                ServerAddress = "http://192.168.0.5:32400",
+                PlexAuthenticationRequestUser = new BasicAuth
+                {
+                    Username = "test username",
+                    Password = "test password"
+                }
             };
             var httpService = Substitute.For<IHttpService>();
+            IPlexAuthenticator authenticator = null;
+            var settingsProvider = Substitute.For<IPlexServerSettingsProvider>();
+            var mediaProvider = Substitute.For<IPlexMediaProvider>();
             
-            // Perform action 'Constructor'
-            var actual = new PlexMediaService(config, httpService);
+            // Perform
+            var exception = Assert.Throws<ArgumentNullException>(() =>
+                new PlexMediaService(config, httpService, authenticator, settingsProvider, mediaProvider));
+
+            // Assert
+            Assert.Equal("authenticator", exception.ParamName);
+        }
+        
+        [Fact]
+        public void Constructor_WithInvalidSettingsService_ShouldThrowArgumentNullException()
+        {
+            // Setup
+            PlexMediaServerConfig config = new PlexMediaServerConfig
+            {
+                ServerAddress = "http://192.168.0.5:32400",
+                PlexAuthenticationRequestUser = new BasicAuth
+                {
+                    Username = "test username",
+                    Password = "test password"
+                }
+            };
+            var httpService = Substitute.For<IHttpService>();
+            var authenticator = Substitute.For<IPlexAuthenticator>();;
+            IPlexServerSettingsProvider settingsProvider = null;
+            var mediaProvider = Substitute.For<IPlexMediaProvider>();
             
-            // Assert that 'ShouldConstruct' = 'WithAllValidParams'
+            // Perform
+            var exception = Assert.Throws<ArgumentNullException>(() =>
+                new PlexMediaService(config, httpService, authenticator, settingsProvider, mediaProvider));
+
+            // Assert
+            Assert.Equal("serverSettingsProvider", exception.ParamName);
+        }
+        
+        [Fact]
+        public void Constructor_WithInvalidMediaProviderService_ShouldThrowArgumentNullException()
+        {
+            // Setup
+            PlexMediaServerConfig config = new PlexMediaServerConfig
+            {
+                ServerAddress = "http://192.168.0.5:32400",
+                PlexAuthenticationRequestUser = new BasicAuth
+                {
+                    Username = "test username",
+                    Password = "test password"
+                }
+            };
+            var httpService = Substitute.For<IHttpService>();
+            var authenticator = Substitute.For<IPlexAuthenticator>();;
+            var settingsProvider = Substitute.For<IPlexServerSettingsProvider>();
+            IPlexMediaProvider mediaProvider = null;
+            
+            // Perform
+            var exception = Assert.Throws<ArgumentNullException>(() =>
+                new PlexMediaService(config, httpService, authenticator, settingsProvider, mediaProvider));
+
+            // Assert
+            Assert.Equal("mediaProvider", exception.ParamName);
+        }
+        
+        [Fact]
+        public void Constructor_WithValidParams_ShouldConstruct()
+        {
+            // Setup
+            PlexMediaServerConfig config = new PlexMediaServerConfig
+            {
+                ServerAddress = "http://192.168.0.5:32400",
+                PlexAuthenticationRequestUser = new BasicAuth
+                {
+                    Username = "test username",
+                    Password = "test password"
+                }
+            };
+            var httpService = Substitute.For<IHttpService>();
+            var authenticator = Substitute.For<IPlexAuthenticator>();;
+            var settingsProvider = Substitute.For<IPlexServerSettingsProvider>();
+            var mediaProvider = Substitute.For<IPlexMediaProvider>();
+            
+            // Perform
+            var actual = new PlexMediaService(config, httpService, authenticator, settingsProvider, mediaProvider);
+
+            // Assert
             Assert.NotNull(actual);
         }
         
         [Fact]
-        public async Task Initialize_WithValidParamsAndFailedResponse_ShouldNotSetMediaContainer()
+        public async Task InitializeAsync_WithInvalidAuthResponse_ShouldReturnUnauthorised()
         {
             // Setup
-            var plexConfig = new PlexMediaServerConfig
+            PlexMediaServerConfig config = new PlexMediaServerConfig
             {
-                PlexToken = "Test Token",
-                ServerAddress = "http://192.168.0.5:32400"
-            };
-            var httpService = Substitute.For<IHttpService>();
-            var plexService = new PlexMediaService(plexConfig, httpService);
-
-            httpService
-                .RequestAsync<BasePlexResponse<ServerPreferences>>(Arg.Any<HttpRequest>(), Arg.Any<CancellationToken>())
-                .Returns(new HttpResponse<BasePlexResponse<ServerPreferences>>());
-            
-            // Perform action 'Initialize'
-            await plexService.InitializeAsync(CancellationToken.None);
-            
-            // Assert that 'ShouldNotSetMediaContainer' = 'WithValidParamsAndFailedResponse'
-            httpService
-                .Received()
-                .RequestAsync<BasePlexResponse<ServerPreferences>>(Arg.Any<HttpRequest>(), Arg.Any<CancellationToken>());
-            Assert.Null(plexService.Configuration.ServerPreferences);
-        }
-        
-        [Fact]
-        public async Task Initialize_WithValidParamsAndResponse_ShouldSetMediaContainer()
-        {
-            // Setup
-            var plexConfig = new PlexMediaServerConfig
-            {
-                PlexToken = "Test Token",
-                ServerAddress = "http://192.168.0.5:32400"
-            };
-            
-            var httpService = Substitute.For<IHttpService>();
-            var plexService = new PlexMediaService(plexConfig, httpService);
-            string endpointUrl = Endpoint.ServerPreferences.Description(plexConfig.ServerAddress);
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, endpointUrl);
-            HttpRequest httpRequest = httpRequestMessage.ToHttpRequest();
-            
-            var expectedMediaContainer = new BasePlexResponse<ServerPreferences>
-            {
-                MediaContainer = new ServerPreferences
-                {
-                    Size = 5
-                }
-            };
-            var expectedHttpResponse = new HttpResponse<BasePlexResponse<ServerPreferences>>();
-            var expectedHttpResponseMessage = new HttpResponseMessage
-            {
-                Content = new StringContent(JsonConvert.SerializeObject(expectedMediaContainer))
-            };
-            
-            await expectedHttpResponse.SetResponseAsync(httpRequest.Identifier, expectedHttpResponseMessage, CancellationToken.None);
-
-            httpService
-                .RequestAsync<BasePlexResponse<ServerPreferences>>(Arg.Any<HttpRequest>(), Arg.Any<CancellationToken>())
-                .Returns((request) =>
-                {
-                    // Assert the details of the request to be correct
-                    var requestContext = request.Args()[0] as HttpRequest;
-                    
-                    Assert.Equal(httpRequestMessage.RequestUri.AbsoluteUri, requestContext?.Request.RequestUri.AbsoluteUri);
-                    Assert.Equal(httpRequestMessage.Method, requestContext?.Request.Method);
-                    
-                    return expectedHttpResponse;
-                });
-            
-            // Perform action 'Initialize'
-            await plexService.InitializeAsync(CancellationToken.None);
-            
-            // Assert that 'ShouldSetMediaContainer' = 'WithValidParamsAndResponse'
-            httpService
-                .Received()
-                .RequestAsync<BasePlexResponse<ServerPreferences>>(Arg.Any<HttpRequest>(), CancellationToken.None);
-            Assert.NotNull(plexService.Configuration.ServerPreferences);
-            Assert.Equal(expectedMediaContainer.MediaContainer.Size, plexService.Configuration.ServerPreferences.Size);
-            Assert.Equal(httpRequest.Identifier, expectedHttpResponse.RequestIdentifier);
-        }
-        
-        [Fact]
-        public async Task GetAllLibrariesAsync_WithValidParamsAndResponse_ShouldCallCorrectHttpEndpoint()
-        {
-            // Setup
-            var plexConfig = new PlexMediaServerConfig
-            {
-                PlexToken = "Test Token",
-                ServerAddress = "http://192.168.0.5:32400"
-            };
-            
-            var httpService = Substitute.For<IHttpService>();
-            var plexService = new PlexMediaService(plexConfig, httpService);
-            string endpointUrl = Endpoint.Libraries.Description(plexConfig.ServerAddress);
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, endpointUrl);
-            HttpRequest httpRequest = httpRequestMessage.ToHttpRequest();
-            
-            var expectedMediaContainer = new BasePlexResponse<Libraries>
-            {
-                MediaContainer = new Libraries
-                {
-                    Size = 5,
-                    Directory = new List<Directory>()
-                }
-            };
-            var expectedHttpResponse = new HttpResponse<BasePlexResponse<Libraries>>();
-            var expectedHttpResponseMessage = new HttpResponseMessage
-            {
-                Content = new StringContent(JsonConvert.SerializeObject(expectedMediaContainer))
-            };
-            
-            await expectedHttpResponse.SetResponseAsync(httpRequest.Identifier, expectedHttpResponseMessage, CancellationToken.None);
-
-            httpService
-                .RequestAsync<BasePlexResponse<Libraries>>(Arg.Any<HttpRequest>(), Arg.Any<CancellationToken>())
-                .Returns((request) =>
-                {
-                    // Assert the details of the request to be correct
-                    var requestContext = request.Args()[0] as HttpRequest;
-                    
-                    Assert.Equal(httpRequestMessage.RequestUri.AbsoluteUri, requestContext?.Request.RequestUri.AbsoluteUri);
-                    Assert.Equal(httpRequestMessage.Method, requestContext?.Request.Method);
-                    
-                    return expectedHttpResponse;
-                });
-            
-            // Perform action 'WithValidParamsAndResponse'
-            await plexService.GetAllLibrariesAsync(CancellationToken.None);
-            
-            // Assert that 'GetAllLibrariesAsync' = 'ShouldCallCorrectHttpEndpoint'
-            httpService
-                .Received()
-                .RequestAsync<BasePlexResponse<Libraries>>(Arg.Any<HttpRequest>(), CancellationToken.None);
-            Assert.Equal(httpRequest.Identifier, expectedHttpResponse.RequestIdentifier);
-        }
-        
-        [Fact]
-        public async Task GetAllLibrariesAsync_WithValidResponseSections_ShouldReturnCastedLibraries()
-        {
-            // Setup
-            var plexConfig = new PlexMediaServerConfig
-            {
-                PlexToken = "Test Token",
                 ServerAddress = "http://192.168.0.5:32400",
-                
-            };
-            
-            var httpService = Substitute.For<IHttpService>();
-            var plexService = new PlexMediaService(plexConfig, httpService);
-            string endpointUrl = Endpoint.Libraries.Description(plexConfig.ServerAddress);
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, endpointUrl);
-            HttpRequest httpRequest = httpRequestMessage.ToHttpRequest();
-            
-            var expectedMediaContainer = new BasePlexResponse<Libraries>
-            {
-                MediaContainer = new Libraries
+                PlexAuthenticationRequestUser = new BasicAuth
                 {
-                    Size = 1,
-                    Directory = new List<Directory>
-                    {
-                        new Directory
-                        {
-                            Title = "Test Movie Title",
-                            Key = "123",
-                            Art = "test-art",
-                            Thumb = "test-thumb",
-                            Type = "movie"
-                        }
-                    }
+                    Username = "test username",
+                    Password = "test password"
                 }
             };
-            var expectedHttpResponse = new HttpResponse<BasePlexResponse<Libraries>>();
-            var expectedHttpResponseMessage = new HttpResponseMessage
-            {
-                Content = new StringContent(JsonConvert.SerializeObject(expectedMediaContainer))
-            };
-            
-            await expectedHttpResponse.SetResponseAsync(httpRequest.Identifier, expectedHttpResponseMessage, CancellationToken.None);
+            var httpService = Substitute.For<IHttpService>();
+            var authenticator = Substitute.For<IPlexAuthenticator>();
+            var settingsProvider = Substitute.For<IPlexServerSettingsProvider>();
+            var mediaProvider = Substitute.For<IPlexMediaProvider>();
+            var instance = new PlexMediaService(config, httpService, authenticator, settingsProvider, mediaProvider);
 
-            httpService
-                .RequestAsync<BasePlexResponse<Libraries>>(Arg.Any<HttpRequest>(), Arg.Any<CancellationToken>())
-                .Returns((request) =>
-                {
-                    // Assert the details of the request to be correct
-                    var requestContext = request.Args()[0] as HttpRequest;
-                    
-                    Assert.Equal(httpRequestMessage.RequestUri.AbsoluteUri, requestContext?.Request.RequestUri.AbsoluteUri);
-                    Assert.Equal(httpRequestMessage.Method, requestContext?.Request.Method);
-                    
-                    return expectedHttpResponse;
-                });
+            authenticator
+                .AuthenticateAsync(Arg.Any<CancellationToken>())
+                .Returns(info => new UserAuthenticationResponse());
             
-            // Perform action
-            IEnumerable<Library> result = await plexService.GetAllLibrariesAsync(CancellationToken.None);
-            
+            // Perform
+            InitializationStatus actual = await instance.InitializeAsync(CancellationToken.None);
+
             // Assert
-            httpService
-                .Received()
-                .RequestAsync<BasePlexResponse<Libraries>>(Arg.Any<HttpRequest>(), CancellationToken.None);
-            Assert.Equal(httpRequest.Identifier, expectedHttpResponse.RequestIdentifier);
-            Assert.True(result.Any());
-            Assert.Equal(expectedMediaContainer.MediaContainer.Directory.First().Key, result.First().Id);
-            Assert.Equal(expectedMediaContainer.MediaContainer.Directory.First().Title, result.First().Title);
-            Assert.Equal($"{plexConfig.ServerAddress}{expectedMediaContainer.MediaContainer.Directory.First().Art}?X-Plex-Token={plexConfig.PlexToken}", result.First().Poster);
-            Assert.Equal($"{plexConfig.ServerAddress}{expectedMediaContainer.MediaContainer.Directory.First().Thumb}?X-Plex-Token={plexConfig.PlexToken}", result.First().Thumbnail);
-            Assert.Equal(LibraryType.Movie, result.First().Type);
+            Assert.Equal(InitializationStatus.Unauthorised, actual);
         }
         
         [Fact]
-        public async Task GetAllLibrariesAsync_WithResultWithInvalidType_ShouldThrowArgumentNullException()
+        public async Task InitializeAsync_WithAuthenticatedUser_ShouldSetUserContext()
         {
             // Setup
-            var plexConfig = new PlexMediaServerConfig
+            PlexMediaServerConfig config = new PlexMediaServerConfig
             {
-                PlexToken = "Test Token",
                 ServerAddress = "http://192.168.0.5:32400",
-                
-            };
-            
-            var httpService = Substitute.For<IHttpService>();
-            var plexService = new PlexMediaService(plexConfig, httpService);
-            string endpointUrl = Endpoint.Libraries.Description(plexConfig.ServerAddress);
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, endpointUrl);
-            HttpRequest httpRequest = httpRequestMessage.ToHttpRequest();
-            
-            var expectedMediaContainer = new BasePlexResponse<Libraries>
-            {
-                MediaContainer = new Libraries
+                PlexAuthenticationRequestUser = new BasicAuth
                 {
-                    Size = 1,
-                    Directory = new List<Directory>
-                    {
-                        new Directory
-                        {
-                            Title = "Test Movie Title",
-                            Key = "123",
-                            Art = "test-art",
-                            Thumb = "test-thumb",
-                            Type = null
-                        }
-                    }
+                    Username = "test username",
+                    Password = "test password"
                 }
             };
-            var expectedHttpResponse = new HttpResponse<BasePlexResponse<Libraries>>();
-            var expectedHttpResponseMessage = new HttpResponseMessage
+            var httpService = Substitute.For<IHttpService>();
+            var authenticator = Substitute.For<IPlexAuthenticator>();
+            var settingsProvider = Substitute.For<IPlexServerSettingsProvider>();
+            var mediaProvider = Substitute.For<IPlexMediaProvider>();
+            var instance = new PlexMediaService(config, httpService, authenticator, settingsProvider, mediaProvider);
+            var expectedUser = new User
             {
-                Content = new StringContent(JsonConvert.SerializeObject(expectedMediaContainer))
+                Email = "test@test.com"
             };
-            
-            await expectedHttpResponse.SetResponseAsync(httpRequest.Identifier, expectedHttpResponseMessage, CancellationToken.None);
 
-            httpService
-                .RequestAsync<BasePlexResponse<Libraries>>(Arg.Any<HttpRequest>(), Arg.Any<CancellationToken>())
-                .Returns((request) =>
+            authenticator
+                .AuthenticateAsync(Arg.Any<CancellationToken>())
+                .Returns(info => new UserAuthenticationResponse
                 {
-                    // Assert the details of the request to be correct
-                    var requestContext = request.Args()[0] as HttpRequest;
-                    
-                    Assert.Equal(httpRequestMessage.RequestUri.AbsoluteUri, requestContext?.Request.RequestUri.AbsoluteUri);
-                    Assert.Equal(httpRequestMessage.Method, requestContext?.Request.Method);
-                    
-                    return expectedHttpResponse;
+                    User = expectedUser
                 });
             
-            // Perform action
-            IEnumerable<Library> result = await plexService.GetAllLibrariesAsync(CancellationToken.None);
-            
+            // Perform
+            InitializationStatus actual = await instance.InitializeAsync(CancellationToken.None);
+
             // Assert
-            var exception = await Assert.ThrowsAsync<ArgumentNullException>(async () => await result.First().GetMoviesAsync);
-            
-            Assert.Equal("libraryType", exception.ParamName);
+            Assert.NotNull(instance.Configuration?.PlexAuthenticatedUser);
+            Assert.Equal(expectedUser.Email, instance.Configuration.PlexAuthenticatedUser.Email);
         }
         
         [Fact]
-        public async Task GetAllLibrariesAsync_WithResultWithInvalidId_ShouldThrowArgumentNullException()
+        public async Task InitializeAsync_WithNoSettings_ShouldReturnError()
         {
             // Setup
-            var plexConfig = new PlexMediaServerConfig
+            PlexMediaServerConfig config = new PlexMediaServerConfig
             {
-                PlexToken = "Test Token",
                 ServerAddress = "http://192.168.0.5:32400",
-                
-            };
-            
-            var httpService = Substitute.For<IHttpService>();
-            var plexService = new PlexMediaService(plexConfig, httpService);
-            string endpointUrl = Endpoint.Libraries.Description(plexConfig.ServerAddress);
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, endpointUrl);
-            HttpRequest httpRequest = httpRequestMessage.ToHttpRequest();
-            
-            var expectedMediaContainer = new BasePlexResponse<Libraries>
-            {
-                MediaContainer = new Libraries
+                PlexAuthenticationRequestUser = new BasicAuth
                 {
-                    Size = 1,
-                    Directory = new List<Directory>
-                    {
-                        new Directory
-                        {
-                            Title = "Test Movie Title",
-                            Key = null,
-                            Art = "test-art",
-                            Thumb = "test-thumb",
-                            Type = "movie"
-                        }
-                    }
+                    Username = "test username",
+                    Password = "test password"
                 }
             };
-            var expectedHttpResponse = new HttpResponse<BasePlexResponse<Libraries>>();
-            var expectedHttpResponseMessage = new HttpResponseMessage
+            var httpService = Substitute.For<IHttpService>();
+            var authenticator = Substitute.For<IPlexAuthenticator>();
+            var settingsProvider = Substitute.For<IPlexServerSettingsProvider>();
+            var mediaProvider = Substitute.For<IPlexMediaProvider>();
+            var instance = new PlexMediaService(config, httpService, authenticator, settingsProvider, mediaProvider);
+            var expectedUser = new User
             {
-                Content = new StringContent(JsonConvert.SerializeObject(expectedMediaContainer))
+                Email = "test@test.com"
             };
-            
-            await expectedHttpResponse.SetResponseAsync(httpRequest.Identifier, expectedHttpResponseMessage, CancellationToken.None);
 
-            httpService
-                .RequestAsync<BasePlexResponse<Libraries>>(Arg.Any<HttpRequest>(), Arg.Any<CancellationToken>())
-                .Returns((request) =>
+            authenticator
+                .AuthenticateAsync(Arg.Any<CancellationToken>())
+                .Returns(info => new UserAuthenticationResponse
                 {
-                    // Assert the details of the request to be correct
-                    var requestContext = request.Args()[0] as HttpRequest;
-                    
-                    Assert.Equal(httpRequestMessage.RequestUri.AbsoluteUri, requestContext?.Request.RequestUri.AbsoluteUri);
-                    Assert.Equal(httpRequestMessage.Method, requestContext?.Request.Method);
-                    
-                    return expectedHttpResponse;
+                    User = expectedUser
                 });
+            settingsProvider
+                .GetServerSettingsAsync(Arg.Any<CancellationToken>())
+                .Returns(info => new ServerPreferences());
             
-            // Perform action
-            IEnumerable<Library> result = await plexService.GetAllLibrariesAsync(CancellationToken.None);
-            
+            // Perform
+            InitializationStatus actual = await instance.InitializeAsync(CancellationToken.None);
+
             // Assert
-            var exception = await Assert.ThrowsAsync<ArgumentNullException>(async () => await result.First().GetMoviesAsync);
-            
-            Assert.Equal("libraryId", exception.ParamName);
+            Assert.Equal(InitializationStatus.Error, actual);
         }
         
         [Fact]
-        public async Task GetAllLibrariesAsync_WithResultWithNonMovieLibraryType_ShouldReturnEmpty()
+        public async Task InitializeAsync_WithSettings_ShouldSetSettings()
         {
             // Setup
-            var plexConfig = new PlexMediaServerConfig
+            PlexMediaServerConfig config = new PlexMediaServerConfig
             {
-                PlexToken = "Test Token",
                 ServerAddress = "http://192.168.0.5:32400",
-                
-            };
-            
-            var httpService = Substitute.For<IHttpService>();
-            var plexService = new PlexMediaService(plexConfig, httpService);
-            string endpointUrl = Endpoint.Libraries.Description(plexConfig.ServerAddress);
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, endpointUrl);
-            HttpRequest httpRequest = httpRequestMessage.ToHttpRequest();
-            
-            var expectedMediaContainer = new BasePlexResponse<Libraries>
-            {
-                MediaContainer = new Libraries
+                PlexAuthenticationRequestUser = new BasicAuth
                 {
-                    Size = 1,
-                    Directory = new List<Directory>
-                    {
-                        new Directory
-                        {
-                            Title = "Test Movie Title",
-                            Key = "123",
-                            Art = "test-art",
-                            Thumb = "test-thumb",
-                            Type = "tv"
-                        }
-                    }
+                    Username = "test username",
+                    Password = "test password"
                 }
             };
-            var expectedHttpResponse = new HttpResponse<BasePlexResponse<Libraries>>();
-            var expectedHttpResponseMessage = new HttpResponseMessage
+            var httpService = Substitute.For<IHttpService>();
+            var authenticator = Substitute.For<IPlexAuthenticator>();
+            var settingsProvider = Substitute.For<IPlexServerSettingsProvider>();
+            var mediaProvider = Substitute.For<IPlexMediaProvider>();
+            var instance = new PlexMediaService(config, httpService, authenticator, settingsProvider, mediaProvider);
+            var expectedUser = new User
             {
-                Content = new StringContent(JsonConvert.SerializeObject(expectedMediaContainer))
+                Email = "test@test.com"
             };
-            
-            await expectedHttpResponse.SetResponseAsync(httpRequest.Identifier, expectedHttpResponseMessage, CancellationToken.None);
 
-            httpService
-                .RequestAsync<BasePlexResponse<Libraries>>(Arg.Any<HttpRequest>(), Arg.Any<CancellationToken>())
-                .Returns((request) =>
+            authenticator
+                .AuthenticateAsync(Arg.Any<CancellationToken>())
+                .Returns(info => new UserAuthenticationResponse
                 {
-                    // Assert the details of the request to be correct
-                    var requestContext = request.Args()[0] as HttpRequest;
-                    
-                    Assert.Equal(httpRequestMessage.RequestUri.AbsoluteUri, requestContext?.Request.RequestUri.AbsoluteUri);
-                    Assert.Equal(httpRequestMessage.Method, requestContext?.Request.Method);
-                    
-                    return expectedHttpResponse;
+                    User = expectedUser
+                });
+            settingsProvider
+                .GetServerSettingsAsync(Arg.Any<CancellationToken>())
+                .Returns(info => new ServerPreferences
+                {
+                    Setting = new List<Setting>()
+                    {
+                        new Setting()
+                    }
                 });
             
-            // Perform action
-            IEnumerable<Library> result = await plexService.GetAllLibrariesAsync(CancellationToken.None);
-            IEnumerable<Movie> movies = await result.First().GetMoviesAsync;
-            
+            // Perform
+            InitializationStatus actual = await instance.InitializeAsync(CancellationToken.None);
+
             // Assert
-            Assert.Empty(movies);
+            Assert.True(instance.Configuration.ServerPreferences.Setting.Any());
         }
         
         [Fact]
-        public async Task GetAllLibrariesAsync_WithResult_ShouldCallHttpRequestWithCorrectParamsAndReturnEmptyMoviesList()
+        public async Task InitializeAsync_WithSettings_ShouldReturnOk()
         {
             // Setup
-            var plexConfig = new PlexMediaServerConfig
+            PlexMediaServerConfig config = new PlexMediaServerConfig
             {
-                PlexToken = "Test Token",
                 ServerAddress = "http://192.168.0.5:32400",
-                
-            };
-            
-            var httpService = Substitute.For<IHttpService>();
-            var plexService = new PlexMediaService(plexConfig, httpService);
-            string endpointUrl = Endpoint.Libraries.Description(plexConfig.ServerAddress);
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, endpointUrl);
-            HttpRequest httpRequest = httpRequestMessage.ToHttpRequest();
-            
-            var expectedMediaContainer = new BasePlexResponse<Libraries>
-            {
-                MediaContainer = new Libraries
+                PlexAuthenticationRequestUser = new BasicAuth
                 {
-                    Size = 1,
-                    Directory = new List<Directory>
-                    {
-                        new Directory
-                        {
-                            Title = "Test Movie Title",
-                            Key = "123",
-                            Art = "test-art",
-                            Thumb = "test-thumb",
-                            Type = "movie"
-                        }
-                    }
+                    Username = "test username",
+                    Password = "test password"
                 }
             };
-            var expectedHttpResponse = new HttpResponse<BasePlexResponse<Libraries>>();
-            var expectedHttpResponseMessage = new HttpResponseMessage
+            var httpService = Substitute.For<IHttpService>();
+            var authenticator = Substitute.For<IPlexAuthenticator>();
+            var settingsProvider = Substitute.For<IPlexServerSettingsProvider>();
+            var mediaProvider = Substitute.For<IPlexMediaProvider>();
+            var instance = new PlexMediaService(config, httpService, authenticator, settingsProvider, mediaProvider);
+            var expectedUser = new User
             {
-                Content = new StringContent(JsonConvert.SerializeObject(expectedMediaContainer))
+                Email = "test@test.com"
             };
-            
-            await expectedHttpResponse.SetResponseAsync(httpRequest.Identifier, expectedHttpResponseMessage, CancellationToken.None);
 
-            httpService
-                .RequestAsync<BasePlexResponse<Libraries>>(Arg.Any<HttpRequest>(), Arg.Any<CancellationToken>())
-                .Returns((request) =>
+            authenticator
+                .AuthenticateAsync(Arg.Any<CancellationToken>())
+                .Returns(info => new UserAuthenticationResponse
                 {
-                    // Assert the details of the request to be correct
-                    var requestContext = request.Args()[0] as HttpRequest;
-                    
-                    Assert.Equal(httpRequestMessage.RequestUri.AbsoluteUri, requestContext?.Request.RequestUri.AbsoluteUri);
-                    Assert.Equal(httpRequestMessage.Method, requestContext?.Request.Method);
-                    
-                    return expectedHttpResponse;
+                    User = expectedUser
+                });
+            settingsProvider
+                .GetServerSettingsAsync(Arg.Any<CancellationToken>())
+                .Returns(info => new ServerPreferences
+                {
+                    Setting = new List<Setting>()
                 });
             
-            // Get movies for library
-            var expectedMoviesMediaContainer = new BasePlexResponse<MediaContainer>
-            {
-                MediaContainer = new MediaContainer()
-            };
-            var expectedMoviesHttpResponse = new HttpResponse<BasePlexResponse<MediaContainer>>();
-            var expectedMoviesHttpResponseMessage = new HttpResponseMessage
-            {
-                Content = new StringContent(JsonConvert.SerializeObject(expectedMoviesMediaContainer))
-            };
-            
-            await expectedMoviesHttpResponse.SetResponseAsync(Guid.NewGuid(), expectedMoviesHttpResponseMessage, CancellationToken.None);
-            
-            httpService
-                .RequestAsync<BasePlexResponse<MediaContainer>>(Arg.Any<HttpRequest>(), Arg.Any<CancellationToken>())
-                .Returns((request) =>
-                {
-                    // Assert the details of the request to be correct
-                    var requestContext = request.Args()[0] as HttpRequest;
-                    
-                    Assert.Equal(Endpoint.LibraryMovies.Description(plexConfig.ServerAddress, expectedMediaContainer.MediaContainer.Directory.First().Key), requestContext?.Request.RequestUri.AbsoluteUri);
-                    Assert.Equal(httpRequestMessage.Method, HttpMethod.Get);
-                    
-                    return expectedMoviesHttpResponse;
-                });
-            
-            // Perform action
-            IEnumerable<Library> result = await plexService.GetAllLibrariesAsync(CancellationToken.None);
-            IEnumerable<Movie> movies = await result.First().GetMoviesAsync;
-            
+            // Perform
+            InitializationStatus actual = await instance.InitializeAsync(CancellationToken.None);
+
             // Assert
-            httpService
-                .Received()
-                .RequestAsync<BasePlexResponse<MediaContainer>>(Arg.Any<HttpRequest>(), CancellationToken.None);
-            Assert.Empty(movies);
+            Assert.Equal(InitializationStatus.Ok, actual);
         }
         
         [Fact]
-        public async Task GetAllLibrariesAsync_WithResult_ShouldCallHttpRequestWithCorrectParamsAndReturnCorrectlyCastedMovies()
+        public async Task GetAllLibrariesAsync_WithValidParams_ShouldCallAndReturnMediaProviderLibraries()
         {
             // Setup
-            var plexConfig = new PlexMediaServerConfig
+            PlexMediaServerConfig config = new PlexMediaServerConfig
             {
-                PlexToken = "Test Token",
                 ServerAddress = "http://192.168.0.5:32400",
-                
+                PlexAuthenticationRequestUser = new BasicAuth
+                {
+                    Username = "test username",
+                    Password = "test password"
+                }
             };
-            
             var httpService = Substitute.For<IHttpService>();
-            var plexService = new PlexMediaService(plexConfig, httpService);
-            string endpointUrl = Endpoint.Libraries.Description(plexConfig.ServerAddress);
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, endpointUrl);
-            HttpRequest httpRequest = httpRequestMessage.ToHttpRequest();
-            
-            var expectedMediaContainer = new BasePlexResponse<Libraries>
-            {
-                MediaContainer = new Libraries
-                {
-                    Size = 1,
-                    Directory = new List<Directory>
-                    {
-                        new Directory
-                        {
-                            Title = "Test Movie Title",
-                            Key = "123",
-                            Art = "test-art",
-                            Thumb = "test-thumb",
-                            Type = "movie"
-                        }
-                    }
-                }
-            };
-            var expectedHttpResponse = new HttpResponse<BasePlexResponse<Libraries>>();
-            var expectedHttpResponseMessage = new HttpResponseMessage
-            {
-                Content = new StringContent(JsonConvert.SerializeObject(expectedMediaContainer))
-            };
-            
-            await expectedHttpResponse.SetResponseAsync(httpRequest.Identifier, expectedHttpResponseMessage, CancellationToken.None);
+            var authenticator = Substitute.For<IPlexAuthenticator>();
+            var settingsProvider = Substitute.For<IPlexServerSettingsProvider>();
+            var mediaProvider = Substitute.For<IPlexMediaProvider>();
+            var instance = new PlexMediaService(config, httpService, authenticator, settingsProvider, mediaProvider);
 
-            httpService
-                .RequestAsync<BasePlexResponse<Libraries>>(Arg.Any<HttpRequest>(), Arg.Any<CancellationToken>())
-                .Returns((request) =>
+            mediaProvider
+                .GetAllLibrariesAsync(Arg.Any<CancellationToken>())
+                .Returns(info => new List<Library>
                 {
-                    // Assert the details of the request to be correct
-                    var requestContext = request.Args()[0] as HttpRequest;
-                    
-                    Assert.Equal(httpRequestMessage.RequestUri.AbsoluteUri, requestContext?.Request.RequestUri.AbsoluteUri);
-                    Assert.Equal(httpRequestMessage.Method, requestContext?.Request.Method);
-                    
-                    return expectedHttpResponse;
+                    new Library()
                 });
             
-            // Get movies for library
-            var expectedMetadata = new Metadata
-            {
-                Media = new List<Media>
-                {
-                    new Media
-                    {
-                        AudioChannels = 6,
-                        AudioCodec = "aac",
-                        Bitrate = 128,
-                        Container = "mp4",
-                        Height = 1080,
-                        Width = 1920,
-                        Part = new List<Part>
-                        {
-                            new Part
-                            {
-                                Key = "test_key"
-                            }
-                        },
-                        VideoCodec = "test_vid_codec"
-                    }
-                },
-                Summary = "Test summary",
-                Duration = 999,
-                Art = "test_art",
-                Rating = 9.5,
-                Studio = "Marvel",
-                Title = "test_title",
-                ViewCount = 10,
-                Year = 2010
-            };
-            var expectedMoviesMediaContainer = new BasePlexResponse<MediaContainer>
-            {
-                MediaContainer = new MediaContainer
-                {
-                    Metadata = new List<Metadata>
-                    {
-                        expectedMetadata
-                    }
-                }
-            };
-            var expectedMoviesHttpResponse = new HttpResponse<BasePlexResponse<MediaContainer>>();
-            var expectedMoviesHttpResponseMessage = new HttpResponseMessage
-            {
-                Content = new StringContent(JsonConvert.SerializeObject(expectedMoviesMediaContainer))
-            };
-            
-            await expectedMoviesHttpResponse.SetResponseAsync(Guid.NewGuid(), expectedMoviesHttpResponseMessage, CancellationToken.None);
-            
-            httpService
-                .RequestAsync<BasePlexResponse<MediaContainer>>(Arg.Any<HttpRequest>(), Arg.Any<CancellationToken>())
-                .Returns((request) =>
-                {
-                    // Assert the details of the request to be correct
-                    var requestContext = request.Args()[0] as HttpRequest;
-                    
-                    Assert.Equal(Endpoint.LibraryMovies.Description(plexConfig.ServerAddress, expectedMediaContainer.MediaContainer.Directory.First().Key), requestContext?.Request.RequestUri.AbsoluteUri);
-                    Assert.Equal(httpRequestMessage.Method, HttpMethod.Get);
-                    
-                    return expectedMoviesHttpResponse;
-                });
-            
-            // Perform action
-            IEnumerable<Library> result = await plexService.GetAllLibrariesAsync(CancellationToken.None);
-            IEnumerable<Movie> movies = await result.First().GetMoviesAsync;
-            var actual = movies.First();
-            
+            // Perform
+            var actual = await instance.GetAllLibrariesAsync(CancellationToken.None);
+
             // Assert
-            httpService
-                .Received()
-                .RequestAsync<BasePlexResponse<MediaContainer>>(Arg.Any<HttpRequest>(), CancellationToken.None);
-            
-            Assert.Equal(expectedMetadata.Media.First().AudioChannels, actual.AudioChannels);
-            Assert.Equal(expectedMetadata.Media.First().AudioCodec, actual.AudioCodec);
-            Assert.Equal(expectedMetadata.Media.First().Bitrate, actual.Bitrate);
-            Assert.Equal(expectedMetadata.Media.First().Container, actual.Container);
-            Assert.Equal(expectedMetadata.Summary, actual.Description);
-            Assert.Equal(expectedMetadata.Duration, actual.Duration);
-            Assert.Equal(expectedMetadata.Media.First().Height, actual.Height);
-            Assert.Equal(expectedMetadata.Media.First().Width, actual.Width);
-            Assert.Equal($"{plexConfig.ServerAddress}{expectedMetadata.Art}?{plexConfig.QueryStringPlexToken}", actual.Poster);
-            Assert.Equal(expectedMetadata.Rating, actual.Rating);
-            Assert.Equal($"{plexConfig.ServerAddress}{expectedMetadata.Media.First().Part.First().Key}?{plexConfig.QueryStringPlexToken}", actual.StreamingUrl);
-            Assert.Equal(expectedMetadata.Studio, actual.Studio);
-            Assert.Equal($"{plexConfig.ServerAddress}{expectedMetadata.Thumb}?{plexConfig.QueryStringPlexToken}", actual.Thumbnail);
-            Assert.Equal(expectedMetadata.Title, actual.Title);
-            Assert.Equal(expectedMetadata.Media.First().VideoCodec, actual.VideoCodec);
-            Assert.Equal(expectedMetadata.ViewCount, actual.ViewCount);
-            Assert.Equal(expectedMetadata.Year, actual.Year);
+            Assert.True(actual.Any());
         }
-        
-        #endregion
-        
-        #region Integration Tests
-
-        private const bool ENABLE_INTEGRATION_TESTS = false;
-        
-        [Fact]
-        public async Task INTEGRATION_Initialize_WithValidParamsAndResponse_ShouldSetMediaContainer()
-        {
-            if(!ENABLE_INTEGRATION_TESTS) return;
-            
-            // Setup
-            var plexConfig = new PlexMediaServerConfig
-            {
-                PlexToken = "6juj8G78eu5dspwAYSxQ",
-                ServerAddress = "http://192.168.0.5:32400"
-            };
-            var httpService = new JsonHttpService(new HttpClient());
-            var plexService = new PlexMediaService(plexConfig, httpService);
-
-            // Perform action 'Initialize'
-            await plexService.InitializeAsync(CancellationToken.None);
-            
-            // Assert that 'ShouldSetMediaContainer' = 'WithValidParamsAndResponse'
-            Assert.NotNull(plexService.Configuration.ServerPreferences);
-            Assert.True(plexService.Configuration.ServerPreferences.Size > 0);
-            Assert.True(plexService.Configuration.ServerPreferences.Setting.Any());
-            
-            httpService.Dispose();
-        }
-        
-        [Fact]
-        public async Task INTEGRATION_GetAllLibraries_WithValidParamsAndResponse_ShouldSetMediaContainer()
-        {
-            if(!ENABLE_INTEGRATION_TESTS) return;
-            
-            // Setup
-            var plexConfig = new PlexMediaServerConfig
-            {
-                PlexToken = "6juj8G78eu5dspwAYSxQ",
-                ServerAddress = "http://192.168.0.5:32400"
-            };
-            var httpService = new JsonHttpService(new HttpClient());
-            var plexService = new PlexMediaService(plexConfig, httpService);
-            IEnumerable<Library> libraries = await plexService.GetAllLibrariesAsync(CancellationToken.None);
-            IEnumerable<Movie> movies = await libraries
-                .Reverse()
-                .First(l => l.Type == LibraryType.Movie)
-                .GetMoviesAsync;
-            
-            // Assert that 'GetAllLibraries' = 'WithValidParamsAndResponse'
-            Assert.True(libraries.Any());
-            Assert.True(movies.Any());
-            
-            httpService.Dispose();
-        }
-        
-        #endregion
     }
 }

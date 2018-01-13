@@ -24,12 +24,15 @@ namespace MediaServer.Core.Tests.Services
             Assert.Equal("ipAddress", exception.ParamName);
         }
         
-        
         #region INTEGRATION TESTS
+
+        private const bool PERFORM_INTEGRATION_TESTS = false;
         
         [Fact]
         public async Task GetDevicesAsync_WithNoParams_ShouldDiscoverDevices()
         {
+            if (!PERFORM_INTEGRATION_TESTS) return;
+            
             // Setup
             var cancellationTokenSource = new CancellationTokenSource();
             INetworkDiscoveryService instance = new UpnpNetworkDiscoveryService();
@@ -38,8 +41,8 @@ namespace MediaServer.Core.Tests.Services
 
             // Perform
             instance.BackgroundQueueDiscovery(cancellationTokenSource.Token);
-            cancellationTokenSource.CancelAfter(5000);
-            await Task.Delay(5000);
+            cancellationTokenSource.CancelAfter(10000);
+            await Task.Delay(10000);
 
             // Assert
             Assert.NotEmpty(instance.DiscoveredAddresses);

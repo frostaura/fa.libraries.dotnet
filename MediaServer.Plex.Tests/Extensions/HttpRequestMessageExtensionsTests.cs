@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.Http;
 using FrostAura.Libraries.Core.Exceptions.Validation;
+using FrostAura.Libraries.Core.Models.Auth;
 using MediaServer.Plex.Extensions;
 using MediaServer.Plex.Models.Config;
 using Xunit;
@@ -17,14 +18,12 @@ namespace MediaServer.Plex.Tests.Extensions
             var request = new HttpRequestMessage();
             PlexMediaServerConfig config = null;
 
-            // Perform action 'WithAuthToken'
-            Assert.Throws<ArgumentNullException>(() =>
+            // Perform
+            var exception = Assert.Throws<ArgumentNullException>(() =>
             {
                 request
                     .WithAuthToken(config);
             });
-
-            // Assert that 'ShouldThrowArgumentNullException' = 'WithInvalidConfig'
         }
         
         [Fact]
@@ -51,35 +50,28 @@ namespace MediaServer.Plex.Tests.Extensions
             var request = new HttpRequestMessage();
             var config = new PlexMediaServerConfig
             {
-                PlexToken = "Test Token"
+                PlexAuthenticatedUser = new User
+                {
+                    AuthToken = "Test Token"
+                },
+                PlexAuthenticationRequestUser = new BasicAuth
+                {
+                    Username = "test user",
+                    Password = "Test password"
+                },
+                ServerAddress = "test"
             };
             
-            // Perform action 'WithAuthToken'
+            // Perform
             request.WithAuthToken(config);
 
             var header = request
                 .Headers
                 .FirstOrDefault(h => h.Key == "X-Plex-Token");
 
-            // Assert that 'ShouldAppendPlexTokenHeader' = 'WithValidConfig'
+            // Assert
             Assert.NotNull(header);
-            Assert.Equal(config.PlexToken, header.Value.FirstOrDefault());
-        }
-        
-        [Fact]
-        public void AcceptJson_WithNoParams_ShouldAppendAcceptJsonHeader()
-        {
-            // Setup
-            var request = new HttpRequestMessage();
-            
-            // Perform action 'AcceptJson'
-            request.AcceptJson();
-
-            var header = request.Headers.FirstOrDefault(h => h.Key == "Accept");
-            
-            // Assert that 'ShouldAppendAcceptJsonHeader' = 'WithNoParams'
-            Assert.NotNull(header);
-            Assert.Equal("application/json", header.Value.FirstOrDefault());
+            Assert.Equal(config.PlexAuthenticatedUser.AuthToken, header.Value.FirstOrDefault());
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 
 namespace FrostAura.Libraries.Core.Models.Auth
 {
@@ -11,11 +12,13 @@ namespace FrostAura.Libraries.Core.Models.Auth
         /// <summary>
         /// Auth username.
         /// </summary>
+        [Required]
         public string Username { get; set; }
         
         /// <summary>
         /// Auth password.
         /// </summary>
+        [Required]
         public string Password { get; set; }
     }
 }

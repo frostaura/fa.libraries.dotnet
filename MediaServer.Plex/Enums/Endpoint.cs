@@ -9,6 +9,9 @@ namespace MediaServer.Plex.Enums
     /// </summary>
     public enum Endpoint
     {
+        [Description("https://plex.tv/users/sign_in.json")]
+        SignIn,
+        
         [Description("{0}/:/prefs")]
         ServerPreferences,
         

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaServer.Core.Enums;
 using MediaServer.Core.Models.Content;
 
 namespace MediaServer.Core.Interfaces
@@ -17,9 +18,10 @@ namespace MediaServer.Core.Interfaces
         
         /// <summary>
         /// Media server initialized to be called before consuming the service.
+        /// The setting up of the configuration object should happen in this function.
         /// <param name="token">Cancellation token instance.</param>
         /// </summary>
-        Task InitializeAsync(CancellationToken token);
+        Task<InitializationStatus> InitializeAsync(CancellationToken token);
 
         /// <summary>
         /// Collection of libraries from the server

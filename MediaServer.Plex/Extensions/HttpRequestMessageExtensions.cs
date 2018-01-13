@@ -19,19 +19,7 @@ namespace MediaServer.Plex.Extensions
         {
             config.ThrowIfInvalid(nameof(config));
             
-            request.Headers.Add("X-Plex-Token", config.PlexToken);
-
-            return request;
-        }
-        
-        /// <summary>
-        /// Add an accept json header to the request message headers.
-        /// </summary>
-        /// <param name="request">Original request message.</param>
-        /// <returns>The ammended request message.</returns>
-        public static HttpRequestMessage AcceptJson(this HttpRequestMessage request)
-        {
-            request.Headers.Add("Accept", "application/json");
+            request.Headers.Add("X-Plex-Token", config.PlexAuthenticatedUser.AuthToken);
 
             return request;
         }
