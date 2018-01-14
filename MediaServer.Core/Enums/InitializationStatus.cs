@@ -7,6 +7,7 @@
     {
         Unauthorised,
         Error,
+        NoServersDiscovered,
         Ok
     }
 }

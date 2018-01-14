@@ -19,6 +19,9 @@ namespace MediaServer.Plex.Enums
         Libraries,
         
         [Description("{0}/library/sections/{1}/all")]
-        LibraryMovies
+        LibraryMovies,
+        
+        [Description("https://plex.tv/devices.xml")]
+        GetDevices
     }
 }

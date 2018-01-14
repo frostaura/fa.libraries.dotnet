@@ -65,6 +65,8 @@ namespace FrostAura.Libraries.Http.Models.Responses
                 .Content
                 .ReadAsStringAsync();
 
+            if (typeof(T) == typeof(string)) return;
+            
             Response = JsonConvert
                 .DeserializeObject<T>(stringResponse);
 

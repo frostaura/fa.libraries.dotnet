@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,8 +11,10 @@ using FrostAura.Libraries.Http.Interfaces;
 using FrostAura.Libraries.Http.Models.Requests;
 using FrostAura.Libraries.Http.Models.Responses;
 using MediaServer.Plex.Enums;
+using MediaServer.Plex.Extensions;
 using MediaServer.Plex.Interfaces;
 using MediaServer.Plex.Models.Config;
+using MediaServer.Plex.Models.Content;
 using MediaServer.Plex.Models.Requests;
 using MediaServer.Plex.Models.Responses;
 
@@ -87,6 +91,42 @@ namespace MediaServer.Plex.Services
                 .RequestAsync<UserAuthenticationResponse>(httpRequest, token);
 
             return response.Response;
+        }
+
+        /// <summary>
+        /// Get all Plex servers.
+        /// </summary>
+        /// <param name="token">Cancellation token instance.</param>
+        /// <returns>Found and active servers.</returns>
+        public async Task<IEnumerable<Device>> GetAllServers(CancellationToken token)
+        {
+            string requestUrl = Endpoint.GetDevices.Description();
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            IDictionary<string, string> authHeaders = _basicAuthConstructor.ConstructRequestHeaders(new BasicAuthRequest
+            {
+                Username = _configuration.PlexAuthenticationRequestUser.Username,
+                Password = _configuration.PlexAuthenticationRequestUser.Password
+            });
+            HttpRequest httpRequest = request
+                .AddRequestHeaders(_plexBasicHeaders)
+                .AddRequestHeaders(authHeaders)
+                .ToHttpRequest();
+            HttpResponse<string> response = await _httpService
+                .RequestAsync<string>(httpRequest, token);
+            var xmlStringResponse = await response?
+                .ResponseMessage?
+                .Content
+                .ReadAsStringAsync();
+            var castedResponse = xmlStringResponse
+                .FromXmlString<DevicesMediaContainer>();
+            
+            if(castedResponse == null) return new List<Device>();
+
+            IEnumerable<Device> filteredResponse = castedResponse
+                .Devices
+                .Where(d => d.Connections.Any(c => !c.Uri.Equals(castedResponse.PublicAddress)) && d.Provides.Equals("server"));
+            
+            return filteredResponse;
         }
     }
 }

@@ -12,6 +12,7 @@ using FrostAura.Libraries.Http.Extensions;
 using FrostAura.Libraries.Http.Interfaces;
 using FrostAura.Libraries.Http.Models.Requests;
 using FrostAura.Libraries.Http.Models.Responses;
+using FrostAura.Libraries.Http.Services;
 using MediaServer.Core.Enums;
 using MediaServer.Core.Interfaces;
 using MediaServer.Core.Models.Content;
@@ -29,7 +30,7 @@ namespace MediaServer.Plex.Services
     /// <summary>
     /// Plex Media Server service.
     /// </summary>
-    public class PlexMediaService : IMediaServer<PlexMediaServerConfig>
+    public class PlexMediaService : IMediaServer<PlexMediaServerConfig, Device>
     {
         /// <summary>
         /// Media server specific configuration. Should be set in a constructor.
@@ -84,17 +85,53 @@ namespace MediaServer.Plex.Services
         }
 
         /// <summary>
+        /// Construct a default instance of the Plex service.
+        /// </summary>
+        /// <param name="username">Username used to get auth token.</param>
+        /// <param name="password">Username used to get auth token.</param>
+        /// <returns>Plex service instance.</returns>
+        public static PlexMediaService GetDefaultInstance(string username, string password)
+        {
+            var plexConfig = new PlexMediaServerConfig
+            {
+                PlexAuthenticationRequestUser = new BasicAuth
+                {
+                    Username = username,
+                    Password = password
+                },
+                BasicPlexHeaders = new PlexBasicRequestHeaders()
+            };
+            IHttpService httpService = new JsonHttpService(new HttpClient());
+            IHeaderConstructor<PlexBasicRequestHeaders> plexBasicHeaderConstructorService = new PlexBasicHeaderConstructorService();
+            IPlexAuthenticator authenticator = new PlexTvAuthenticator(
+                httpService,
+                plexBasicHeaderConstructorService,
+                new BasicAuthHeaderConstructorService(), plexConfig);
+            IPlexServerSettingsProvider settingsProvider = new PlexServerPreferencesProviderService(httpService, plexBasicHeaderConstructorService, plexConfig);
+            IPlexMediaProvider mediaProvider = new PlexMediaProviderService(httpService, plexBasicHeaderConstructorService, plexConfig);
+            
+            return new PlexMediaService(plexConfig, httpService, authenticator, settingsProvider, mediaProvider);
+        }
+        
+        /// <summary>
         /// Media server initialized to be called before consuming the service.
         /// The setting up of the configuration object should happen in this function.
+        /// <param name="serverSelector">Delegate for selecting a server as the default upon discovery.</param>
         /// <param name="token">Cancellation token instance.</param>
         /// </summary>
-        public async Task<InitializationStatus> InitializeAsync(CancellationToken token)
+        public async Task<InitializationStatus> InitializeAsync(Func<IEnumerable<Device>, string> serverSelector, CancellationToken token)
         {
-            var authenticationResponse = await _authenticator.AuthenticateAsync(token);
+            var authenticationResponseTask = _authenticator.AuthenticateAsync(token);
+            var getServersResponseTask = _authenticator.GetAllServers(token);
+
+            await Task.WhenAll(authenticationResponseTask, getServersResponseTask);
             
-            if(authenticationResponse?.User == null) return InitializationStatus.Unauthorised;
+            if(authenticationResponseTask.Result?.User == null) return InitializationStatus.Unauthorised;
+            if(getServersResponseTask.Result == null || !getServersResponseTask.Result.Any()) return InitializationStatus.NoServersDiscovered;
             
-            Configuration.PlexAuthenticatedUser = authenticationResponse.User;
+            Configuration.PlexAuthenticatedUser = authenticationResponseTask.Result.User;
+            Configuration.DiscoveredServers = getServersResponseTask.Result;
+            Configuration.ServerAddress = serverSelector(Configuration.DiscoveredServers);
             Configuration.ServerPreferences = await _serverSettingsProvider.GetServerSettingsAsync(token);
 
             if (Configuration.ServerPreferences?.Setting == null) return InitializationStatus.Error;

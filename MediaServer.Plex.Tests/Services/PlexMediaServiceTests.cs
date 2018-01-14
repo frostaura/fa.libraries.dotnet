@@ -9,6 +9,7 @@ using MediaServer.Core.Enums;
 using MediaServer.Core.Models.Content;
 using MediaServer.Plex.Interfaces;
 using MediaServer.Plex.Models.Config;
+using MediaServer.Plex.Models.Content;
 using MediaServer.Plex.Models.Responses;
 using MediaServer.Plex.Services;
 using NSubstitute;
@@ -189,10 +190,50 @@ namespace MediaServer.Plex.Tests.Services
                 .Returns(info => new UserAuthenticationResponse());
             
             // Perform
-            InitializationStatus actual = await instance.InitializeAsync(CancellationToken.None);
+            InitializationStatus actual = await instance.InitializeAsync((servers) => servers.First().PublicAddress, CancellationToken.None);
 
             // Assert
             Assert.Equal(InitializationStatus.Unauthorised, actual);
+        }
+        
+        [Fact]
+        public async Task InitializeAsync_WithInvalidServersResponse_ShouldReturnNoServersDiscovered()
+        {
+            // Setup
+            PlexMediaServerConfig config = new PlexMediaServerConfig
+            {
+                ServerAddress = "http://192.168.0.5:32400",
+                PlexAuthenticationRequestUser = new BasicAuth
+                {
+                    Username = "test username",
+                    Password = "test password"
+                }
+            };
+            var httpService = Substitute.For<IHttpService>();
+            var authenticator = Substitute.For<IPlexAuthenticator>();
+            var settingsProvider = Substitute.For<IPlexServerSettingsProvider>();
+            var mediaProvider = Substitute.For<IPlexMediaProvider>();
+            var instance = new PlexMediaService(config, httpService, authenticator, settingsProvider, mediaProvider);
+            var expectedUser = new User
+            {
+                Email = "test@test.com"
+            };
+
+            authenticator
+                .GetAllServers(Arg.Any<CancellationToken>())
+                .Returns(info => new List<Device>());
+            authenticator
+                .AuthenticateAsync(Arg.Any<CancellationToken>())
+                .Returns(info => new UserAuthenticationResponse
+                {
+                    User = expectedUser
+                });
+            
+            // Perform
+            InitializationStatus actual = await instance.InitializeAsync((servers) => servers.First().PublicAddress, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(InitializationStatus.NoServersDiscovered, actual);
         }
         
         [Fact]
@@ -219,6 +260,12 @@ namespace MediaServer.Plex.Tests.Services
             };
 
             authenticator
+                .GetAllServers(Arg.Any<CancellationToken>())
+                .Returns(info => new List<Device>()
+                {
+                    new Device()
+                });
+            authenticator
                 .AuthenticateAsync(Arg.Any<CancellationToken>())
                 .Returns(info => new UserAuthenticationResponse
                 {
@@ -226,11 +273,60 @@ namespace MediaServer.Plex.Tests.Services
                 });
             
             // Perform
-            InitializationStatus actual = await instance.InitializeAsync(CancellationToken.None);
+            InitializationStatus actual = await instance.InitializeAsync((servers) => servers.First().PublicAddress, CancellationToken.None);
 
             // Assert
             Assert.NotNull(instance.Configuration?.PlexAuthenticatedUser);
             Assert.Equal(expectedUser.Email, instance.Configuration.PlexAuthenticatedUser.Email);
+        }
+        
+        [Fact]
+        public async Task InitializeAsync_WithValidServers_ShouldSetDiscoveredServersContext()
+        {
+            // Setup
+            PlexMediaServerConfig config = new PlexMediaServerConfig
+            {
+                ServerAddress = "http://192.168.0.5:32400",
+                PlexAuthenticationRequestUser = new BasicAuth
+                {
+                    Username = "test username",
+                    Password = "test password"
+                }
+            };
+            var httpService = Substitute.For<IHttpService>();
+            var authenticator = Substitute.For<IPlexAuthenticator>();
+            var settingsProvider = Substitute.For<IPlexServerSettingsProvider>();
+            var mediaProvider = Substitute.For<IPlexMediaProvider>();
+            var instance = new PlexMediaService(config, httpService, authenticator, settingsProvider, mediaProvider);
+            var expectedUser = new User
+            {
+                Email = "test@test.com"
+            };
+            var expectedDevice = new Device
+            {
+                Id = "some_server"
+            };
+
+            authenticator
+                .GetAllServers(Arg.Any<CancellationToken>())
+                .Returns(info =>
+                    new List<Device>()
+                    {
+                        expectedDevice
+                    });
+            authenticator
+                .AuthenticateAsync(Arg.Any<CancellationToken>())
+                .Returns(info => new UserAuthenticationResponse
+                {
+                    User = expectedUser
+                });
+            
+            // Perform
+            InitializationStatus actual = await instance.InitializeAsync((servers) => servers.First().PublicAddress, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(instance.Configuration?.DiscoveredServers);
+            Assert.Equal(expectedDevice.Id, instance.Configuration.DiscoveredServers.First().Id);
         }
         
         [Fact]
@@ -257,6 +353,12 @@ namespace MediaServer.Plex.Tests.Services
             };
 
             authenticator
+                .GetAllServers(Arg.Any<CancellationToken>())
+                .Returns(info => new List<Device>()
+                {
+                    new Device()
+                });
+            authenticator
                 .AuthenticateAsync(Arg.Any<CancellationToken>())
                 .Returns(info => new UserAuthenticationResponse
                 {
@@ -267,7 +369,7 @@ namespace MediaServer.Plex.Tests.Services
                 .Returns(info => new ServerPreferences());
             
             // Perform
-            InitializationStatus actual = await instance.InitializeAsync(CancellationToken.None);
+            InitializationStatus actual = await instance.InitializeAsync((servers) => servers.First().PublicAddress, CancellationToken.None);
 
             // Assert
             Assert.Equal(InitializationStatus.Error, actual);
@@ -297,6 +399,12 @@ namespace MediaServer.Plex.Tests.Services
             };
 
             authenticator
+                .GetAllServers(Arg.Any<CancellationToken>())
+                .Returns(info => new List<Device>()
+                {
+                    new Device()
+                });
+            authenticator
                 .AuthenticateAsync(Arg.Any<CancellationToken>())
                 .Returns(info => new UserAuthenticationResponse
                 {
@@ -313,7 +421,7 @@ namespace MediaServer.Plex.Tests.Services
                 });
             
             // Perform
-            InitializationStatus actual = await instance.InitializeAsync(CancellationToken.None);
+            InitializationStatus actual = await instance.InitializeAsync((servers) => servers.First().PublicAddress, CancellationToken.None);
 
             // Assert
             Assert.True(instance.Configuration.ServerPreferences.Setting.Any());
@@ -343,6 +451,12 @@ namespace MediaServer.Plex.Tests.Services
             };
 
             authenticator
+                .GetAllServers(Arg.Any<CancellationToken>())
+                .Returns(info => new List<Device>()
+                {
+                    new Device()
+                });
+            authenticator
                 .AuthenticateAsync(Arg.Any<CancellationToken>())
                 .Returns(info => new UserAuthenticationResponse
                 {
@@ -356,7 +470,7 @@ namespace MediaServer.Plex.Tests.Services
                 });
             
             // Perform
-            InitializationStatus actual = await instance.InitializeAsync(CancellationToken.None);
+            InitializationStatus actual = await instance.InitializeAsync((servers) => servers.First().PublicAddress, CancellationToken.None);
 
             // Assert
             Assert.Equal(InitializationStatus.Ok, actual);
