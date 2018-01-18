@@ -24,7 +24,7 @@ namespace MediaServer.Plex.Tests.Integration.Services
         {
             // Setup
             var plexService = PlexMediaService
-                .GetDefaultInstance("deanmar@outlook.com", "Reid1868*");
+                .GetDefaultInstance("USERNAME", "PASSWORD");
             Func<IEnumerable<Device>, string> serverSelectorDelegate = (servers) => servers
                 .FirstOrDefault()?
                 .LocalConnection?
@@ -47,7 +47,7 @@ namespace MediaServer.Plex.Tests.Integration.Services
         {
             // Setup
             var plexService = PlexMediaService
-                .GetDefaultInstance("deanmar@outlook.com", "Reid1868*");
+                .GetDefaultInstance("USERNAME", "PASSWORD");
             Func<IEnumerable<Device>, string> serverSelectorDelegate = (servers) => servers
                 .FirstOrDefault()?
                 .LocalConnection?
