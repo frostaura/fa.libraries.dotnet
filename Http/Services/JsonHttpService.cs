@@ -2,11 +2,13 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using FrostAura.Libraries.Core.Abstractions;
+using FrostAura.Libraries.Core.Settings;
 using FrostAura.Libraries.Core.Extensions.Validation;
 using FrostAura.Libraries.Http.Interfaces;
 using FrostAura.Libraries.Http.Models.Requests;
 using FrostAura.Libraries.Http.Models.Responses;
+using Polly;
+using Polly.Timeout;
 
 namespace FrostAura.Libraries.Http.Services
 {
@@ -44,11 +46,19 @@ namespace FrostAura.Libraries.Http.Services
         /// <returns>Instance of wrapped HTTP response.</returns>
         public async Task<HttpResponse<T>> RequestAsync<T>(HttpRequest request, CancellationToken token)
         {
-            HttpResponseMessage responseMessage = await _httpClient
-                .SendAsync(request.Request.ThrowIfNull(nameof(request.Request)), token);
             var response = new HttpResponse<T>();
+            
+            await Policy
+                .Handle<Exception>()
+                .WaitAndRetry(Resillience.RETRY_COUNT,
+                    (i, context) => TimeSpan.FromSeconds(Resillience.RETRY_TIMEOUT))
+                .Execute(async () =>
+                {
+                    HttpResponseMessage responseMessage = await _httpClient
+                        .SendAsync(request.Request.ThrowIfNull(nameof(request.Request)), token);
 
-            await response.SetResponseAsync(request.Identifier, responseMessage, token);
+                    await response.SetResponseAsync(request.Identifier, responseMessage, token); 
+                });
 
             return response;
         }
