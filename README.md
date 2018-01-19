@@ -7,10 +7,9 @@ particular, may have integration tests for even more context on total usage.
 ### Status
 | Project | Nuget | Build |
 | --- | --- | --- |
-| FrostAura.Libraries.Core | [![NuGet](https://img.shields.io/nuget/v/FrostAura.Libraries.Core.svg?style=for-the-badge)](https://www.nuget.org/packages/FrostAura.Libraries.Core/)[![NuGet](https://img.shields.io/nuget/dt/FrostAura.Libraries.Core.svg?style=for-the-badge)]() | NA
+| FrostAura.Libraries.Core | [![NuGet](https://img.shields.io/nuget/v/FrostAura.Libraries.Core.svg?style=for-the-badge)](https://www.nuget.org/packages/FrostAura.Libraries.Core/)[![NuGet](https://img.shields.io/nuget/dt/FrostAura.Libraries.Core.svg?style=for-the-badge)](https://www.nuget.org/packages/FrostAura.Libraries.Core/) | NA
 
-[![NuGet](https://img.shields.io/nuget/v/FrostAura.Libraries.Data.svg?label=Nuget%20|%20FrostAura.Libraries.Data&style=for-the-badge)](https://www.nuget.org/packages/FrostAura.Libraries.Data/)
-[![NuGet](https://img.shields.io/nuget/dt/FrostAura.Libraries.Data.svg?style=for-the-badge)]()
+| FrostAura.Libraries.Data | [![NuGet](https://img.shields.io/nuget/v/FrostAura.Libraries.Data.svg?style=for-the-badge)](https://www.nuget.org/packages/FrostAura.Libraries.Data/)[![NuGet](https://img.shields.io/nuget/dt/FrostAura.Libraries.Data.svg?style=for-the-badge)](https://www.nuget.org/packages/FrostAura.Libraries.Data/)
 
 [![NuGet](https://img.shields.io/nuget/v/FrostAura.Libraries.Http.svg?label=Nuget%20|%20FrostAura.Libraries.Http&style=for-the-badge)](https://www.nuget.org/packages/FrostAura.Libraries.Http/)
 [![NuGet](https://img.shields.io/nuget/dt/FrostAura.Libraries.Http.svg?style=for-the-badge)]()
