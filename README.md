@@ -5,7 +5,7 @@ FrostAura Standard Libraries for .Net Standard 2.0
 To get context on how to consume any of the libraries, see the unit tests. For some libraries, that are 3rd party in 
 particular, may have integration tests for even more context on total usage.
 ### Nuget
-FrostAura.Libraries.Core [![NuGet](https://img.shields.io/nuget/v/FrostAura.Libraries.Core.svg?label=Nuget | FrostAura.Libraries.Core&style=for-the-badge)](https://www.nuget.org/packages/FrostAura.Libraries.Core/)
+FrostAura.Libraries.Core [![NuGet](https://img.shields.io/nuget/v/FrostAura.Libraries.Core.svg?label=Nuget%20|%20FrostAura.Libraries.Core&style=for-the-badge)](https://www.nuget.org/packages/FrostAura.Libraries.Core/)
 
 ## Contribute
 In order to contribute, simply clone the repository, make changes and create a pull request.
