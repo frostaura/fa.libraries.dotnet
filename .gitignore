@@ -4,3 +4,5 @@ bin/
 \.idea/\.idea\.Libraries/\.idea/
 
 \.vs/Libraries/v15/
+
+*.userprefs

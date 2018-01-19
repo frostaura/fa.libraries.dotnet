@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using FrostAura.Libraries.Core.Models.Auth;
 using FrostAura.Libraries.Http.Interfaces;
 using FrostAura.Libraries.Http.Services;
-using MediaServer.Core.Models.Content;
+using FrostAura.Libraries.MediaServer.Core.Models.Content;
 using MediaServer.Plex.Interfaces;
 using MediaServer.Plex.Models.Config;
 using MediaServer.Plex.Models.Content;

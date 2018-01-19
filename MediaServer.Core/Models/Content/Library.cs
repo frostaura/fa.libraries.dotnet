@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using MediaServer.Core.Enums;
+using FrostAura.Libraries.MediaServer.Core.Enums;
 
-namespace MediaServer.Core.Models.Content
+namespace FrostAura.Libraries.MediaServer.Core.Models.Content
 {
     /// <summary>
     /// Generic library model.

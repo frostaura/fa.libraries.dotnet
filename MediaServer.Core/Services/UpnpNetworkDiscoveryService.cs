@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FrostAura.Libraries.Core.Extensions.Validation;
-using MediaServer.Core.Interfaces;
+using FrostAura.Libraries.MediaServer.Core.Interfaces;
 
-namespace MediaServer.Core.Services
+namespace FrostAura.Libraries.MediaServer.Core.Services
 {
     /// <summary>
     /// Service to discover Upnp devices on a network.

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MediaServer.Core.Interfaces
+namespace FrostAura.Libraries.MediaServer.Core.Interfaces
 {
     /// <summary>
     /// Service interface for device discovery on a network.

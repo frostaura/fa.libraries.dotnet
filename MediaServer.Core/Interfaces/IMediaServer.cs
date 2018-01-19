@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using MediaServer.Core.Enums;
-using MediaServer.Core.Models.Content;
+using FrostAura.Libraries.MediaServer.Core.Enums;
+using FrostAura.Libraries.MediaServer.Core.Models.Content;
 
-namespace MediaServer.Core.Interfaces
+namespace FrostAura.Libraries.MediaServer.Core.Interfaces
 {
     /// <summary>
     /// All media servers related functions.

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace MediaServer.Core.Models.Content
+namespace FrostAura.Libraries.MediaServer.Core.Models.Content
 {
     /// <summary>
     /// Movie container.

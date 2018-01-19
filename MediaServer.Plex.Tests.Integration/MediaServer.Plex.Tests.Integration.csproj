@@ -2,6 +2,8 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <IsPackable>false</IsPackable>
+    <AssemblyName>FrostAura.Libraries.MediaServer.Plex.Tests.Integration</AssemblyName>
+    <RootNamespace>FrostAura.Libraries.MediaServer.Plex.Tests.Integration</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170628-02" />
@@ -9,10 +11,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MediaServer.Plex\MediaServer.Plex.csproj">
-      <Project>{14CB5E48-E288-4A26-A5F8-DB2ECA69B64C}</Project>
-      <Name>MediaServer.Plex</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MediaServer.Plex\MediaServer.Plex.csproj" />
   </ItemGroup>
 </Project>

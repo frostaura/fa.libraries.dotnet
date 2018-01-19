@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using MediaServer.Core.Enums;
 
 namespace MediaServer.Plex.Models.Content
 {

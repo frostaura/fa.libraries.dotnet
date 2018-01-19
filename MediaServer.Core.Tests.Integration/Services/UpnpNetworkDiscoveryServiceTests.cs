@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MediaServer.Core.Interfaces;
-using MediaServer.Core.Services;
+using FrostAura.Libraries.MediaServer.Core.Interfaces;
+using FrostAura.Libraries.MediaServer.Core.Services;
 using Xunit;
 
-namespace MediaServer.Core.Tests.Integration.Services
+namespace FrostAura.Libraries.MediaServer.Core.Tests.Integration.Services
 {
     public class UpnpNetworkDiscoveryServiceTests
     {

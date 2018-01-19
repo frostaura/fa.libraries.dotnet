@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using MediaServer.Core.Models.Content;
+using FrostAura.Libraries.MediaServer.Core.Models.Content;
 
 namespace MediaServer.Plex.Interfaces
 {

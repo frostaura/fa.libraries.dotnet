@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>FrostAura.Libraries.Http</id>
+        <version>1.0.4</version>
+        <title>FrostAura.Libraries.Http</title>
+        <authors>Dean Martin</authors>
+        <owners>FrostAura</owners>
+        <projectUrl>https://github.com/faGH/fa.standard.libraries/tree/master/Http</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>FrostAura Http library suite for making resilient HTTP calls and casting JSON and XML responses.</description>
+        <summary />
+        <dependencies>
+            <group targetFramework=".NETStandard2.0">
+                <dependency id="NETStandard.Library" version="2.0.0" />
+                <dependency id="FrostAura.Libraries.Core" version="1.0.0" />
+            </group>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="bin\Debug\netstandard2.0\FrostAura.Libraries.Http.dll" target="lib\netstandard2.0\FrostAura.Libraries.Http.dll" />
+        <file src="bin\Debug\netstandard2.0\FrostAura.Libraries.Http.pdb" target="lib\netstandard2.0\FrostAura.Libraries.Http.pdb" />
+    </files>
+</package>

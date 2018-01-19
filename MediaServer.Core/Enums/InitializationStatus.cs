@@ -1,4 +1,4 @@
-﻿namespace MediaServer.Core.Enums
+﻿namespace FrostAura.Libraries.MediaServer.Core.Enums
 {
     /// <summary>
     /// Statuses for initialization of a media server.
