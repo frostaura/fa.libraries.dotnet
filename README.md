@@ -6,6 +6,7 @@ To get context on how to consume any of the libraries, see the unit tests. For s
 particular, may have integration tests for even more context on total usage.
 ### Status
 | Project | Nuget | Build |
+| --- | --- | --- |
 | FrostAura.Libraries.Core | [![NuGet](https://img.shields.io/nuget/v/FrostAura.Libraries.Core.svg?style=for-the-badge)](https://www.nuget.org/packages/FrostAura.Libraries.Core/)[![NuGet](https://img.shields.io/nuget/dt/FrostAura.Libraries.Core.svg?style=for-the-badge)]() | NA
 
 [![NuGet](https://img.shields.io/nuget/v/FrostAura.Libraries.Data.svg?label=Nuget%20|%20FrostAura.Libraries.Data&style=for-the-badge)](https://www.nuget.org/packages/FrostAura.Libraries.Data/)
