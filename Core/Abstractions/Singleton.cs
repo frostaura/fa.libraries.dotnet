@@ -19,7 +19,7 @@
         /// <summary>
         /// Grab the static instance of T, in a thread-safe way. Create one if none exists.
         /// </summary>
-        public T Instance
+        public static T Instance
         {
             get
             {

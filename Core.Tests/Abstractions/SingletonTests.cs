@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Core.Tests.Abstractions
 {
-    internal class ObjectWithIdentifier
+    internal class ObjectWithIdentifier : Singleton<ObjectWithIdentifier>
     {
         public Guid Identifier { get; } = new Guid();
     }
@@ -16,10 +16,8 @@ namespace Core.Tests.Abstractions
         public void Singleton_GetInstance_ShouldBeDefined()
         {
             // Setup
-            var singletonInstance = new Singleton<ObjectWithIdentifier>();
-
             // Perform action 'Singleton'
-            ObjectWithIdentifier instance = singletonInstance
+            ObjectWithIdentifier instance = ObjectWithIdentifier
                 .Instance;
 
             // Assert that 'ShouldBeDefined' = 'GetInstance'
@@ -30,12 +28,10 @@ namespace Core.Tests.Abstractions
         public void Singleton_GetInstanceMultipleTimes_ShouldReturnSameInstance()
         {
             // Setup
-            var singletonInstance = new Singleton<ObjectWithIdentifier>();
-            
             // Perform action 'Singleton'
-            ObjectWithIdentifier instance = singletonInstance
+            ObjectWithIdentifier instance = ObjectWithIdentifier
                 .Instance;
-            ObjectWithIdentifier instance2 = singletonInstance
+            ObjectWithIdentifier instance2 = ObjectWithIdentifier
                 .Instance;
             
             // Assert that 'ShouldReturnSameInstance' = 'GetInstanceMultipleTimes'
@@ -49,13 +45,12 @@ namespace Core.Tests.Abstractions
         public async Task Singleton_GetInstanceMultipleTimesAcrossThreads_ShouldReturnSameInstance()
         {
             // Setup
-            var singletonInstance = new Singleton<ObjectWithIdentifier>();
             ObjectWithIdentifier instance = null;
             ObjectWithIdentifier instance2 = null;
             
             // Perform action 'Singleton'
-            var task = Task.Run(() => instance = singletonInstance.Instance);
-            var task2 = Task.Run(() => instance2 = singletonInstance.Instance);
+            var task = Task.Run(() => instance = ObjectWithIdentifier.Instance);
+            var task2 = Task.Run(() => instance2 = ObjectWithIdentifier.Instance);
 
             await Task.WhenAll(task, task2);
             
