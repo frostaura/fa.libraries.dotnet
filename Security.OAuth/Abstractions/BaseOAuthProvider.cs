@@ -110,7 +110,7 @@ namespace FrostAura.Libraries.Security.OAuth.Abstractions
                 
                 Status.Value = new StatusModel
                 {
-                    Status = OperationStatus.ProfileInformationFetching,
+                    Status = OperationStatus.ProfileInformationFetched,
                     StatusText = "Profile Fetched",
                     Detail = profile
                 };
@@ -136,30 +136,10 @@ namespace FrostAura.Libraries.Security.OAuth.Abstractions
         }
 
         /// <summary>
-        /// Public concent URL accessor.
-        /// </summary>
-        public string ConcentUrl
-        {
-            get
-            {
-                string url = GetConsentUrl();
-
-                Status.Value = new StatusModel
-                {
-                    Status = OperationStatus.ConcentUrlGenerated,
-                    StatusText = $"Concent URL generated.",
-                    Detail = url
-                };
-                
-                return url;
-            }
-        }
-
-        /// <summary>
         /// Construct consent URL.
         /// </summary>
         /// <returns>Consent GET URL.</returns>
-        protected abstract string GetConsentUrl();
+        public abstract string GetConsentUrl();
 
         /// <summary>
         /// Transform the code received from the concent acceptance into a usable token.

@@ -54,7 +54,7 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         /// Construct consent URL.
         /// </summary>
         /// <returns>Consent GET URL.</returns>
-        protected override string GetConsentUrl()
+        public override string GetConsentUrl()
         {
             return "https://accounts.google.com/o/oauth2/v2/auth?" +
                   $"scope={Uri.EscapeDataString(_scope)}&" +
