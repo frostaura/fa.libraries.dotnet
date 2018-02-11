@@ -100,7 +100,7 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         /// <returns>User profile information.</returns>
         protected override async Task<UserProfileModel> GetProfileAsync(string authToken, CancellationToken token)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, "https://www.googleapis.com/plus/v1/people/me?access_token=" + token);
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://www.googleapis.com/plus/v1/people/me?access_token=" + authToken);
             HttpRequest httpRequest = request
                 .ToHttpRequest();
             HttpResponse<GoogleProfile> httpResponse = await _httpService
