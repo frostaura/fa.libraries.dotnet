@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>FrostAura.Libraries.Security.OAuth</id>
+        <version>1.0.0</version>
+        <title>FrostAura.Libraries.Security.OAuth</title>
+        <authors>Dean Martin</authors>
+        <owners>FrostAura</owners>
+        <projectUrl>https://github.com/faGH/fa.standard.libraries/tree/master/Security.OAuth</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>FrostAura OAuth 2.0 providers and interfaces.</description>
+        <summary />
+        <dependencies>
+            <group targetFramework=".NETStandard2.0">
+                <dependency id="NETStandard.Library" version="2.0.0" />
+                <dependency id="FrostAura.Libraries.Http" version="1.0.4" />
+            </group>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="bin\Debug\netstandard2.0\FrostAura.Libraries.Security.OAuth.dll" target="lib\netstandard2.0\FrostAura.Libraries.Security.OAuth.dll" />
+        <file src="bin\Debug\netstandard2.0\FrostAura.Libraries.Security.OAuth.pdb" target="lib\netstandard2.0\FrostAura.Libraries.Security.OAuth.pdb" />
+    </files>
+</package>

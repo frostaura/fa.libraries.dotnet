@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace FrostAura.Libraries.Core.Extensions.Validation
 {
@@ -54,6 +55,24 @@ namespace FrostAura.Libraries.Core.Extensions.Validation
             validationResults = new List<ValidationResult>();
 
             return Validator.TryValidateObject(obj, innerValidationContext, validationResults, true);
+        }
+
+        /// <summary>
+        /// Perform nested validation on an object
+        /// </summary>
+        /// <param name="obj">The object instance to validate.</param>
+        /// <param name="validationResults"></param>
+        public static bool IsValid(this object obj, out List<string> validationResults)
+        {
+            var innerValidationContext = new ValidationContext(obj);
+            var results = new List<ValidationResult>();
+            bool isValid = obj.IsValid(out validationResults);
+
+            validationResults = results
+                .Select(vr => vr.ErrorMessage)
+                .ToList();
+            
+            return isValid;
         }
 
         /// <summary>

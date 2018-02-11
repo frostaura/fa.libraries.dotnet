@@ -68,7 +68,8 @@ namespace FrostAura.Libraries.Http.Services
         /// </summary>
         public void Dispose()
         {
-            _httpClient?.Dispose();
+            _httpClient?
+                .Dispose();
         }
     }
 }

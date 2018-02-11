@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>FrostAura.Libraries.Security.OAuth</AssemblyName>
+    <RootNamespace>FrostAura.Libraries.Security.OAuth</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FrostAura.Libraries.Http" Version="1.0.4" />
+  </ItemGroup>
+</Project>
