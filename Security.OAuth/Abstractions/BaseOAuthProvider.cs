@@ -81,6 +81,20 @@ namespace FrostAura.Libraries.Security.OAuth.Abstractions
         {
             if (string.IsNullOrWhiteSpace(url)) return false;
             
+            var error = ExtractFromUrl(url, "error");
+
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                Status.Value = new StatusModel
+                {
+                    Status = OperationStatus.Error,
+                    StatusText = "Sign In Failed",
+                    Detail = error
+                };
+                
+                return true;
+            };
+            
             var code = ExtractFromUrl(url, "code");
 
             if (!string.IsNullOrWhiteSpace(code))
@@ -115,20 +129,6 @@ namespace FrostAura.Libraries.Security.OAuth.Abstractions
                     Detail = profile
                 };
 
-                return true;
-            };
-
-            var error = ExtractFromUrl(url, "error");
-
-            if (!string.IsNullOrWhiteSpace(error))
-            {
-                Status.Value = new StatusModel
-                {
-                    Status = OperationStatus.Error,
-                    StatusText = "Sign In Failed",
-                    Detail = error
-                };
-                
                 return true;
             };
             

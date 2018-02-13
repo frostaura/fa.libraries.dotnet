@@ -20,12 +20,12 @@ namespace FrostAura.Libraries.Security.OAuth.Models.Google
         /// <summary>
         /// User names.
         /// </summary>
-        public GoogleNameModel NameModel { get; set; }
+        public GoogleNameModel Name { get; set; }
         
         /// <summary>
         /// User images.
         /// </summary>
-        public GoogleImageModel ImageModel { get; set; }
+        public GoogleImageModel Image { get; set; }
         
         /// <summary>
         /// User organizations collections.

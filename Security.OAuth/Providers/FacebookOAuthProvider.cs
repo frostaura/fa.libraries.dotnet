@@ -148,6 +148,8 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
                     .Picture?
                     .Data?
                     .Url,
+                ProviderSpecificProfile = httpResponse
+                    .Response
             };
         }
     }

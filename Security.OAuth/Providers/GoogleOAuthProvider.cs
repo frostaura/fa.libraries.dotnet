@@ -139,7 +139,7 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
             {
                 FirstName = httpResponse
                     .Response?
-                    .NameModel?
+                    .Name?
                     .GivenName,
                 Email = httpResponse
                     .Response?
@@ -148,11 +148,11 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
                     .Value,
                 Lastname = httpResponse
                     .Response?
-                    .NameModel?
+                    .Name?
                     .FamilyName,
                 ProfileImageUrl = httpResponse
                     .Response?
-                    .ImageModel?
+                    .Image?
                     .Url
                     .Replace("50", "256"),
                 ProviderSpecificProfile = httpResponse

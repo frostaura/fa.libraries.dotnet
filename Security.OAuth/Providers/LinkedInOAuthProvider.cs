@@ -155,7 +155,9 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
                     .LastName,
                 ProfileImageUrl = httpResponse
                     .Response?
-                    .PictureUrl
+                    .PictureUrl,
+                ProviderSpecificProfile = httpResponse
+                    .Response
             };
         }
     }
