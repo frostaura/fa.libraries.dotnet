@@ -45,7 +45,7 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
             string clientId,
             string clientSecret,
             string scope =
-                "email",
+                "email,public_profile",
             string redirectUrl = null)
             : base(clientId, clientSecret, scope, redirectUrl)
         {
@@ -112,7 +112,9 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         protected override async Task<UserProfileModel> GetProfileAsync(string authToken, CancellationToken token)
         {
             var request = new HttpRequestMessage(HttpMethod.Get,
-                "https://graph.facebook.com/me?access_token=" + authToken.ThrowIfNullOrWhitespace(nameof(authToken)));
+                "https://graph.facebook.com/me?" +
+                "fields=id,first_name,last_name,email,gender,picture&" +
+                "access_token=" + authToken.ThrowIfNullOrWhitespace(nameof(authToken)));
             HttpRequest httpRequest = request
                 .ToHttpRequest();
             HttpResponse<FacebookProfile> httpResponse = await _httpService
@@ -141,7 +143,11 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
                 Lastname = httpResponse
                     .Response?
                     .Last_name,
-                ProfileImageUrl = $"https://graph.facebook.com/v2.12/{httpResponse.Response?.Id}/picture?height=256"
+                ProfileImageUrl = httpResponse
+                    .Response?
+                    .Picture?
+                    .Data?
+                    .Url,
             };
         }
     }

@@ -29,5 +29,10 @@
         /// User last name
         /// </summary>
         public string Last_name { get; set; }
+
+        /// <summary>
+        /// Profile image URL.
+        /// </summary>
+        public FacebookPictureModel Picture { get; set; }
     }
 }
