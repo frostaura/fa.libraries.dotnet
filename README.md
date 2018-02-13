@@ -1,7 +1,7 @@
 # fa.standard.libraries
 FrostAura Standard Libraries for .Net Standard 2.0
 
-| Project | Nuget | Build | Covered
+| Project | Nuget | Build | Test Coverage
 | --- | --- | --- | --- |
 | FrostAura.Libraries.Core | [![NuGet](https://img.shields.io/nuget/v/FrostAura.Libraries.Core.svg?style=for-the-badge)](https://www.nuget.org/packages/FrostAura.Libraries.Core/)[![NuGet](https://img.shields.io/nuget/dt/FrostAura.Libraries.Core.svg?style=for-the-badge)](https://www.nuget.org/packages/FrostAura.Libraries.Core/) | NA | YES |
 | FrostAura.Libraries.Data | [![NuGet](https://img.shields.io/nuget/v/FrostAura.Libraries.Data.svg?style=for-the-badge)](https://www.nuget.org/packages/FrostAura.Libraries.Data/)[![NuGet](https://img.shields.io/nuget/dt/FrostAura.Libraries.Data.svg?style=for-the-badge)](https://www.nuget.org/packages/FrostAura.Libraries.Data/) | NA | YES |
