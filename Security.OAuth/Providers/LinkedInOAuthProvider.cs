@@ -33,6 +33,11 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         /// HTTP service to use.
         /// </summary>
         private IHttpService _httpService { get; }
+        
+        /// <summary>
+        /// Unique state for each provider instance.
+        /// </summary>
+        private Guid _state { get; } = Guid.NewGuid();
 
         /// <summary>
         /// Constructor to allow passing of parameters.
@@ -65,6 +70,7 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
                   "response_type=code&" +
                   $"client_id={_clientId}&" +
                   $"consumerKey={_clientId}&" +
+                  $"state={_state}&" +
                   "display=popup";
         }
 
@@ -76,7 +82,7 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         /// <returns>Auth token.</returns>
         protected override async Task<string> GetAuthTokenFromConcentCodeAsync(string code, CancellationToken token)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://www.linkedin.com/uas/oauth2/accessToken")
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://www.linkedin.com/oauth/v2/accessToken")
             {
                 Content = new FormUrlEncodedContent(new[]
                 {

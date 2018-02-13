@@ -6,6 +6,11 @@
     public class LinkedInProfileModel
     {
         /// <summary>
+        /// Unique user identifier.
+        /// </summary>
+        public string Id { get; set; }
+        
+        /// <summary>
         /// User email address.
         /// </summary>
         public string EmailAddress { get; set; }
