@@ -23,7 +23,8 @@ IHttpService HttpService = new JsonHttpService();
 ```
 BaseOAuthProvider provider = new GoogleOAuthProvider(HttpService, 
   "MY_CLIENT_ID",
-  "MY_CLIENT_SECRET");
+  "MY_CLIENT_SECRET",
+  returnUrl: "MY_RETURN_URL");
   
 provider.Status.Subscribe((StatusModel newState) =>
 {
