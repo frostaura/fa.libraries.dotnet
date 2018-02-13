@@ -33,6 +33,19 @@ namespace FrostAura.Libraries.Http.Models.Responses
         public HttpResponseMessage ResponseMessage { get; private set; }
 
         /// <summary>
+        /// Checks whether or not the response message was in the OK range.
+        /// </summary>
+        public bool IsOk
+        {
+            get
+            {
+                if (ResponseMessage == null) return false;
+
+                return (int)ResponseMessage.StatusCode >= 200 && (int)ResponseMessage.StatusCode < 300;
+            }
+        }
+
+        /// <summary>
         /// Read, cast and set the response.
         /// </summary>
         /// <param name="requestIdentifier">Identifier of the request.</param>

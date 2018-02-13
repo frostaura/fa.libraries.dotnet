@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,20 +12,21 @@ using FrostAura.Libraries.Http.Models.Responses;
 using FrostAura.Libraries.Security.OAuth.Abstractions;
 using FrostAura.Libraries.Security.OAuth.Enums;
 using FrostAura.Libraries.Security.OAuth.Models;
+using FrostAura.Libraries.Security.OAuth.Models.Facebook;
 using FrostAura.Libraries.Security.OAuth.Models.Google;
 using Newtonsoft.Json;
 
 namespace FrostAura.Libraries.Security.OAuth.Providers
 {
     /// <summary>
-    /// Google OAuth provider implementation.
+    /// Facebook OAuth provider implementation.
     /// </summary>
-    public sealed class GoogleOAuthProvider : BaseOAuthProvider
+    public sealed class FacebookOAuthProvider : BaseOAuthProvider
     {
         /// <summary>
         /// Unique provider identifier.
         /// </summary>
-        public override string Identifier { get; } = "Google";
+        public override string Identifier { get; } = "Facebook";
         
         /// <summary>
         /// HTTP service to use.
@@ -41,11 +41,11 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         /// <param name="clientSecret">Gets the client secret.</param>
         /// <param name="scope">Gets the scope.</param>
         /// <param name="redirectUrl">Redirect URL from concent screen.</param>
-        public GoogleOAuthProvider(IHttpService httpService,
+        public FacebookOAuthProvider(IHttpService httpService,
             string clientId,
             string clientSecret,
             string scope =
-                "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+                "email",
             string redirectUrl = null)
             : base(clientId, clientSecret, scope, redirectUrl)
         {
@@ -58,7 +58,7 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         /// <returns>Consent GET URL.</returns>
         public override string GetConsentUrl()
         {
-            return "https://accounts.google.com/o/oauth2/v2/auth?" +
+            return "https://www.facebook.com/dialog/oauth?" +
                   $"scope={Uri.EscapeDataString(_scope)}&" +
                   $"redirect_uri={Uri.EscapeDataString(_redirectUrl)}&" +
                   "response_type=code&" +
@@ -75,17 +75,12 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         /// <returns>Auth token.</returns>
         protected override async Task<string> GetAuthTokenFromConcentCodeAsync(string code, CancellationToken token)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://www.googleapis.com/oauth2/v3/token")
-            {
-                Content = new FormUrlEncodedContent(new[]
-                {
-                    new KeyValuePair<string, string>("grant_type", "authorization_code"),
-                    new KeyValuePair<string, string>("code", code.ThrowIfNullOrWhitespace(nameof(code))),
-                    new KeyValuePair<string, string>("redirect_uri", _redirectUrl),
-                    new KeyValuePair<string, string>("client_id", _clientId),
-                    new KeyValuePair<string, string>("client_secret", _clientSecret)
-                })
-            };
+            var url = $"https://graph.facebook.com/v2.3/oauth/access_token?" +
+                      $"client_id={_clientId}&" +
+                      $"redirect_uri={_redirectUrl}&" +
+                      $"client_secret={_clientSecret}" +
+                      $"&code={code.Replace("_=_", "").Split('/')[0]}";
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
             HttpRequest httpRequest = request
                 .ToHttpRequest();
             HttpResponse<AuthTokenResponse> httpResponse = await _httpService
@@ -117,12 +112,12 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         protected override async Task<UserProfileModel> GetProfileAsync(string authToken, CancellationToken token)
         {
             var request = new HttpRequestMessage(HttpMethod.Get,
-                "https://www.googleapis.com/plus/v1/people/me?access_token=" + authToken.ThrowIfNullOrWhitespace(nameof(authToken)));
+                "https://graph.facebook.com/me?access_token=" + authToken.ThrowIfNullOrWhitespace(nameof(authToken)));
             HttpRequest httpRequest = request
                 .ToHttpRequest();
-            HttpResponse<GoogleProfileModel> httpResponse = await _httpService
-                .RequestAsync<GoogleProfileModel>(httpRequest, token);
-
+            HttpResponse<FacebookProfile> httpResponse = await _httpService
+                .RequestAsync<FacebookProfile>(httpRequest, token);
+            
             if (!httpResponse.IsOk)
             {
                 Status.Value = new StatusModel
@@ -139,24 +134,14 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
             {
                 FirstName = httpResponse
                     .Response?
-                    .NameModel?
-                    .GivenName,
+                    .First_name,
                 Email = httpResponse
                     .Response?
-                    .Emails?
-                    .First()
-                    .Value,
+                    .Email,
                 Lastname = httpResponse
                     .Response?
-                    .NameModel?
-                    .FamilyName,
-                ProfileImageUrl = httpResponse
-                    .Response?
-                    .ImageModel?
-                    .Url
-                    .Replace("50", "256"),
-                ProviderSpecificProfile = httpResponse
-                    .Response
+                    .Last_name,
+                ProfileImageUrl = $"https://graph.facebook.com/v2.12/{httpResponse.Response?.Id}/picture?height=256"
             };
         }
     }

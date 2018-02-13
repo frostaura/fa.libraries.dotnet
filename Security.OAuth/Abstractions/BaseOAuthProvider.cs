@@ -66,7 +66,7 @@ namespace FrostAura.Libraries.Security.OAuth.Abstractions
             Status = new StatusModel
             {
                 Status = OperationStatus.Idle,
-                StatusText = $"{Identifier} Initialized"
+                StatusText = $"Loading {Identifier}"
             }.AsObservedValue();
         }
 

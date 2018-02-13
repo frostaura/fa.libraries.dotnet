@@ -5,6 +5,6 @@
     <RootNamespace>FrostAura.Libraries.Security.OAuth</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FrostAura.Libraries.Http" Version="1.0.4" />
+    <PackageReference Include="FrostAura.Libraries.Http" Version="1.0.5" />
   </ItemGroup>
 </Project>

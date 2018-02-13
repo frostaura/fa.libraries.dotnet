@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +12,9 @@ using FrostAura.Libraries.Http.Models.Responses;
 using FrostAura.Libraries.Security.OAuth.Abstractions;
 using FrostAura.Libraries.Security.OAuth.Enums;
 using FrostAura.Libraries.Security.OAuth.Models;
+using FrostAura.Libraries.Security.OAuth.Models.Facebook;
 using FrostAura.Libraries.Security.OAuth.Models.Google;
+using FrostAura.Libraries.Security.OAuth.Models.LinkedIn;
 using Newtonsoft.Json;
 
 namespace FrostAura.Libraries.Security.OAuth.Providers
@@ -21,12 +22,12 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
     /// <summary>
     /// Google OAuth provider implementation.
     /// </summary>
-    public sealed class GoogleOAuthProvider : BaseOAuthProvider
+    public sealed class LinkedInOAuthProvider : BaseOAuthProvider
     {
         /// <summary>
         /// Unique provider identifier.
         /// </summary>
-        public override string Identifier { get; } = "Google";
+        public override string Identifier { get; } = "LinkedIn";
         
         /// <summary>
         /// HTTP service to use.
@@ -41,11 +42,11 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         /// <param name="clientSecret">Gets the client secret.</param>
         /// <param name="scope">Gets the scope.</param>
         /// <param name="redirectUrl">Redirect URL from concent screen.</param>
-        public GoogleOAuthProvider(IHttpService httpService,
+        public LinkedInOAuthProvider(IHttpService httpService,
             string clientId,
             string clientSecret,
             string scope =
-                "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+                "r_basicprofile r_emailaddress",
             string redirectUrl = null)
             : base(clientId, clientSecret, scope, redirectUrl)
         {
@@ -58,7 +59,7 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         /// <returns>Consent GET URL.</returns>
         public override string GetConsentUrl()
         {
-            return "https://accounts.google.com/o/oauth2/v2/auth?" +
+            return "https://www.linkedin.com/uas/oauth2/authorization?" +
                   $"scope={Uri.EscapeDataString(_scope)}&" +
                   $"redirect_uri={Uri.EscapeDataString(_redirectUrl)}&" +
                   "response_type=code&" +
@@ -75,7 +76,7 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         /// <returns>Auth token.</returns>
         protected override async Task<string> GetAuthTokenFromConcentCodeAsync(string code, CancellationToken token)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://www.googleapis.com/oauth2/v3/token")
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://www.linkedin.com/uas/oauth2/accessToken")
             {
                 Content = new FormUrlEncodedContent(new[]
                 {
@@ -117,12 +118,12 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         protected override async Task<UserProfileModel> GetProfileAsync(string authToken, CancellationToken token)
         {
             var request = new HttpRequestMessage(HttpMethod.Get,
-                "https://www.googleapis.com/plus/v1/people/me?access_token=" + authToken.ThrowIfNullOrWhitespace(nameof(authToken)));
+                "https://api.linkedin.com/v1/people/~:(id,first-name,last-name,summary,picture-url,email-address)?format=json&oauth2_access_token=" + authToken.ThrowIfNullOrWhitespace(nameof(authToken)));
             HttpRequest httpRequest = request
                 .ToHttpRequest();
-            HttpResponse<GoogleProfileModel> httpResponse = await _httpService
-                .RequestAsync<GoogleProfileModel>(httpRequest, token);
-
+            HttpResponse<LinkedInProfileModel> httpResponse = await _httpService
+                .RequestAsync<LinkedInProfileModel>(httpRequest, token);
+            
             if (!httpResponse.IsOk)
             {
                 Status.Value = new StatusModel
@@ -139,24 +140,16 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
             {
                 FirstName = httpResponse
                     .Response?
-                    .NameModel?
-                    .GivenName,
+                    .FirstName,
                 Email = httpResponse
                     .Response?
-                    .Emails?
-                    .First()
-                    .Value,
+                    .EmailAddress,
                 Lastname = httpResponse
                     .Response?
-                    .NameModel?
-                    .FamilyName,
+                    .LastName,
                 ProfileImageUrl = httpResponse
                     .Response?
-                    .ImageModel?
-                    .Url
-                    .Replace("50", "256"),
-                ProviderSpecificProfile = httpResponse
-                    .Response
+                    .PictureUrl
             };
         }
     }
