@@ -1,11 +1,9 @@
 # fa.standard.libraries.security.oauth
 FrostAura set of OAuth 2.0 abstractions for ease of use across multiple platforms.
 ## Providers
-| Provider | Status |
-| --- | --- |
-| Facebook | PENDING |
-| Google | SUPPORTED |
-| LinkedIn | PENDING |
+- Facebook
+- Google
+- LinkedIn
 
 ## Requirements
 On each respective provider platform, you are required to set up an application with a valid redirect URL.
