@@ -37,7 +37,7 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         /// <summary>
         /// Unique state for each provider instance.
         /// </summary>
-        private Guid _state { get; } = Guid.NewGuid();
+        private string _state { get; }
 
         /// <summary>
         /// Constructor to allow passing of parameters.
@@ -46,16 +46,18 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         /// <param name="clientId">Unique platform client identifier.</param>
         /// <param name="clientSecret">Gets the client secret.</param>
         /// <param name="scope">Gets the scope.</param>
+        /// <param name="state">Unique immutable state per application.</param>
         /// <param name="redirectUrl">Redirect URL from concent screen.</param>
         public LinkedInOAuthProvider(IHttpService httpService,
             string clientId,
             string clientSecret,
-            string scope =
-                "r_basicprofile r_emailaddress",
+            string scope = "r_basicprofile r_emailaddress",
+            string state = "FrostAura09051991",
             string redirectUrl = null)
             : base(clientId, clientSecret, scope, redirectUrl)
         {
             _httpService = httpService.ThrowIfNull(nameof(httpService));
+            _state = state.ThrowIfNullOrWhitespace(nameof(state));
         }
         
         /// <summary>
