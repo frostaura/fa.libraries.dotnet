@@ -60,7 +60,7 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         {
             return "https://accounts.google.com/o/oauth2/v2/auth?" +
                   $"scope={Uri.EscapeDataString(_scope)}&" +
-                  $"redirect_uri={Uri.EscapeDataString(_redirectUrl)}&" +
+                  $"redirect_uri={_redirectUrl}&" +
                   "response_type=code&" +
                   $"client_id={_clientId}&" +
                   $"consumerKey={_clientId}&" +

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>FrostAura.Libraries.Security.OAuth</id>
-        <version>1.0.9</version>
+        <version>1.0.10</version>
         <title>FrostAura.Libraries.Security.OAuth</title>
         <authors>Dean Martin</authors>
         <owners>FrostAura</owners>
