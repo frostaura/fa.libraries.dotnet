@@ -60,7 +60,7 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         {
             return "https://accounts.google.com/o/oauth2/v2/auth?" +
                   $"scope={Uri.EscapeDataString(_scope)}&" +
-                  $"redirect_uri={_redirectUrl}&" +
+                  $"redirect_uri={Uri.EscapeDataString(_redirectUrl)}&" +
                   "response_type=code&" +
                   $"client_id={_clientId}&" +
                   $"consumerKey={_clientId}&" +
@@ -80,7 +80,7 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
                 Content = new FormUrlEncodedContent(new[]
                 {
                     new KeyValuePair<string, string>("grant_type", "authorization_code"),
-                    new KeyValuePair<string, string>("code", code.ThrowIfNullOrWhitespace(nameof(code))),
+                    new KeyValuePair<string, string>("code", Uri.UnescapeDataString(code.ThrowIfNullOrWhitespace(nameof(code)))),
                     new KeyValuePair<string, string>("redirect_uri", _redirectUrl),
                     new KeyValuePair<string, string>("client_id", _clientId),
                     new KeyValuePair<string, string>("client_secret", _clientSecret)
@@ -137,6 +137,11 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
             
             return new UserProfileModel
             {
+                SocialId = httpResponse
+                    .Response?
+                    .Emails?
+                    .First()
+                    .Value,
                 FirstName = httpResponse
                     .Response?
                     .Name?

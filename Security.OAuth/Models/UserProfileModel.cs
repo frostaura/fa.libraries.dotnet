@@ -8,6 +8,12 @@ namespace FrostAura.Libraries.Security.OAuth.Models
     public class UserProfileModel
     {
         /// <summary>
+        /// Unique user identifier for the social platform.
+        /// </summary>
+        [Required]
+        public string SocialId { get; set; }
+        
+        /// <summary>
         /// User first name.
         /// </summary>
         [Required]

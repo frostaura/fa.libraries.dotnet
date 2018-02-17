@@ -19,12 +19,12 @@ namespace FrostAura.Libraries.Security.OAuth.Abstractions
         /// Unique provider identifier.
         /// </summary>
         public abstract string Identifier { get; }
-        
+
         /// <summary>
         /// Observable status of the provider.
         /// </summary>
         public IObservedValue<StatusModel> Status { get; }
-        
+
         /// <summary>
         /// Unique platform client identifier.
         /// </summary>
@@ -39,7 +39,7 @@ namespace FrostAura.Libraries.Security.OAuth.Abstractions
         /// Redirect URL from concent screen.
         /// </summary>
         protected string _redirectUrl { get; } = "https://redirector.frostaura.net/application/oauth-return";
-        
+
         /// <summary>
         /// Gets the scope.
         /// </summary>
@@ -79,8 +79,10 @@ namespace FrostAura.Libraries.Security.OAuth.Abstractions
         /// <returns>Whether or not the URL was processed.</returns>
         public async Task<bool> ProcessUrlAsync(string url, CancellationToken token)
         {
+            // Only process URLs that are of the return URL type.
+            if (!url.StartsWith(_redirectUrl)) return false;
             if (string.IsNullOrWhiteSpace(url)) return false;
-            
+
             var error = ExtractFromUrl(url, "error");
 
             if (!string.IsNullOrWhiteSpace(error))
@@ -91,10 +93,12 @@ namespace FrostAura.Libraries.Security.OAuth.Abstractions
                     StatusText = "Sign In Failed",
                     Detail = error
                 };
-                
+
                 return true;
-            };
-            
+            }
+
+            ;
+
             var code = ExtractFromUrl(url, "code");
 
             if (!string.IsNullOrWhiteSpace(code))
@@ -106,7 +110,7 @@ namespace FrostAura.Libraries.Security.OAuth.Abstractions
                 };
 
                 string authToken = await GetAuthTokenFromConcentCodeAsync(code, token);
-                
+
                 Status.Value = new StatusModel
                 {
                     Status = OperationStatus.AuthTokenRetrieved,
@@ -121,7 +125,7 @@ namespace FrostAura.Libraries.Security.OAuth.Abstractions
                 };
 
                 UserProfileModel profile = await GetProfileAsync(authToken, token);
-                
+
                 Status.Value = new StatusModel
                 {
                     Status = OperationStatus.ProfileInformationFetched,
@@ -130,8 +134,10 @@ namespace FrostAura.Libraries.Security.OAuth.Abstractions
                 };
 
                 return true;
-            };
-            
+            }
+
+            ;
+
             return false;
         }
 
@@ -156,7 +162,7 @@ namespace FrostAura.Libraries.Security.OAuth.Abstractions
         /// <param name="token">Cancellation token.</param>
         /// <returns>User profile information.</returns>
         protected abstract Task<UserProfileModel> GetProfileAsync(string authToken, CancellationToken token);
-        
+
         /// <summary>
         /// Extracts a code or error from URL. If none, return null.
         /// </summary>
@@ -171,9 +177,20 @@ namespace FrostAura.Libraries.Security.OAuth.Abstractions
             var queryStringParameter = uri
                 .Query
                 .Split('&')
-                .FirstOrDefault(p => p.Contains(parameterName + "="));
+                .FirstOrDefault(p =>
+                {
+                    string paramName = p
+                        .Split('=')[0];
 
-            return queryStringParameter?.Split('=')[1];
+                    // Check for with and without the ? in case the parameter is the first or only in the query.
+                    return paramName
+                               .Equals(parameterName, StringComparison.InvariantCultureIgnoreCase) ||
+                           paramName
+                               .Equals($"?{parameterName}", StringComparison.InvariantCultureIgnoreCase);
+                });
+
+            return queryStringParameter?
+                .Split('=')[1];
         }
     }
 }

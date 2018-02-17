@@ -68,10 +68,9 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         {
             return "https://www.linkedin.com/uas/oauth2/authorization?" +
                   $"scope={Uri.EscapeDataString(_scope)}&" +
-                  $"redirect_uri={_redirectUrl}&" +
+                  $"redirect_uri={Uri.EscapeDataString(_redirectUrl)}&" +
                   "response_type=code&" +
                   $"client_id={_clientId}&" +
-                  $"consumerKey={_clientId}&" +
                   $"state={_state}&" +
                   "display=popup";
         }
@@ -89,7 +88,7 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
                 Content = new FormUrlEncodedContent(new[]
                 {
                     new KeyValuePair<string, string>("grant_type", "authorization_code"),
-                    new KeyValuePair<string, string>("code", code.ThrowIfNullOrWhitespace(nameof(code))),
+                    new KeyValuePair<string, string>("code", Uri.UnescapeDataString(code.ThrowIfNullOrWhitespace(nameof(code)))),
                     new KeyValuePair<string, string>("redirect_uri", _redirectUrl),
                     new KeyValuePair<string, string>("client_id", _clientId),
                     new KeyValuePair<string, string>("client_secret", _clientSecret)
@@ -146,6 +145,9 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
             
             return new UserProfileModel
             {
+                SocialId = httpResponse
+                    .Response?
+                    .Id,
                 FirstName = httpResponse
                     .Response?
                     .FirstName,

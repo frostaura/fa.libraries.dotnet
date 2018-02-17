@@ -60,7 +60,7 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
         {
             return "https://www.facebook.com/dialog/oauth?" +
                   $"scope={Uri.EscapeDataString(_scope)}&" +
-                  $"redirect_uri={_redirectUrl}&" +
+                  $"redirect_uri={Uri.EscapeDataString(_redirectUrl)}&" +
                   "response_type=code&" +
                   $"client_id={_clientId}&" +
                   $"consumerKey={_clientId}&" +
@@ -134,6 +134,9 @@ namespace FrostAura.Libraries.Security.OAuth.Providers
             
             return new UserProfileModel
             {
+                SocialId = httpResponse
+                    .Response?
+                    .Id,
                 FirstName = httpResponse
                     .Response?
                     .First_name,
