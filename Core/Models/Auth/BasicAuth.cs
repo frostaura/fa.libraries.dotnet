@@ -12,13 +12,13 @@ namespace FrostAura.Libraries.Core.Models.Auth
         /// <summary>
         /// Auth username.
         /// </summary>
-        [Required]
+        [Required(AllowEmptyStrings = false)]
         public string Username { get; set; }
         
         /// <summary>
         /// Auth password.
         /// </summary>
-        [Required]
+        [Required(AllowEmptyStrings = false)]
         public string Password { get; set; }
     }
 }
