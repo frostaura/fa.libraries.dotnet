@@ -1,0 +1,11 @@
+language: csharp
+mono: none
+dotnet: 2.0.0
+script:
+  - dotnet build
+  - dotnet test ./Core.Tests/
+  - dotnet test ./Data.Tests/
+  - dotnet test ./Http.Tests/
+  - dotnet test ./MediaServer.Core.Tests/
+  - dotnet test ./MediaServer.Plex.Tests/
+  - dotnet test ./Security.OAuth.Tests/
