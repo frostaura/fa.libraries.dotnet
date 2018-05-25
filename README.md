@@ -15,7 +15,7 @@ To get context on how to consume any of the libraries, see the unit tests. For s
 particular, may have integration tests for even more context on total usage.
 
 ## Contribute
-In order to contribute, simply fork the repository, make changes and create a pull request.
+In order to contribute, clone the repository, make changes and create a pull request.
 
 ## Support
 For any queries, contact deanmar@outlook.com.
