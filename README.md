@@ -1,5 +1,5 @@
 # fa.standard.libraries
-FrostAura Standard Libraries for .Net Standard 2.0
+FrostAura Standard Libraries for .Net Standard 2.0.
 
 | Project | Nuget | Build | Test Coverage
 | --- | --- | --- | --- |
