@@ -1,5 +1,4 @@
 language: csharp
-mono: none
 sudo: required
 dotnet: 2.2
 dist: xenial
@@ -7,8 +6,14 @@ script:
   - dotnet restore
   - dotnet build
   - dotnet test ./Core.Tests/
+  - dotnet pack ./Core/Core.csproj
   - dotnet test ./Data.Tests/
+  - dotnet pack ./Data/Data.csproj
   - dotnet test ./Http.Tests/
+  - dotnet pack ./Http/Http.csproj
   - dotnet test ./MediaServer.Core.Tests/
+  - dotnet pack ./MediaServer.Core/MediaServer.Core.csproj
   - dotnet test ./MediaServer.Plex.Tests/
+  - dotnet pack ./MediaServer.Plex/MediaServer.Plex.csproj
   - dotnet test ./Security.OAuth.Tests/
+  - dotnet pack ./Security.OAuth/Security.OAuth.csproj
