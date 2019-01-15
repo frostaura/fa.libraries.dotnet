@@ -26,7 +26,7 @@ namespace MediaServer.Plex.Extensions
                     return (T) serializer.Deserialize(reader);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return default(T);
             }

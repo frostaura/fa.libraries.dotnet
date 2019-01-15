@@ -6,3 +6,7 @@ bin/
 \.vs/Libraries/v15/
 
 *.userprefs
+
+Core\.Tests/coverage\.json
+
+*.user

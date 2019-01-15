@@ -85,7 +85,7 @@ namespace FrostAura.Libraries.MediaServer.Core.Services
                             OnDiscovery?.Invoke(discoveredAddress);
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     { }
                 } while (client.Client != null);
 
@@ -93,7 +93,7 @@ namespace FrostAura.Libraries.MediaServer.Core.Services
                 {
                     client.Close();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                 }
 
@@ -125,7 +125,7 @@ namespace FrostAura.Libraries.MediaServer.Core.Services
                         }
                     };
                 }
-                catch (SocketException ex)
+                catch (SocketException)
                 { }
 
                 // If the UDP client creation fails, timeout and retry.
@@ -148,7 +148,7 @@ namespace FrostAura.Libraries.MediaServer.Core.Services
                     udpClient.Close();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
         }

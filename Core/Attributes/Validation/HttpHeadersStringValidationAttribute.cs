@@ -41,7 +41,7 @@ namespace FrostAura.Libraries.Core.Attributes.Validation
                         return false;
                 }
             }
-            catch (JsonReaderException e)
+            catch (JsonReaderException)
             {
                 return false;
             }
