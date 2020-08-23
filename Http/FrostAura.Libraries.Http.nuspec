@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>FrostAura.Libraries.Http</id>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
         <title>FrostAura.Libraries.Http</title>
         <authors>Dean Martin</authors>
         <owners>FrostAura</owners>
@@ -12,8 +12,8 @@
         <summary />
         <dependencies>
             <group targetFramework=".NETStandard2.1">
-                <dependency id="NETStandard.Library" version="2.1.0" />
-                <dependency id="FrostAura.Libraries.Core" version="1.1.0" />
+                <dependency id="NETStandard.Library" version="2.0.3" />
+                <dependency id="FrostAura.Libraries.Core" version="1.1.1" />
             </group>
         </dependencies>
     </metadata>
