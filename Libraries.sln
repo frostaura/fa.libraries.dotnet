@@ -1,38 +1,45 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{28E07C59-A68A-466F-8841-5FF0A398C80B}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30309.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{28E07C59-A68A-466F-8841-5FF0A398C80B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Tests", "Core.Tests\Core.Tests.csproj", "{99BC6B91-3735-4CBB-83D0-ABB06AD34D85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Tests", "Core.Tests\Core.Tests.csproj", "{99BC6B91-3735-4CBB-83D0-ABB06AD34D85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Data\Data.csproj", "{795B9746-E631-415B-8D8F-B81918786F29}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "Data\Data.csproj", "{795B9746-E631-415B-8D8F-B81918786F29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Tests", "Data.Tests\Data.Tests.csproj", "{B56F7C92-7581-4CF4-8469-3AFCAC488518}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data.Tests", "Data.Tests\Data.Tests.csproj", "{B56F7C92-7581-4CF4-8469-3AFCAC488518}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Http", "Http\Http.csproj", "{65D4842E-24DE-4E96-9A42-329F34BED1E9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Http", "Http\Http.csproj", "{65D4842E-24DE-4E96-9A42-329F34BED1E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Http.Tests", "Http.Tests\Http.Tests.csproj", "{2D33B36D-3BBC-4C7E-B7F8-51F33262AC41}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Http.Tests", "Http.Tests\Http.Tests.csproj", "{2D33B36D-3BBC-4C7E-B7F8-51F33262AC41}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Media", "Media", "{DADBB14E-11D3-4EF9-AC66-5860768EFE25}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{B55A0203-A73A-4A98-898C-D3B17F923F62}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaServer.Plex", "MediaServer.Plex\MediaServer.Plex.csproj", "{14CB5E48-E288-4A26-A5F8-DB2ECA69B64C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaServer.Plex", "MediaServer.Plex\MediaServer.Plex.csproj", "{14CB5E48-E288-4A26-A5F8-DB2ECA69B64C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaServer.Plex.Tests", "MediaServer.Plex.Tests\MediaServer.Plex.Tests.csproj", "{D654F246-A305-4C51-9DD6-8E2A5A6C2D81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaServer.Plex.Tests", "MediaServer.Plex.Tests\MediaServer.Plex.Tests.csproj", "{D654F246-A305-4C51-9DD6-8E2A5A6C2D81}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaServer.Core", "MediaServer.Core\MediaServer.Core.csproj", "{FA530FC7-6AD7-4D95-9FFE-42B40118234B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaServer.Core", "MediaServer.Core\MediaServer.Core.csproj", "{FA530FC7-6AD7-4D95-9FFE-42B40118234B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaServer.Core.Tests", "MediaServer.Core.Tests\MediaServer.Core.Tests.csproj", "{71DD643C-BAB2-45AE-839E-B8D0F1C8A4FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaServer.Core.Tests", "MediaServer.Core.Tests\MediaServer.Core.Tests.csproj", "{71DD643C-BAB2-45AE-839E-B8D0F1C8A4FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaServer.Plex.Tests.Integration", "MediaServer.Plex.Tests.Integration\MediaServer.Plex.Tests.Integration.csproj", "{ECC4935F-D97A-41F6-A753-9C2E07E18DDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaServer.Plex.Tests.Integration", "MediaServer.Plex.Tests.Integration\MediaServer.Plex.Tests.Integration.csproj", "{ECC4935F-D97A-41F6-A753-9C2E07E18DDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaServer.Core.Tests.Integration", "MediaServer.Core.Tests.Integration\MediaServer.Core.Tests.Integration.csproj", "{50EAE1DB-30DE-4E04-88B7-9E8AF82E7412}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaServer.Core.Tests.Integration", "MediaServer.Core.Tests.Integration\MediaServer.Core.Tests.Integration.csproj", "{50EAE1DB-30DE-4E04-88B7-9E8AF82E7412}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Security", "Security", "{DA5EA334-AAA7-418C-A487-688786276BE3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Security.OAuth", "Security.OAuth\Security.OAuth.csproj", "{12EC07A8-3D5D-4E36-8EFE-F1551B1C4B00}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Security.OAuth", "Security.OAuth\Security.OAuth.csproj", "{12EC07A8-3D5D-4E36-8EFE-F1551B1C4B00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Security.OAuth.Tests", "Security.OAuth.Tests\Security.OAuth.Tests.csproj", "{B1D360B4-8A86-4CA2-968D-B739720567BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Security.OAuth.Tests", "Security.OAuth.Tests\Security.OAuth.Tests.csproj", "{B1D360B4-8A86-4CA2-968D-B739720567BC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Communication", "Communication\Communication.csproj", "{F3CA1AD6-4355-421E-AD9D-6CBDE52DBA48}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Communication.Tests", "Communication.Tests\Communication.Tests.csproj", "{6C7F10A5-4E0D-4935-A464-0F397CDB4C0C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -96,6 +103,17 @@ Global
 		{B1D360B4-8A86-4CA2-968D-B739720567BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1D360B4-8A86-4CA2-968D-B739720567BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B1D360B4-8A86-4CA2-968D-B739720567BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3CA1AD6-4355-421E-AD9D-6CBDE52DBA48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3CA1AD6-4355-421E-AD9D-6CBDE52DBA48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3CA1AD6-4355-421E-AD9D-6CBDE52DBA48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3CA1AD6-4355-421E-AD9D-6CBDE52DBA48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C7F10A5-4E0D-4935-A464-0F397CDB4C0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C7F10A5-4E0D-4935-A464-0F397CDB4C0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C7F10A5-4E0D-4935-A464-0F397CDB4C0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C7F10A5-4E0D-4935-A464-0F397CDB4C0C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{28E07C59-A68A-466F-8841-5FF0A398C80B} = {B55A0203-A73A-4A98-898C-D3B17F923F62}
@@ -112,5 +130,10 @@ Global
 		{50EAE1DB-30DE-4E04-88B7-9E8AF82E7412} = {DADBB14E-11D3-4EF9-AC66-5860768EFE25}
 		{12EC07A8-3D5D-4E36-8EFE-F1551B1C4B00} = {DA5EA334-AAA7-418C-A487-688786276BE3}
 		{B1D360B4-8A86-4CA2-968D-B739720567BC} = {DA5EA334-AAA7-418C-A487-688786276BE3}
+		{F3CA1AD6-4355-421E-AD9D-6CBDE52DBA48} = {B55A0203-A73A-4A98-898C-D3B17F923F62}
+		{6C7F10A5-4E0D-4935-A464-0F397CDB4C0C} = {B55A0203-A73A-4A98-898C-D3B17F923F62}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8BAAA4A6-3B27-4D70-9A5C-C5BC51879840}
 	EndGlobalSection
 EndGlobal

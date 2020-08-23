@@ -5,6 +5,6 @@
     <RootNamespace>FrostAura.Libraries.MediaServer.Core</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FrostAura.Libraries.Core" Version="1.0.6" />
+    <PackageReference Include="FrostAura.Libraries.Core" Version="1.1.1" />
   </ItemGroup>
 </Project>
