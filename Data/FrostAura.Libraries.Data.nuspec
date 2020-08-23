@@ -11,15 +11,15 @@
         <description>FrostAura Data library suite for data extensions and core entities.</description>
         <summary />
         <dependencies>
-            <group targetFramework=".NETStandard2.0">
-                <dependency id="NETStandard.Library" version="2.0.0" />
-                <dependency id="Microsoft.EntityFrameworkCore" version="2.0.1" />
-                <dependency id="Newtonsoft.Json" version="10.0.3" />
+            <group targetFramework=".NETStandard2.1">
+                <dependency id="NETStandard.Library" version="2.1.0" />
+                <dependency id="Microsoft.EntityFrameworkCore" version="3.1.7" />
+                <dependency id="Newtonsoft.Json" version="12.0.3" />
             </group>
         </dependencies>
     </metadata>
     <files>
-        <file src="bin\Debug\netstandard2.0\FrostAura.Libraries.Data.dll" target="lib\netstandard2.0\FrostAura.Libraries.Data.dll" />
-        <file src="bin\Debug\netstandard2.0\FrostAura.Libraries.Data.pdb" target="lib\netstandard2.0\FrostAura.Libraries.Data.pdb" />
+        <file src="bin\Debug\netstandard2.1\FrostAura.Libraries.Data.dll" target="lib\netstandard2.1\FrostAura.Libraries.Data.dll" />
+        <file src="bin\Debug\netstandard2.1\FrostAura.Libraries.Data.pdb" target="lib\netstandard2.1\FrostAura.Libraries.Data.pdb" />
     </files>
 </package>
