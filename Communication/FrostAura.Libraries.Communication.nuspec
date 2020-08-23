@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>FrostAura.Libraries.Communication</id>
+        <version>1.1.1</version>
+        <title>FrostAura.Libraries.Communication</title>
+        <authors>Dean Martin</authors>
+        <owners>FrostAura</owners>
+        <projectUrl>https://github.com/faGH/fa.standard.libraries/tree/master/Communication</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>FrostAura library suite for communication.</description>
+        <summary />
+        <dependencies>
+            <group targetFramework=".NETStandard2.1">
+                <dependency id="NETStandard.Library" version="2.0.3" />
+                <dependency id="Polly" version="7.2.1" />
+                <dependency id="System.ComponentModel.Annotations" version="4.7.0" />
+                <dependency id="Newtonsoft.Json" version="12.0.3" />
+            </group>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="bin\Debug\netstandard2.1\FrostAura.Libraries.Communication.dll" target="lib\netstandard2.1\FrostAura.Libraries.Communication.dll" />
+        <file src="bin\Debug\netstandard2.1\FrostAura.Libraries.Communication.pdb" target="lib\netstandard2.1\FrostAura.Libraries.Communication.pdb" />
+    </files>
+</package>
