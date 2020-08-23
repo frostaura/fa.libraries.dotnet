@@ -5,8 +5,8 @@
     <RootNamespace>FrostAura.Libraries.Http</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FrostAura.Libraries.Core" Version="1.0.4" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="FrostAura.Libraries.Core" Version="1.0.6" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
 </Project>

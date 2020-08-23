@@ -13,6 +13,11 @@ script:
   - dotnet test ./MediaServer.Plex.Tests/
   - dotnet test ./Security.OAuth.Tests/
   - dotnet pack ./Core/Core.csproj /p:NuspecFile=./FrostAura.Libraries.Core.nuspec --version-suffix "$TRAVIS_BUILD_NUMBER" -o "$TRAVIS_BUILD_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
+  - dotnet pack ./Data/Data.csproj /p:NuspecFile=./FrostAura.Libraries.Data.nuspec --version-suffix "$TRAVIS_BUILD_NUMBER" -o "$TRAVIS_BUILD_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
+  - dotnet pack ./Http/Http.csproj /p:NuspecFile=./FrostAura.Libraries.Http.nuspec --version-suffix "$TRAVIS_BUILD_NUMBER" -o "$TRAVIS_BUILD_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
+  - dotnet pack ./MediaServer.Core/MediaServer.Core.csproj /p:NuspecFile=./FrostAura.Libraries.MediaServer.Core.nuspec --version-suffix "$TRAVIS_BUILD_NUMBER" -o "$TRAVIS_BUILD_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
+  - dotnet pack ./MediaServer.Plex/MediaServer.Plex.csproj /p:NuspecFile=./FrostAura.Libraries.MediaServer.Plex.nuspec --version-suffix "$TRAVIS_BUILD_NUMBER" -o "$TRAVIS_BUILD_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
+  - dotnet pack ./Security.OAuth/Security.OAuth.csproj /p:NuspecFile=./FrostAura.Libraries.Security.OAuth.nuspec --version-suffix "$TRAVIS_BUILD_NUMBER" -o "$TRAVIS_BUILD_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
 deploy:
   skip_cleanup: true
   provider: script
