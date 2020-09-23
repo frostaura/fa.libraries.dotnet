@@ -23,6 +23,6 @@ script:
 deploy:
   skip_cleanup: true
   provider: script
-  script: cd $TRAVIS_BUILD_DIR & ls & dotnet nuget push "$TRAVIS_BUILD_DIR/*.nupkg" -k $NUGET_API_KEY -s $NUGET_SOURCE
+  script: cd $TRAVIS_BUILD_DIR & ls & (dotnet nuget push "$TRAVIS_BUILD_DIR/*.nupkg" -k $NUGET_API_KEY -s $NUGET_SOURCE) || true
   on:
     branch: master
