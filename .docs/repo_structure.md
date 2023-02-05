@@ -18,8 +18,6 @@ The structuring of the repo.
   - /src
     - ...
   - .gitignore
-  - docker-compose.yml
-  - Dockerfile
   - LICENSE
   - README.md
 
