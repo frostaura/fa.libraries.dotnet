@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>FrostAura.Libraries.MediaServer.Plex</AssemblyName>
+    <RootNamespace>FrostAura.Libraries.MediaServer.Plex</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FrostAura.Libraries.Http" Version="1.1.1" />
+    <PackageReference Include="FrostAura.Libraries.MediaServer.Core" Version="1.1.1" />
+  </ItemGroup>
+</Project>

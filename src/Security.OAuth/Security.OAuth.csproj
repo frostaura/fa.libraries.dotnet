@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>FrostAura.Libraries.Security.OAuth</AssemblyName>
+    <RootNamespace>FrostAura.Libraries.Security.OAuth</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FrostAura.Libraries.Http" Version="1.1.1" />
+  </ItemGroup>
+</Project>

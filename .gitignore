@@ -1,15 +1,3 @@
-obj/
+.vs/
 bin/
-
-\.idea/\.idea\.Libraries/\.idea/
-
-\.vs/Libraries/v15/
-
-*.userprefs
-
-Core\.Tests/coverage\.json
-
-*.user
-*.suo
-*.v2
-/.vs
+obj/
