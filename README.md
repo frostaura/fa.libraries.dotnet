@@ -1,4 +1,4 @@
-# fa.standard.libraries
+# fa.libraries.dotnet
 FrostAura Standard Libraries for .Net Standard 2.0
 
 | Project | Nuget | Build | Test Coverage
