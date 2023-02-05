@@ -22,28 +22,28 @@ jobs:
     - name: Test Core
       run: dotnet test ./src/Core.Tests/ --no-restore --verbosity normal
     - name: Pack Core
-      run: dotnet pack ./src/Core/Core.csproj /p:NuspecFile=./FrostAura.Libraries.Core.nuspec --version-suffix "${{ github.run_id }}" -o "${{ OUT_DIR }}" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
+      run: dotnet pack ./src/Core/Core.csproj /p:NuspecFile=./FrostAura.Libraries.Core.nuspec --version-suffix "${{ github.run_id }}" -o "$OUT_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
     - name: Test Data
       run: dotnet test ./src/Data.Tests/ --no-restore --verbosity normal
     - name: Pack Data
-      run: dotnet pack ./src/Data/Data.csproj /p:NuspecFile=./FrostAura.Libraries.Data.nuspec --version-suffix "${{ github.run_id }}" -o "${{ OUT_DIR }}" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
+      run: dotnet pack ./src/Data/Data.csproj /p:NuspecFile=./FrostAura.Libraries.Data.nuspec --version-suffix "${{ github.run_id }}" -o "$OUT_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
     - name: Test Http
       run: dotnet test ./src/Http.Tests/ --no-restore --verbosity normal
     - name: Pack Http
-      run: dotnet pack ./src/Http/Http.csproj /p:NuspecFile=./FrostAura.Libraries.Http.nuspec --version-suffix "${{ github.run_id }}" -o "${{ OUT_DIR }}" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
+      run: dotnet pack ./src/Http/Http.csproj /p:NuspecFile=./FrostAura.Libraries.Http.nuspec --version-suffix "${{ github.run_id }}" -o "$OUT_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
     - name: Test Communication
       run: dotnet test ./src/Communication.Tests/ --no-restore --verbosity normal
     - name: Pack Communication
-      run: dotnet pack ./src/Communication/Communication.csproj /p:NuspecFile=./FrostAura.Libraries.Communication.nuspec --version-suffix "${{ github.run_id }}" -o "${{ OUT_DIR }}" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
+      run: dotnet pack ./src/Communication/Communication.csproj /p:NuspecFile=./FrostAura.Libraries.Communication.nuspec --version-suffix "${{ github.run_id }}" -o "$OUT_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
     - name: Test MediaServer.Core
       run: dotnet test ./src/MediaServer.Core.Tests/ --no-restore --verbosity normal
     - name: Pack MediaServer.Core
-      run: dotnet pack ./src/MediaServer.Core/MediaServer.Core.csproj /p:NuspecFile=./FrostAura.Libraries.MediaServer.Core.nuspec --version-suffix "${{ github.run_id }}" -o "${{ OUT_DIR }}" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
+      run: dotnet pack ./src/MediaServer.Core/MediaServer.Core.csproj /p:NuspecFile=./FrostAura.Libraries.MediaServer.Core.nuspec --version-suffix "${{ github.run_id }}" -o "$OUT_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
     - name: Test MediaServer.Plex
       run: dotnet test ./src/MediaServer.Plex.Tests/ --no-restore --verbosity normal
     - name: Pack MediaServer.Plex
-      run: dotnet pack ./src/MediaServer.Plex/MediaServer.Plex.csproj /p:NuspecFile=./FrostAura.Libraries.MediaServer.Plex.nuspec --version-suffix "${{ github.run_id }}" -o "${{ OUT_DIR }}" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
+      run: dotnet pack ./src/MediaServer.Plex/MediaServer.Plex.csproj /p:NuspecFile=./FrostAura.Libraries.MediaServer.Plex.nuspec --version-suffix "${{ github.run_id }}" -o "$OUT_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
     - name: Test Security.OAuth
       run: dotnet test ./src/Security.OAuth.Tests/ --no-restore --verbosity normal
     - name: Pack Security.OAuth
-      run: dotnet pack ./src/Security.OAuth/Security.OAuth.csproj /p:NuspecFile=./FrostAura.Libraries.Security.OAuth.nuspec --version-suffix "${{ github.run_id }}" -o "${{ OUT_DIR }}" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
+      run: dotnet pack ./src/Security.OAuth/Security.OAuth.csproj /p:NuspecFile=./FrostAura.Libraries.Security.OAuth.nuspec --version-suffix "${{ github.run_id }}" -o "$OUT_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
