@@ -19,7 +19,7 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="bin\Debug\net7.0\FrostAura.Libraries.Http.dll" target="lib\net7.0\FrostAura.Libraries.Http.dll" />
-        <file src="bin\Debug\net7.0\FrostAura.Libraries.Http.pdb" target="lib\net7.0\FrostAura.Libraries.Http.pdb" />
+        <file src="bin\Release\net7.0\FrostAura.Libraries.Http.dll" target="lib\net7.0\FrostAura.Libraries.Http.dll" />
+        <file src="bin\Release\net7.0\FrostAura.Libraries.Http.pdb" target="lib\net7.0\FrostAura.Libraries.Http.pdb" />
     </files>
 </package>

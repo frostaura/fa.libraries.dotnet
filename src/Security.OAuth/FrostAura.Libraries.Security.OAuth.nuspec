@@ -17,7 +17,7 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="bin\Debug\net7.0\FrostAura.Libraries.Security.OAuth.dll" target="lib\net7.0\FrostAura.Libraries.Security.OAuth.dll" />
-        <file src="bin\Debug\net7.0\FrostAura.Libraries.Security.OAuth.pdb" target="lib\net7.0\FrostAura.Libraries.Security.OAuth.pdb" />
+        <file src="bin\Release\net7.0\FrostAura.Libraries.Security.OAuth.dll" target="lib\net7.0\FrostAura.Libraries.Security.OAuth.dll" />
+        <file src="bin\Release\net7.0\FrostAura.Libraries.Security.OAuth.pdb" target="lib\net7.0\FrostAura.Libraries.Security.OAuth.pdb" />
     </files>
 </package>

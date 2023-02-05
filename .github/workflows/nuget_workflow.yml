@@ -46,5 +46,7 @@ jobs:
       run: dotnet pack src/MediaServer.Plex/MediaServer.Plex.csproj /p:NuspecFile=./FrostAura.Libraries.MediaServer.Plex.nuspec --version-suffix "${{ github.run_id }}" -o "$OUT_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
     - name: Test Security.OAuth
       run: dotnet test src/Security.OAuth.Tests/ --no-restore --verbosity normal
+    - name: Pack Security.OAuth
+      run: dotnet pack src/Security.OAuth/Security.OAuth.csproj /p:NuspecFile=./FrostAura.Libraries.Security.OAuth.nuspec --version-suffix "${{ github.run_id }}" -o "$OUT_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
     - name: Publish NuGet Packages
       run: dotnet nuget push "$OUT_DIR/*.nupkg" -k "${{ secrets.NUGET_API_KEY }}" -s "https://api.nuget.org/v3/index.json" --skip-duplicate

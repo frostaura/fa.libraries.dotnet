@@ -17,7 +17,7 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="bin\Debug\net7.0\FrostAura.Libraries.MediaServer.Core.dll" target="lib\net7.0\FrostAura.Libraries.MediaServer.Core.dll" />
-        <file src="bin\Debug\net7.0\FrostAura.Libraries.MediaServer.Core.pdb" target="lib\net7.0\FrostAura.Libraries.MediaServer.Core.pdb" />
+        <file src="bin\Release\net7.0\FrostAura.Libraries.MediaServer.Core.dll" target="lib\net7.0\FrostAura.Libraries.MediaServer.Core.dll" />
+        <file src="bin\Release\net7.0\FrostAura.Libraries.MediaServer.Core.pdb" target="lib\net7.0\FrostAura.Libraries.MediaServer.Core.pdb" />
     </files>
 </package>

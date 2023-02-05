@@ -18,7 +18,7 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="bin\Debug\net7.0\FrostAura.Libraries.MediaServer.Plex.dll" target="lib\net7.0\FrostAura.Libraries.MediaServer.Plex.dll" />
-        <file src="bin\Debug\net7.0\FrostAura.Libraries.MediaServer.Plex.pdb" target="lib\net7.0\FrostAura.Libraries.MediaServer.Plex.pdb" />
+        <file src="bin\Release\net7.0\FrostAura.Libraries.MediaServer.Plex.dll" target="lib\net7.0\FrostAura.Libraries.MediaServer.Plex.dll" />
+        <file src="bin\Release\net7.0\FrostAura.Libraries.MediaServer.Plex.pdb" target="lib\net7.0\FrostAura.Libraries.MediaServer.Plex.pdb" />
     </files>
 </package>

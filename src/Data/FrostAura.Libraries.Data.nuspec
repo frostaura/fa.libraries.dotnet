@@ -18,7 +18,7 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="bin\Debug\net7.0\FrostAura.Libraries.Data.dll" target="lib\net7.0\FrostAura.Libraries.Data.dll" />
-        <file src="bin\Debug\net7.0\FrostAura.Libraries.Data.pdb" target="lib\net7.0\FrostAura.Libraries.Data.pdb" />
+        <file src="bin\Release\net7.0\FrostAura.Libraries.Data.dll" target="lib\net7.0\FrostAura.Libraries.Data.dll" />
+        <file src="bin\Release\net7.0\FrostAura.Libraries.Data.pdb" target="lib\net7.0\FrostAura.Libraries.Data.pdb" />
     </files>
 </package>

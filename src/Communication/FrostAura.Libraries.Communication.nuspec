@@ -22,7 +22,7 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="bin\Debug\net7.0\FrostAura.Libraries.Communication.dll" target="lib\net7.0\FrostAura.Libraries.Communication.dll" />
-        <file src="bin\Debug\net7.0\FrostAura.Libraries.Communication.pdb" target="lib\net7.0\FrostAura.Libraries.Communication.pdb" />
+        <file src="bin\Release\net7.0\FrostAura.Libraries.Communication.dll" target="lib\net7.0\FrostAura.Libraries.Communication.dll" />
+        <file src="bin\Release\net7.0\FrostAura.Libraries.Communication.pdb" target="lib\net7.0\FrostAura.Libraries.Communication.pdb" />
     </files>
 </package>
