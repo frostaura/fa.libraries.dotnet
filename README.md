@@ -1,6 +1,6 @@
-# fa.templates
+# fa.libraries.dotnet
 ## Description
-This is an empty template repository that can be forked for any new projects that should follow FrostAura repository standards.
+This is a collection of FrostAura libraries written for dotnet core 7+. Documentation pending.
 ## Status
 | Project | Status | Platform
 | --- | --- | --- |
