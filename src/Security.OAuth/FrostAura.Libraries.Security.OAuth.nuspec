@@ -2,10 +2,11 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>FrostAura.Libraries.Security.OAuth</id>
-        <version>7.0.0</version>
+        <version>7.0.1</version>
         <title>FrostAura.Libraries.Security.OAuth</title>
         <authors>Dean Martin</authors>
         <owners>FrostAura</owners>
+        <iconUrl>https://avatars1.githubusercontent.com/u/8956241</iconUrl>
         <projectUrl>https://github.com/faGH/fa.libraries.dotnet/tree/master/Security.OAuth</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>FrostAura OAuth 2.0 providers and interfaces.</description>

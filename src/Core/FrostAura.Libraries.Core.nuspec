@@ -2,10 +2,11 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>FrostAura.Libraries.Core</id>
-        <version>7.0.0</version>
+        <version>7.0.1</version>
         <title>FrostAura.Libraries.Core</title>
         <authors>Dean Martin</authors>
         <owners>FrostAura</owners>
+        <iconUrl>https://avatars1.githubusercontent.com/u/8956241</iconUrl>
         <projectUrl>https://github.com/faGH/fa.libraries.dotnet/tree/master/Core</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>FrostAura Core library suite for generic extensions, reactive programming and resilience.</description>
