@@ -6,7 +6,7 @@ on:
     - master
 env:
   DOTNET_VERSION: '7.0.x'
-  OUT_DIR: '/release'
+  OUT_DIR: 'release/'
 jobs:
   build-nuget-publish:
     runs-on: ubuntu-latest
