@@ -47,4 +47,4 @@ jobs:
     - name: Test Security.OAuth
       run: dotnet test src/Security.OAuth.Tests/ --no-restore --verbosity normal
     - name: Publish NuGet Packages
-      run: dotnet nuget push "$OUT_DIR/*.nupkg" -k "${{ secrets.NUGET_API_KEY }}" -s "https://api.nuget.org/v3/index.json"
+      run: dotnet nuget push "$OUT_DIR/*.nupkg" -k "${{ secrets.NUGET_API_KEY }}" -s "https://api.nuget.org/v3/index.json" --skip-duplicate
