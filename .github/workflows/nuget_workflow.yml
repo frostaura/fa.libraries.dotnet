@@ -28,6 +28,10 @@ jobs:
       run: dotnet test src/Data.Tests/ --no-restore --verbosity normal
     - name: Pack Data
       run: dotnet pack src/Data/Data.csproj /p:NuspecFile=./FrostAura.Libraries.Data.nuspec --version-suffix "${{ github.run_id }}" -o "$OUT_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
+    - name: Test Finance
+      run: dotnet test src/Finance.Tests/ --no-restore --verbosity normal
+    - name: Pack Finance
+      run: dotnet pack src/Finance/Finance.csproj /p:NuspecFile=./FrostAura.Libraries.Finance.nuspec --version-suffix "${{ github.run_id }}" -o "$OUT_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
     - name: Test Http
       run: dotnet test src/Http.Tests/ --no-restore --verbosity normal
     - name: Pack Http
