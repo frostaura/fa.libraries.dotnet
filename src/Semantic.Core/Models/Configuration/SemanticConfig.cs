@@ -1,26 +1,21 @@
-﻿namespace Semantic.Core.Models.Configuration
+﻿using System.Diagnostics;
+
+namespace FrostAura.Libraries.Semantic.Core.Models.Configuration
 {
     /// <summary>
-    /// Configuration for Pinecone vector db.
+    /// Composite semantic config.
     /// </summary>
-    public class PineconeConfig
+    [DebuggerDisplay("{OpenAIConfig}, {PineconeConfig}")]
+    public class SemanticConfig
     {
-		/// <summary>
-		/// The environment / hosting location.
-		/// </summary>
-		public string Environment { get; set; }
-		/// <summary>
-		/// The API key for security.
-		/// </summary>
-		public string ApiKey { get; set; }
         /// <summary>
-		/// Index name.
-		/// </summary>
-		public string IndexName { get; set; }
+        /// OpenAI config.
+        /// </summary>
+        public OpenAIConfig OpenAIConfig { get; set; }
         /// <summary>
-		/// Index namespace.
-		/// </summary>
-		public string Namespace { get; set; }
+        /// Pinecone config.
+        /// </summary>
+        public PineconeConfig PineconeConfig { get; set; }
     }
 }
 

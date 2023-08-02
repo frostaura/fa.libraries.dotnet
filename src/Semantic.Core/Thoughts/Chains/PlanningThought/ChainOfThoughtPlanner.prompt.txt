@@ -1,0 +1,59 @@
+﻿{{$identity}}
+
+Create an XML plan step by step, to satisfy the <goal> given.
+To create a plan, follow these steps:
+
+<steps>
+    <step>The plan should be as comprehensive as possible. This means break down problems into their smallest solvable parts. Think of it like functional programming.</step>
+    <step>From a goal create a plan as a series of skills.</step>
+    <step>Before using any skill in a plan, check that it is present in the available skills list. If it is not, do not use it.</step>
+    <step>Only use skills that are required for the given goal.</step>
+    <step>A skill has an "input" and an "output".</step>
+    <step>The 'output' from each skill is automatically passed as 'input' to the subsequent skill.</step>
+    <step>'input' does not need to be specified if it consumes the 'output' of the previous skill.</step>
+    <step>The initial input or goal, is available for interpolation to any other skill via '$GOAL'.</step>
+    <step>To save an 'output' from a skill, to pass into a future skill, use <skill.<<SkillName>> ... set-context-variable: \"\"<UNIQUE_VARIABLE_KEY>\"\"/></step>
+    <step>Strictly the following parameters / variables / arguments should be defined as attributes on the skill: "name", "input", "reasoning", "critisism", "set-context-variable". Never include any other arguments as attributes.</step>
+    <step>All other parameters / variables / arguments should be represented by an argument node inside of the skill instead of an attribute on the skill. For example "source", "chunk-size" etc.</step>
+    <step>All argument should always be provided. If unsure, use suggested values if given or sensible defaults.</step>
+    <step>You will also suggest any additional skills that could make the task easier in the future and could potentially be reused in other future queries. These suggestions go inside the <suggested-skills> node.</step>
+    <step>When suggesting new skills, those skills should always be small components that can perform core tasks like HTTP calls, file manipulation, AI model inference etc. Never as large as an entire use case. We want these skills to be reusable by the PlannerSkill.</step>
+    <step>Provide your reasoning as a "reasoning" attribute on the plan and skill.</step>
+    <step>Provide constructive critisism as a "critisism" attribute on plan and skill.</step>
+    <step>Refrain from giving any disclaimers like "As an AI language model, I..." or "I am not a..." in your response. I understand this already.</step>
+</steps>
+
+<available-skills>
+$AVAILABLE_FUNCTIONS$
+</available-skills>
+
+<goal>My name is Dean Martin.</goal>
+<plan reasoning="I should commit any knowledge to my memory so I can recall the facts later on and respond coherently." critisism="No critisism.">
+    <skill name="{nameof(CommitToMemory)}" {ArgumentNames.SOURCE}="Conversational Memory" reasoning="I will commit to momory this fact I extracted from the conversation for future lookup." critisism="There could be a better way to commit to memory than just verbatim the input value."/>
+    <skill name="{nameof(OutputText)}" {ArgumentNames.Result}="I will remember that, thanks Dean." reasoning="I will now respond coherently after recording the conversational facts for future reference." critisism="No critisism."/>
+</plan>
+<suggested-skills>
+</suggested-skills>
+
+<goal>What's my name?</goal>
+<plan reasoning="I should attempt to recall from my knowledge to see if I know the answer and respond accordingly and admitting if I dont know the answer." critisism="No critisism.">
+    <skill name="{nameof(RecallFromMemory)}" reasoning="I will recall from momory about the input query." critisism="Ideally, I should not rely purely on a single source of truth." set-context-variable="MEMORIES"/>
+    <skill name="{nameof(LargeLanguageModel)}" {ArgumentNames.INPUT}="Based off the following memories from a knowledge store:\n$MEMORIES\n\n Answer the following question, don't make up an answer. Say if you don't know and respond in markdown. Question: $GOAL\nAnswer:" reasoning="I can defer asking for a coherent response to a LLM. Giving it the context it needs to answer the question." critisism="Due to the LLM context window size, I should be careful of the size of the text I inject into this input." set-context-variable="LLM_ANSWER"/>
+    <skill name="{nameof(OutputText)}" {ArgumentNames.Result}="I will remember that, thanks Dean." reasoning="I will now respond coherently after recording the conversational facts for future reference." critisism="No critisism."/>
+</plan>
+<suggested-skills>
+    <skill name="PersistentConfigurationLoader" input="The configuration key to look up config for." how-suggestion="A C# function that accepts as a parameter, the configuration key to look configuration up for, and loading a JSON configuration string for that configuration and returning that stringified configuration JSON."/>
+</suggested-skills>
+
+<goal>What are the top 10 trending movies today?</goal>
+<plan reasoning="I should gather currently popular movies from a few sources and clean up the responses as much as possible to reduce the size, then use a LLM to reason between the responses to return the final response." critisism="Relying on the LLM too much can be slow and costly. LLMs also have a limited context window size.">
+    <skill name="{nameof(HttpClient)}" {ArgumentNames.INPUT}="https://www.imdb.com/chart/moviemeter/" reasoning="From my own memory, imdb should be a good place to look for trending movies." critisism="The URL I am using from my own memory, instead of config, could break over time." set-context-variable="MOVIES_TRENDING_RESULT_1"/>
+    <skill name="{nameof(HttpClient)}" {ArgumentNames.INPUT}="https://www.themoviedb.org/movie" reasoning="From my own memory, tmdb should be another good place to look for trending movies." critisism="The URL I am using from my own memory, instead of config, could break over time." set-context-variable="MOVIES_TRENDING_RESULT_2"/>
+    <skill name="{nameof(LargeLanguageModel)}" {ArgumentNames.INPUT}="From the following sources, list the top 10 trending movies. Respond in markdown format.\n\nIMDB: $MOVIES_TRENDING_RESULT_1\n\nTMDB: $MOVIES_TRENDING_RESULT_2\n\n" reasoning="I can defer asking to extract things from unstructured data like trending movies." critisism="The content that is getting injected seems to be raw HTTP web responses which would contain excess tokens and might run over the LLM context window size." set-context-variable="LLM_ANSWER"/>
+    <skill name="{nameof(OutputText)}" {ArgumentNames.Result}="$LLM_ANSWER" reasoning="The LLM response is sufficient to return without any modifications." critisism="No critisism."/>
+</plan>
+<suggested-skills>
+    <skill name="HtmlTextExtractor" input="The raw HTML content." how-suggestion="A C# function that accepts as a parameter, the raw HTML string and extracts the text content only by using Html Agility Pack and returns the cleaned up content of the raw input HTML."/>
+</suggested-skills>
+
+<goal>$GOAL$</goal>
