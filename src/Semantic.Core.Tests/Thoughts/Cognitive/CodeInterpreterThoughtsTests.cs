@@ -33,8 +33,8 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
             var logger = Substitute.For<ILogger<CodeInterpreterThoughts>>();
             var instance = new CodeInterpreterThoughts(logger);
             string pythonVersion = default;
-            List<string> pipDependencies = new List<string>();
-            List<string> condaDependencies = new List<string>();
+            string pipDependencies = "";
+            string condaDependencies = "";
             string code = "def main()";
 
             var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.InvokeAsync(pythonVersion, pipDependencies, condaDependencies, code));
@@ -43,43 +43,13 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
         }
 
         [Fact]
-        public async Task InvokeAsync_WithInvalidPipDependencies_ShouldThrow()
-        {
-            var logger = Substitute.For<ILogger<CodeInterpreterThoughts>>();
-            var instance = new CodeInterpreterThoughts(logger);
-            string pythonVersion = "3.8";
-            List<string> pipDependencies = default;
-            List<string> condaDependencies = new List<string>();
-            string code = "def main()";
-
-            var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.InvokeAsync(pythonVersion, pipDependencies, condaDependencies, code));
-
-            Assert.Equal(nameof(pipDependencies), actual.ParamName);
-        }
-
-        [Fact]
-        public async Task InvokeAsync_WithInvalidCondaDependencies_ShouldThrow()
-        {
-            var logger = Substitute.For<ILogger<CodeInterpreterThoughts>>();
-            var instance = new CodeInterpreterThoughts(logger);
-            string pythonVersion = "3.8";
-            List<string> pipDependencies = new List<string>();
-            List<string> condaDependencies = default;
-            string code = "def main()";
-
-            var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.InvokeAsync(pythonVersion, pipDependencies, condaDependencies, code));
-
-            Assert.Equal(nameof(condaDependencies), actual.ParamName);
-        }
-
-        [Fact]
         public async Task InvokeAsync_WithInvalidCode_ShouldThrow()
         {
             var logger = Substitute.For<ILogger<CodeInterpreterThoughts>>();
             var instance = new CodeInterpreterThoughts(logger);
             string pythonVersion = "3.8";
-            List<string> pipDependencies = new List<string>();
-            List<string> condaDependencies = new List<string>();
+            string pipDependencies = "";
+            string condaDependencies = "";
             string code = default;
 
             var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.InvokeAsync(pythonVersion, pipDependencies, condaDependencies, code));
@@ -104,9 +74,9 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
         {
             var logger = Substitute.For<ILogger<CodeInterpreterThoughts>>();
             var instance = new CodeInterpreterThoughts(logger);
-            string pythonVersion = "3.8";
-            List<string> pipDependencies = new List<string>();
-            List<string> condaDependencies = new List<string>();
+            string pythonVersion = "3.9";
+            string pipDependencies = "pip";
+            string condaDependencies = "ffmpeg";
 
             var actual = await instance.InvokeAsync(pythonVersion, pipDependencies, condaDependencies, code);
 

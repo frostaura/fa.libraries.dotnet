@@ -661,8 +661,8 @@ namespace MediaServer.Plex.Tests.Services
                 {
                     new Media
                     {
-                        AudioChannels = 6,
-                        AudioCodec = "aac",
+                        MemoryChannels = 6,
+                        MemoryCodec = "aac",
                         Bitrate = 128,
                         Container = "mp4",
                         Height = 1080,
@@ -727,8 +727,8 @@ namespace MediaServer.Plex.Tests.Services
                 .Received()
                 .RequestAsync<BasePlexResponse<MediaContainer>>(Arg.Any<HttpRequest>(), CancellationToken.None);
             
-            Assert.Equal(expectedMetadata.Media.First().AudioChannels, actual.AudioChannels);
-            Assert.Equal(expectedMetadata.Media.First().AudioCodec, actual.AudioCodec);
+            Assert.Equal(expectedMetadata.Media.First().MemoryChannels, actual.MemoryChannels);
+            Assert.Equal(expectedMetadata.Media.First().MemoryCodec, actual.MemoryCodec);
             Assert.Equal(expectedMetadata.Media.First().Bitrate, actual.Bitrate);
             Assert.Equal(expectedMetadata.Media.First().Container, actual.Container);
             Assert.Equal(expectedMetadata.Summary, actual.Description);

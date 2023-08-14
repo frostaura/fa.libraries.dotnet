@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.0" />
     <PackageReference Include="xunit" Version="2.5.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -21,9 +21,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.SemanticKernel" Version="0.18.230725.3-preview" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0-preview.6.23329.7" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="0.19.230804.2-preview" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0-preview.7.23375.6" />
     <PackageReference Include="NSubstitute" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,6 +34,8 @@
     <None Remove="Thoughts\Chains\" />
     <None Remove="Thoughts\System\" />
     <None Remove="Thoughts\Chains\Cognitive\" />
+    <None Remove="Thoughts\Media\" />
+    <None Remove="Thoughts\Chains\Media\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Thoughts\" />
@@ -41,8 +44,15 @@
     <Folder Include="Thoughts\Chains\" />
     <Folder Include="Thoughts\System\" />
     <Folder Include="Thoughts\Chains\Cognitive\" />
+    <Folder Include="Thoughts\Media\" />
+    <Folder Include="Thoughts\Chains\Media\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Semantic.Core\Semantic.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="harvard.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

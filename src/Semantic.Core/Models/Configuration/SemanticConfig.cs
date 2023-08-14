@@ -16,6 +16,18 @@ namespace FrostAura.Libraries.Semantic.Core.Models.Configuration
         /// Pinecone config.
         /// </summary>
         public PineconeConfig PineconeConfig { get; set; }
+        /// <summary>
+        /// Pexels API config.
+        /// </summary>
+        public PexelsConfig PexelsConfig { get; set; }
+        /// <summary>
+        /// ElevenLabs config.
+        /// </summary>
+        public ElevenLabsConfig ElevenLabsConfig { get; set; }
+        /// <summary>
+        /// Google config.
+        /// </summary>
+        public GoogleConfig GoogleConfig { get; set; }
     }
 }
 

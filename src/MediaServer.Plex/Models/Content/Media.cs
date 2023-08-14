@@ -45,14 +45,14 @@ namespace MediaServer.Plex.Models.Content
         public double AspectRatio { get; set; }
 
         /// <summary>
-        /// Audio channels count of the media.
+        /// Memory channels count of the media.
         /// </summary>
-        public int AudioChannels { get; set; }
+        public int MemoryChannels { get; set; }
 
         /// <summary>
-        /// Media audio codec.
+        /// Media Memory codec.
         /// </summary>
-        public string AudioCodec { get; set; }
+        public string MemoryCodec { get; set; }
         
         /// <summary>
         /// Media video codec.
@@ -75,9 +75,9 @@ namespace MediaServer.Plex.Models.Content
         public int OptimizedForStreaming { get; set; }
 
         /// <summary>
-        /// Profile of media audio.
+        /// Profile of media Memory.
         /// </summary>
-        public string AudioProfile { get; set; }
+        public string MemoryProfile { get; set; }
 
         /// <summary>
         /// Whether or not the media has a 64 bit offset.

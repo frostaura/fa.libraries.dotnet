@@ -2,18 +2,23 @@
 using FrostAura.Libraries.Semantic.Core.Extensions.Configuration;
 using FrostAura.Libraries.Semantic.Core.Models.Thoughts;
 using Microsoft.Extensions.Logging;
+using Polly;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains
 {
 	/// <summary>
 	/// A decorated collection of a thoughts.
 	/// </summary>
-	public abstract class BaseExecutableChain
+	public abstract class BaseExecutableChain : BaseThought
 	{
         /// <summary>
-        /// An example problem statement that the plan solves for.
+        /// An example query that this chain example can be used to solve for.
         /// </summary>
-        public abstract string ExampleChallange { get; }
+        public abstract string QueryExample { get; }
+        /// <summary>
+        /// An example query input that this chain example can be used to solve for.
+        /// </summary>
+        public abstract string QueryInputExample { get; }
         /// <summary>
         /// The reasoning for the solution of the chain.
         /// </summary>
@@ -35,7 +40,8 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains
         /// Overloaded constructor to provide dependencies.
         /// </summary>
         /// <param name="logger">Instance logger.</param>
-        public BaseExecutableChain(IServiceProvider serviceProvider, ILogger logger)
+        protected BaseExecutableChain(IServiceProvider serviceProvider, ILogger logger)
+            :base(logger)
         {
             _serviceProvider = serviceProvider.ThrowIfNull(nameof(serviceProvider));
             _logger = logger.ThrowIfNull(nameof(logger));
@@ -45,23 +51,35 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains
         /// Execute the chain of thought sequentially.
         /// </summary>
         /// <param name="input">The initial input into the chain.</param>
+        /// <param name="state">The optional state of the chain. Should state be provided for outputs, thoughts that produce such outputs would be skipped.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>The chain's final output.</returns>
-        public async Task<string> ExecuteChainAsync(string input, CancellationToken token = default)
+        /// TODO: Add support for an additional context dictionary to allow for secondary parameters as context.
+        public async Task<string> ExecuteChainAsync(string input, Dictionary<string, string> state = default, CancellationToken token = default)
         {
-            var context = new Dictionary<string, string>
-            {
-                { "$input", input.ThrowIfNullOrWhitespace(nameof(input)) }
-            };
+            if (state == default) state = new Dictionary<string, string>();
+
+            state["$input"] = input.ThrowIfNullOrWhitespace(nameof(input));
+
             var output = string.Empty;
 
             foreach (var thought in ChainOfThoughts)
             {
                 _logger.LogDebug(thought.ToString());
 
-                thought.Observation = await ExecuteThoughtAsync(thought, context, token);
+                // If there is already the state that this thought is expected to provide, use that state and skip executing the thought.
+                if(state.ContainsKey($"${thought.OutputKey}"))
+                {
+                    thought.Observation = state[$"${thought.OutputKey}"];
+                }
+                // The state should be created by executing the thought.
+                else
+                {
+                    thought.Observation = await ExecuteThoughtAsync(thought, state, token);
+                    state[$"${thought.OutputKey}"] = thought.Observation;
+                }
+
                 output = thought.Observation;
-                context[$"${thought.OutputKey}"] = thought.Observation;
 
                 _logger.LogInformation(thought.ToString());
             };
@@ -73,17 +91,17 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains
         /// Execute on a thought and return it's observation.
         /// </summary>
         /// <param name="thought">The thought context.</param>
-        /// <param name="context">The global context. Used to interpolate dependencies.</param>
+        /// <param name="state">The global context. Used to interpolate dependencies.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>The thought's response / observation.</returns>
-        private Task<string> ExecuteThoughtAsync(Thought thought, Dictionary<string, string> context, CancellationToken token)
+        protected Task<string> ExecuteThoughtAsync(Thought thought, Dictionary<string, string> state, CancellationToken token)
         {
             // Interpolate arguments based on the context passed.
             foreach (var argument in thought.Arguments)
             {
                 thought.Arguments[argument.Key] = argument.Value;
 
-                foreach (var variable in context)
+                foreach (var variable in state)
                 {
                     thought.Arguments[argument.Key] = thought.Arguments[argument.Key].Replace(variable.Key, variable.Value);
                 }

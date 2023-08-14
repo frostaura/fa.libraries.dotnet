@@ -7,15 +7,15 @@ using FrostAura.Libraries.Semantic.Core.Extensions.Configuration;
 
 namespace Semantic.Core.Tests.Thoughts.Chains.Cognitive
 {
-    public class MemoryRecallChainTests
+    public class AudioTranscriptionChainTests
     {
         [Fact]
         public void Constructor_WithInvalidLogger_ShouldThrow()
         {
-            ILogger<MemoryRecallChain> logger = null;
+            ILogger<AudioTranscriptionChain> logger = null;
             IServiceProvider serviceProvider = Substitute.For<IServiceProvider>();
 
-            var actual = Assert.Throws<ArgumentNullException>(() => new MemoryRecallChain(serviceProvider, logger));
+            var actual = Assert.Throws<ArgumentNullException>(() => new AudioTranscriptionChain(serviceProvider, logger));
 
             Assert.Equal(nameof(logger), actual.ParamName);
         }
@@ -23,10 +23,10 @@ namespace Semantic.Core.Tests.Thoughts.Chains.Cognitive
         [Fact]
         public void Constructor_WithInvalidServiceProvider_ShouldThrow()
         {
-            ILogger<MemoryRecallChain> logger = Substitute.For<ILogger<MemoryRecallChain>>();
+            ILogger<AudioTranscriptionChain> logger = Substitute.For<ILogger<AudioTranscriptionChain>>();
             IServiceProvider serviceProvider = null;
 
-            var actual = Assert.Throws<ArgumentNullException>(() => new MemoryRecallChain(serviceProvider, logger));
+            var actual = Assert.Throws<ArgumentNullException>(() => new AudioTranscriptionChain(serviceProvider, logger));
 
             Assert.Equal(nameof(serviceProvider), actual.ParamName);
         }
@@ -35,9 +35,9 @@ namespace Semantic.Core.Tests.Thoughts.Chains.Cognitive
         public void Constructor_WithValidParams_ShouldConstruct()
         {
             var serviceProvider = Substitute.For<IServiceProvider>();
-            var logger = Substitute.For<ILogger<MemoryRecallChain>>();
+            var logger = Substitute.For<ILogger<AudioTranscriptionChain>>();
 
-            var actual = new MemoryRecallChain(serviceProvider, logger);
+            var actual = new AudioTranscriptionChain(serviceProvider, logger);
 
             Assert.NotNull(actual);
             Assert.NotEmpty(actual.QueryExample);
@@ -50,8 +50,8 @@ namespace Semantic.Core.Tests.Thoughts.Chains.Cognitive
         public async Task ExecuteChainAsync_WithInvalidInput_ShouldThrow()
         {
             var serviceProvider = Substitute.For<IServiceProvider>();
-            var logger = Substitute.For<ILogger<MemoryRecallChain>>();
-            var instance = new MemoryRecallChain(serviceProvider, logger);
+            var logger = Substitute.For<ILogger<AudioTranscriptionChain>>();
+            var instance = new AudioTranscriptionChain(serviceProvider, logger);
             string input = default;
 
             var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.ExecuteChainAsync(input));
@@ -60,21 +60,20 @@ namespace Semantic.Core.Tests.Thoughts.Chains.Cognitive
         }
 
         [Fact]
-        public async Task ExecuteChainAsync_WithValidInput_ShouldCallCommitToMemoryAsync()
+        public async Task ExecuteChainAsync_WithValidInput_ShouldCallInvokeAsyncAsync()
         {
             var serviceCollection = new ServiceCollection()
                 .AddSemanticCore(Config.SEMANTIC_CONFIG);
 
-            // Inject depdencies.
-
             var serviceProvider = serviceCollection.BuildServiceProvider();
-            var logger = Substitute.For<ILogger<MemoryRecallChain>>();
-            var instance = new MemoryRecallChain(serviceProvider, logger);
-            var input = "How do I feel about cats?";
+            var logger = Substitute.For<ILogger<AudioTranscriptionChain>>();
+            var instance = new AudioTranscriptionChain(serviceProvider, logger);
+            var input = "./harvard.wav";
+            var expected = "The stale smell of old beer lingers. It takes heat to bring out the odor. A cold dip restores health and zest. A salt pickle tastes fine with ham. Tacos al pastor are my favorite. A zestful food is the hot cross bun.";
 
             var actual = await instance.ExecuteChainAsync(input);
 
-            Assert.NotEmpty(actual);
+            Assert.Contains(expected, actual);
         }
     }
 }

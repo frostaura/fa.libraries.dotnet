@@ -10,11 +10,15 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
         /// <summary>
         /// The problem statement that the plan solves for.
         /// </summary>
-        public override string ExampleChallange => "When was I born?";
+        public override string QueryExample => "When was I born?";
+        /// <summary>
+        /// An example query input that this chain example can be used to solve for.
+        /// </summary>
+        public override string QueryInputExample => QueryExample;
         /// <summary>
         /// The reasoning for the solution of the chain.
         /// </summary>
-        public override string Reasoning => "This seems like information that I may have committed to my memory before. I can look this up from memory and respond coherently using a LLM. If the information doesn't exist in my memory, I should say I don't know.";
+        public override string Reasoning => "This seems like information that I may have committed to my Memory before. I can look this up from Memory and respond coherently using a LLM. If the information doesn't exist in my Memory, I should say I don't know.";
         /// <summary>
         /// A collection of thoughts.
         /// </summary>
@@ -23,7 +27,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
             new Thought
             {
                 Action = $"{nameof(MemoryThoughts)}.{nameof(MemoryThoughts.RecallFromMemoryAsync)}",
-                Reasoning = "I will look this information up from my memory store.",
+                Reasoning = "I will look this information up from my Memory store.",
                 Critisism = "When memories aren't available, irrelevant memories may be recalled. I should only consider the relevant one(s).",
                 Arguments = new Dictionary<string, string>
                 {

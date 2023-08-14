@@ -2,6 +2,7 @@
 using FrostAura.Libraries.Semantic.Core.Models.Configuration;
 using FrostAura.Libraries.Semantic.Core.Thoughts;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
 
 namespace FrostAura.Libraries.Semantic.Core.Extensions.Configuration
@@ -37,7 +38,7 @@ namespace FrostAura.Libraries.Semantic.Core.Extensions.Configuration
 		{
 			return services
 				.AddAllThoughts()
-                .AddSemanticKernel(config)
+                .AddSemanticServices(config)
                 .AddLogging()
                 .AddHttpClient();
 		}
@@ -65,10 +66,16 @@ namespace FrostAura.Libraries.Semantic.Core.Extensions.Configuration
         /// <param name="services">Services collection to add to.</param>
         /// <param name="config">Configuration to use.</param>
         /// <returns>The ammended collection.</returns>
-        private static IServiceCollection AddSemanticKernel(this IServiceCollection services, SemanticConfig config)
+        private static IServiceCollection AddSemanticServices(this IServiceCollection services, SemanticConfig config)
         {
+            var semanticConfig = config.GetComprehensiveKernel();
+
             return services
-                .AddTransient(typeof(IKernel), provider => config.GetComprehensiveKernel());
+                .AddSingleton(Options.Create(config.ElevenLabsConfig))
+                .AddSingleton(Options.Create(config.OpenAIConfig))
+                .AddSingleton(Options.Create(config.PexelsConfig))
+                .AddSingleton(Options.Create(config.PineconeConfig))
+                .AddTransient(typeof(IKernel), provider => semanticConfig);
         }
     }
 }

@@ -33,7 +33,7 @@ namespace Finance.Tests.Managers
                     new Account
                     {
                         Name = "Alexander Forbes", // TODO: Figure out how to disallow bonus months to affect this amount. When we get a bonus, the contribution goes up.
-                        Amount = 519308,
+                        Amount = 541966,
                         ScheduledTransactions = new List<PricedItem>
                         {
                             new PricedItem{ Name = "AF Provident Fund Admin Fee", Amount = -173 },
@@ -44,13 +44,15 @@ namespace Finance.Tests.Managers
                     new Account
                     {
                         Name = "Securities & Forex",
-                        Amount = 1000,
+                        Amount = 10000,
                         InterestRate = 0.1,
                         ScheduledTransactions = new List<PricedItem>
                         {
-                            new PricedItem{ Name = "BTC", Amount = 500 },
-                            new PricedItem{ Name = "DIS", Amount = 500 },
-                            new PricedItem{ Name = "SPY", Amount = 1000 }
+                            new PricedItem{ Name = "AAPL", Amount = 333 },
+                            new PricedItem{ Name = "BTC", Amount = 1000 },
+                            new PricedItem{ Name = "DIS", Amount = 333 },
+                            new PricedItem{ Name = "SPY", Amount = 2000 },
+                            new PricedItem{ Name = "WBD", Amount = 333 }
                         }
                     },
                     new Account
@@ -58,7 +60,7 @@ namespace Finance.Tests.Managers
                         Name = "MTN Mobile",
                         Type = AccountType.Repeat,
                         Limit = 0,
-                        ExpirationDate = new DateTime(2024, 12, 31),
+                        ExpirationDate = new DateTime(2024, 10, 31),
                         ScheduledTransactions = new List<PricedItem>
                         {
                             new PricedItem{ Name = "Payment", Amount = 1550 }
@@ -69,7 +71,7 @@ namespace Finance.Tests.Managers
                         Name = "FNB Devices (TV)",
                         Type = AccountType.Repeat,
                         Limit = 0,
-                        ExpirationDate = new DateTime(2024, 12, 31),
+                        ExpirationDate = new DateTime(2024, 5, 31),
                         ScheduledTransactions = new List<PricedItem>
                         {
                             new PricedItem{ Name = "Payment", Amount = 1150 }
@@ -78,7 +80,7 @@ namespace Finance.Tests.Managers
                     new Account
                     {
                         Name = "MFC Vehicle Finance",
-                        Amount = -553895,
+                        Amount = -538000,
                         InterestRate = 0.1465,
                         Type = AccountType.StopAtZero,
                         Limit = 0,
@@ -92,8 +94,8 @@ namespace Finance.Tests.Managers
                     new Account
                     {
                         Name = "FNB Fusion",
-                        Amount = -30551,
-                        Limit = 65000,
+                        Amount = 0,
+                        Limit = 0,
                         SalaryDepositAccount = true,
                         InterestRate = 0.2225,
                         Type = AccountType.StopAtZero,
@@ -102,23 +104,30 @@ namespace Finance.Tests.Managers
                             new PricedItem{ Name = "Bank Account Charges", Amount = -650 }
                         }
                     },
+                    new Account{
+                        Name = "FNB Fusion Overdraft",
+                        Amount = -25000,
+                        Limit = 25000,
+                        InterestRate = 0.2225,
+                        Type = AccountType.StopAtZero
+                    },
                     new Account
                     {
                         Name = "FNB Credit",
                         Amount = -170008,
                         Limit = 170000,
                         InterestRate = 0.1975,
-                        Type = AccountType.StopAtZero,
+                        Type = AccountType.StopAtZero
                     },
                     new Account
                     {
                         Name = "SA Home Loan",
-                        Amount = -1747124,
+                        Amount = -174700,
                         InterestRate = 0.119,
                         Type = AccountType.StopAtZero,
                         ScheduledTransactions = new List<PricedItem>
                         {
-                            new PricedItem{ Name = "Payment", Amount = 18500 },
+                            new PricedItem{ Name = "Payment", Amount = 18900 },
                             new PricedItem{ Name = "Bank Account Charges", Amount = -70 },
                         }
                     }
@@ -126,7 +135,7 @@ namespace Finance.Tests.Managers
                 Income = new List<TaxablePricedItem>
                 {
                     new TaxablePricedItem{ Name = "Basic Salary", Amount = 132314, Taxable = true },
-                    new TaxablePricedItem{ Name = "Medical Aid Subsidy", Amount = 2062 },
+                    new TaxablePricedItem{ Name = "Medical Aid Subsidy", Amount = 2000 },
                     new TaxablePricedItem{ Name = "Life Cover", Amount = 522 },
                     new TaxablePricedItem{ Name = "Disability", Amount = 45 },
                     new TaxablePricedItem{ Name = "Income Protector", Amount = 590 },
@@ -144,7 +153,9 @@ namespace Finance.Tests.Managers
                     new PricedItem{ Name = "Canteen", Amount = 300 },
                     new PricedItem{ Name = "Discovery Medical Aid", Amount = 2226 },
                     new PricedItem{ Name = "Discovery Vitality", Amount = 329 },
-                    new PricedItem{ Name = "Cool Ideas Fibre", Amount = 1400 },
+                    new PricedItem{ Name = "MTN Mobile", Amount = 1550 },
+                    new PricedItem{ Name = "FNB Devices", Amount = 1150 },
+                    new PricedItem{ Name = "Cool Ideas Fibre", Amount = 1500 },
                     new PricedItem{ Name = "Apple Watch Discovery", Amount = 450 },
                     new PricedItem{ Name = "Santam Insurance", Amount = 2200 },
                     new PricedItem{ Name = "Maid", Amount = 1500 },
@@ -152,15 +163,14 @@ namespace Finance.Tests.Managers
                     new PricedItem{ Name = "Groceries", Amount = 4000 },
                     new PricedItem{ Name = "Apple Music + iCloud", Amount = 150 },
                     new PricedItem{ Name = "Home Levies", Amount = 1550 },
-                    new PricedItem{ Name = "Rates, Taxes & Electricity", Amount = 4000 },
+                    new PricedItem{ Name = "Rates, Taxes & Electricity", Amount = 3500 },
                     new PricedItem{ Name = "Pet Supplies", Amount = 1500 },
                     new PricedItem{ Name = "Entertainment", Amount = 3000 },
                     new PricedItem{ Name = "YouTube Premium", Amount = 100 },
                     new PricedItem{ Name = "StressFace", Amount = 50 },
                     new PricedItem{ Name = "Cannibis", Amount = 1000 },
                     new PricedItem{ Name = "Infuse Pro", Amount = 50 },
-                    new PricedItem{ Name = "Manscaping", Amount = 1000 },
-                    new PricedItem{ Name = "Iso Whey Protein & Creatine", Amount = 350 }
+                    new PricedItem{ Name = "Manscaping", Amount = 1000 }
                 }
             };
             var targetDate = new DateTime(2026, 7, 26);
@@ -177,14 +187,14 @@ namespace Finance.Tests.Managers
             request.Conditions[isIncreaseMonth] = new TaxablePricedItem
             {
                 Name = "Increase",
-                Amount = 0.07,
+                Amount = 0.05,
                 Taxable = true,
                 Type = PricedItemType.SalaryRatio
             };
             request.Conditions[isLeaveEncashmentMonth] = new TaxablePricedItem
             {
                 Name = "Leave Encashment",
-                Amount = 1.0 / 23 * 5, // Assuming 23 work days per month and encashing 5 days.
+                Amount = 1.0 / 21 * 5, // Assuming 21 work days per month and encashing 5 days.
                 Taxable = true,
                 OnceOff = true,
                 Type = PricedItemType.SalaryRatio
@@ -222,13 +232,22 @@ namespace Finance.Tests.Managers
             //var projectionForWhenNetWorthExceedsZero = await instance.ProjectTillIsTerminalAsync(request, belowZeroNetWorthTerminalCondition);
 
             // Feb 2027
-            var projectionForAllDebtSettled = await instance.ProjectTillIsTerminalAsync(request, hasUnsettledAccountsTerminalCondition);
+            //var projectionForAllDebtSettled = await instance.ProjectTillIsTerminalAsync(request, hasUnsettledAccountsTerminalCondition);
 
             // December 2033
             //var projectionTillFinancialGoalsMet = await instance.ProjectTillIsTerminalAsync(request, hasNotMetFinancialGoalsYetTerminalCondition);
 
             // Assert
-            Assert.NotNull(projectionForAllDebtSettled);
+            var customCheck = await instance.ProjectTillIsTerminalAsync(request, new Func<int, DateTime, bool>((monthIndex, monthDate) =>
+            {
+                var isFusionSettled = request
+                    .Accounts
+                    .First(a => a.Name == "FNB Fusion Overdraft");
+
+                return isFusionSettled.RunningBalance < 0;
+            }));
+
+            Assert.NotNull(customCheck);
 
             // TODO: Object extension for cloning.
         }

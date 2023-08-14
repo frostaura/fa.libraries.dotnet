@@ -40,7 +40,8 @@ namespace Semantic.Core.Tests.Thoughts.Chains.Cognitive
             var actual = new MemoryCommitChain(serviceProvider, logger);
 
             Assert.NotNull(actual);
-            Assert.NotEmpty(actual.ExampleChallange);
+            Assert.NotEmpty(actual.QueryExample);
+            Assert.NotEmpty(actual.QueryInputExample);
             Assert.NotEmpty(actual.Reasoning);
             Assert.NotEmpty(actual.ChainOfThoughts);
         }

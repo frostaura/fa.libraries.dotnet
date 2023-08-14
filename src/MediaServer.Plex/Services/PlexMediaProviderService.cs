@@ -150,8 +150,8 @@ namespace MediaServer.Plex.Services
                     
                     return new Movie
                     {
-                        AudioChannels = media.AudioChannels,
-                        AudioCodec = media.AudioCodec,
+                        MemoryChannels = media.MemoryChannels,
+                        MemoryCodec = media.MemoryCodec,
                         Bitrate = media.Bitrate,
                         Container = media.Container,
                         Description = m.Summary,

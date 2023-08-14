@@ -17,7 +17,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
 	public class MemoryThoughts : BaseThought
     {
         /// <summary>
-        /// The collection to use for memory storage.
+        /// The collection to use for Memory storage.
         /// </summary>
         private readonly string COLLECTION_PREFIX = "frostaura-semantic-core";
         /// <summary>
@@ -51,18 +51,18 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
         /// <summary>
         /// Remember something for future reference.
         /// </summary>
-        /// <param name="memory">The memory to record.</param>
+        /// <param name="Memory">The Memory to record.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>The response body as a string.</returns>
         [SKFunction, Description("Remember something for future reference.")]
         public async Task<string> CommitToMemoryAsync(
-            [Description("The memory to record.")] string memory,
-            [Description("The source of the memory. A default value of 'general' is acceptable when unsure.")] string source,
+            [Description("The Memory to record.")] string Memory,
+            [Description("The source of the Memory. A default value of 'general' is acceptable when unsure.")] string source,
             CancellationToken token = default)
         {
             var collection = COLLECTION_PREFIX;
-            var chunks = GetTextChunks(memory.ThrowIfNullOrWhitespace(nameof(memory)), CHUNK_SIZE, OVERLAP);
-            var memoryRecordingTasks = chunks
+            var chunks = GetTextChunks(Memory.ThrowIfNullOrWhitespace(nameof(Memory)), CHUNK_SIZE, OVERLAP);
+            var MemoryRecordingTasks = chunks
                 .Select(async c => await _kernel.Memory.SaveInformationAsync(
                     collection,
                     c.Value,
@@ -70,21 +70,21 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
                     description: $"Source: {source.ThrowIfNullOrWhitespace(nameof(source))}",
                     cancellationToken: token));
 
-            var response = await Task.WhenAll(memoryRecordingTasks);
+            var response = await Task.WhenAll(MemoryRecordingTasks);
             var responseString = JsonConvert.SerializeObject(response, Formatting.Indented);
 
             return responseString;
         }
 
         /// <summary>
-        /// Look up something from memory that was previously remembered.
+        /// Look up something from Memory that was previously remembered.
         /// </summary>
-        /// <param name="query">The memory to search for.</param>
+        /// <param name="query">The Memory to search for.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>A collection of the closest matching memories.</returns>
-        [SKFunction, Description("Look up something from memory that was previously remembered.")]
+        [SKFunction, Description("Look up something from Memory that was previously remembered.")]
         public async Task<string> RecallFromMemoryAsync(
-            [Description("The memory to search for.")] string query,
+            [Description("The Memory to search for.")] string query,
             CancellationToken token = default)
         {
             var collection = COLLECTION_PREFIX;
@@ -98,9 +98,9 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
             {
                 while (await memories.MoveNextAsync())
                 {
-                    var memoryResult = memories.Current;
+                    var MemoryResult = memories.Current;
 
-                    result.Add(memoryResult.Metadata);
+                    result.Add(MemoryResult.Metadata);
                 }
             }
             finally
@@ -112,14 +112,14 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
         }
 
         /// <summary>
-        /// Look up something from a large text blob using in-memory vector search.
+        /// Look up something from a large text blob using in-Memory vector search.
         /// </summary>
         /// <param name="searchPhrase">The search phrase to lookup.</param>
         /// <param name="largeTextBlob">The large text blob to search.</param>
         /// <param name="resultsCount">The count of results to return.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>A collection (X resultsCount) of semantically most similar results.</returns>
-        [SKFunction, Description("Look up something from a large text blob using in-memory vector search.")]
+        [SKFunction, Description("Look up something from a large text blob using in-Memory vector search.")]
         public async Task<string> SearchTextBlobAsync(
             [Description("The search phrase to lookup.")] string searchPhrase,
             [Description("The large text blob to search.")] string largeTextBlob,

@@ -28,8 +28,8 @@ $AVAILABLE_FUNCTIONS$
 </available-skills>
 
 <goal>My name is Dean Martin.</goal>
-<plan reasoning="I should commit any knowledge to my memory so I can recall the facts later on and respond coherently." critisism="No critisism.">
-    <skill name="{nameof(CommitToMemory)}" {ArgumentNames.SOURCE}="Conversational Memory" reasoning="I will commit to momory this fact I extracted from the conversation for future lookup." critisism="There could be a better way to commit to memory than just verbatim the input value."/>
+<plan reasoning="I should commit any knowledge to my Memory so I can recall the facts later on and respond coherently." critisism="No critisism.">
+    <skill name="{nameof(CommitToMemory)}" {ArgumentNames.SOURCE}="Conversational Memory" reasoning="I will commit to momory this fact I extracted from the conversation for future lookup." critisism="There could be a better way to commit to Memory than just verbatim the input value."/>
     <skill name="{nameof(OutputText)}" {ArgumentNames.Result}="I will remember that, thanks Dean." reasoning="I will now respond coherently after recording the conversational facts for future reference." critisism="No critisism."/>
 </plan>
 <suggested-skills>
@@ -47,8 +47,8 @@ $AVAILABLE_FUNCTIONS$
 
 <goal>What are the top 10 trending movies today?</goal>
 <plan reasoning="I should gather currently popular movies from a few sources and clean up the responses as much as possible to reduce the size, then use a LLM to reason between the responses to return the final response." critisism="Relying on the LLM too much can be slow and costly. LLMs also have a limited context window size.">
-    <skill name="{nameof(HttpClient)}" {ArgumentNames.INPUT}="https://www.imdb.com/chart/moviemeter/" reasoning="From my own memory, imdb should be a good place to look for trending movies." critisism="The URL I am using from my own memory, instead of config, could break over time." set-context-variable="MOVIES_TRENDING_RESULT_1"/>
-    <skill name="{nameof(HttpClient)}" {ArgumentNames.INPUT}="https://www.themoviedb.org/movie" reasoning="From my own memory, tmdb should be another good place to look for trending movies." critisism="The URL I am using from my own memory, instead of config, could break over time." set-context-variable="MOVIES_TRENDING_RESULT_2"/>
+    <skill name="{nameof(HttpClient)}" {ArgumentNames.INPUT}="https://www.imdb.com/chart/moviemeter/" reasoning="From my own Memory, imdb should be a good place to look for trending movies." critisism="The URL I am using from my own Memory, instead of config, could break over time." set-context-variable="MOVIES_TRENDING_RESULT_1"/>
+    <skill name="{nameof(HttpClient)}" {ArgumentNames.INPUT}="https://www.themoviedb.org/movie" reasoning="From my own Memory, tmdb should be another good place to look for trending movies." critisism="The URL I am using from my own Memory, instead of config, could break over time." set-context-variable="MOVIES_TRENDING_RESULT_2"/>
     <skill name="{nameof(LargeLanguageModel)}" {ArgumentNames.INPUT}="From the following sources, list the top 10 trending movies. Respond in markdown format.\n\nIMDB: $MOVIES_TRENDING_RESULT_1\n\nTMDB: $MOVIES_TRENDING_RESULT_2\n\n" reasoning="I can defer asking to extract things from unstructured data like trending movies." critisism="The content that is getting injected seems to be raw HTTP web responses which would contain excess tokens and might run over the LLM context window size." set-context-variable="LLM_ANSWER"/>
     <skill name="{nameof(OutputText)}" {ArgumentNames.Result}="$LLM_ANSWER" reasoning="The LLM response is sufficient to return without any modifications." critisism="No critisism."/>
 </plan>

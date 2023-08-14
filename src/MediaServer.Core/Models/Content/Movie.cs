@@ -69,14 +69,14 @@ namespace FrostAura.Libraries.MediaServer.Core.Models.Content
         public int Height { get; set; }
 
         /// <summary>
-        /// Count of audio channels.
+        /// Count of Memory channels.
         /// </summary>
-        public int AudioChannels { get; set; }
+        public int MemoryChannels { get; set; }
 
         /// <summary>
-        /// Audio codec.
+        /// Memory codec.
         /// </summary>
-        public string AudioCodec { get; set; }
+        public string MemoryCodec { get; set; }
         
         /// <summary>
         /// Video codec.

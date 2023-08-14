@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace FrostAura.Libraries.Semantic.Core.Models.Thoughts
 {
@@ -39,12 +40,18 @@ namespace FrostAura.Libraries.Semantic.Core.Models.Thoughts
         /// <returns>The formatted thought string.</returns>
         public override string ToString()
         {
+            var argumentsStr = JsonConvert.SerializeObject(Arguments, Formatting.Indented);
+
             return $"""
+
+
                 Thought: {Reasoning}
                 Critisism: {Critisism}
                 Action: {Action}
-                Arguments: {Arguments.Keys.Count}
+                Arguments:
+                {argumentsStr}
                 Observation: {Observation}
+
                 """;
         }
     }

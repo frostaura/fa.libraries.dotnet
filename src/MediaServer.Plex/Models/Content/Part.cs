@@ -36,9 +36,9 @@ namespace MediaServer.Plex.Models.Content
         public Int64 Size { get; set; }
 
         /// <summary>
-        /// Audio profile of the part.
+        /// Memory profile of the part.
         /// </summary>
-        public string AudioProfile { get; set; }
+        public string MemoryProfile { get; set; }
         
         /// <summary>
         /// Media container.

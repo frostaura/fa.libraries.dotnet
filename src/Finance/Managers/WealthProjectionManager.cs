@@ -52,7 +52,7 @@ namespace Finance.Managers
                 .Accounts
                 .Single(a => a.SalaryDepositAccount);
             // Create the monthly loop from the 1st of this month.
-            var runningDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            var runningDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 28);
             var monthIndex = 0;
 
             // Reset all account transactions.

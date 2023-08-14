@@ -63,7 +63,7 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
             var kernel = Config.SEMANTIC_CONFIG.GetComprehensiveKernel();
             var logger = Substitute.For<ILogger<MemoryThoughts>>();
             var instance = new MemoryThoughts(kernel, logger);
-            string memory = "test memory";
+            string memory = "test Memory";
             string source = default;
 
             var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.CommitToMemoryAsync(memory, source));

@@ -33,8 +33,8 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
         [SKFunction, Description("Execute Python code against a specific version of Python as well as with specific PIP package requirements.")]
         public async Task<string> InvokeAsync(
             [Description("The version of Python to execute code against. For example '3.8'.")] string pythonVersion,
-            [Description("A collection of PIP dependencies the Python code requires. The items can either be a package name (Example: 'pandas==1.2.3') or a package name with its version (Example: 'pandas').")] List<string> pipDependencies,
-            [Description("A collection of Conda dependencies the Python code requires. The items can either be a package name (Example: 'ffmpeg==1.2.3') or a package name with its version (Example: 'ffmpeg').")] List<string> condaDependencies,
+            [Description("A collection of PIP dependencies the Python code requires. The items can either be a package name (Example: 'pandas==1.2.3') or a package name with its version (Example: 'pandas').")] string pipDependencies,
+            [Description("A collection of Conda dependencies the Python code requires. The items can either be a package name (Example: 'ffmpeg==1.2.3') or a package name with its version (Example: 'ffmpeg').")] string condaDependencies,
             [Description("Python code to execute. The only requirement for the structure of this code is that the code should be wrapped in a function called 'main' that accepts zero arguments and returns a string.")] string code,
             CancellationToken token = default)
         {
@@ -44,8 +44,8 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
 
             var pythonExecutablePath = await EnsurePythonEnvironmentAndGetPathAsync(
                 pythonVersion.ThrowIfNullOrWhitespace(nameof(pythonVersion)),
-                pipDependencies.ThrowIfNull(nameof(pipDependencies)),
-                condaDependencies.ThrowIfNull(nameof(condaDependencies)),
+                pipDependencies.Split(' ').ToList(),
+                condaDependencies.Split(' ').ToList(),
                 token);
             var outputIndicator = "OUTPUT";
             var executableCode = $"""
@@ -77,7 +77,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
         private async Task<string> EnsurePythonEnvironmentAndGetPathAsync(string pythonVersion, List<string> pipDependencies, List<string> condaDependencies, CancellationToken token)
         {
             var environmentName = GetPythonEnvironmentHash(pythonVersion, pipDependencies, condaDependencies);
-            var environmentPath = $"{environmentName}";
+            var environmentPath = $"envs/{environmentName}";
             var pythonExecutablePath = $"{environmentPath}/bin/python";
 
             if (!Directory.Exists(environmentPath))
@@ -87,12 +87,16 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
 
                 foreach (var dependency in condaDependencies)
                 {
+                    if (string.IsNullOrWhiteSpace(dependency)) continue;
+
                     Console.WriteLine($"Installing Conda dependency '{dependency}' into the Conda environment ({environmentPath}).");
                     await ExecuteProcessAsync("conda", $"install {dependency} -c conda-forge -y -p {environmentPath}", token);
                 }
 
                 foreach (var dependency in pipDependencies)
                 {
+                    if (string.IsNullOrWhiteSpace(dependency)) continue;
+
                     Console.WriteLine($"Installing PIP dependency '{dependency}' into the Conda environment ({environmentPath}).");
                     await ExecuteProcessAsync(pythonExecutablePath, $"-m pip install {dependency}", token);
                 }
