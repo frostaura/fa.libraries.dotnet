@@ -1,6 +1,7 @@
 ﻿using FrostAura.Libraries.Semantic.Core.Enumerations.Semantic;
 using FrostAura.Libraries.Semantic.Core.Models.Configuration;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Reliability.Basic;
 
 namespace FrostAura.Libraries.Semantic.Core.Extensions.Configuration
 {
@@ -16,11 +17,12 @@ namespace FrostAura.Libraries.Semantic.Core.Extensions.Configuration
 		/// <returns>A build semantic kernel.</returns>
 		public static IKernel GetComprehensiveKernel(this SemanticConfig config)
 		{
-            var kernelConfig = new KernelConfig();
-            kernelConfig.DefaultHttpRetryConfig.MaxRetryCount = 5;
-            kernelConfig.DefaultHttpRetryConfig.UseExponentialBackoff = true;
             var kernelBuilder = new KernelBuilder()
-                .WithConfiguration(kernelConfig)
+                .WithRetryBasic(new BasicRetryConfig
+                {
+                    MaxRetryCount = 5,
+                    UseExponentialBackoff = true
+                })
                 .WithPineconeMemoryStore(config.PineconeConfig.Environment, config.PineconeConfig.ApiKey);
 
             // Configure the public kernel.

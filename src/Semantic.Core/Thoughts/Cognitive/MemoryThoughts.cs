@@ -51,17 +51,17 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
         /// <summary>
         /// Remember something for future reference.
         /// </summary>
-        /// <param name="Memory">The Memory to record.</param>
+        /// <param name="memory">The Memory to record.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>The response body as a string.</returns>
         [SKFunction, Description("Remember something for future reference.")]
         public async Task<string> CommitToMemoryAsync(
-            [Description("The Memory to record.")] string Memory,
+            [Description("The Memory to record.")] string memory,
             [Description("The source of the Memory. A default value of 'general' is acceptable when unsure.")] string source,
             CancellationToken token = default)
         {
             var collection = COLLECTION_PREFIX;
-            var chunks = GetTextChunks(Memory.ThrowIfNullOrWhitespace(nameof(Memory)), CHUNK_SIZE, OVERLAP);
+            var chunks = GetTextChunks(memory.ThrowIfNullOrWhitespace(nameof(memory)), CHUNK_SIZE, OVERLAP);
             var MemoryRecordingTasks = chunks
                 .Select(async c => await _kernel.Memory.SaveInformationAsync(
                     collection,

@@ -1,42 +1,42 @@
-﻿using System;
-using Finance.Enums;
+﻿using Finance.Enums;
 using Finance.Managers;
 using Finance.Models;
 using Xunit;
 
 namespace Finance.Tests.Managers
 {
-	public class WealthProjectionManagerTests
+    public class WealthProjectionManagerTests
 	{
         [Fact]
         public async Task ProjectToDateAsync_WithValidData_ShouldProject()
         {
             // Setup
             var instance = new WealthProjectionManager();
-            var isBonusMonthCondition = new Func<int, DateTime, bool>((monthIndex, monthDate) =>
+            var isBonusMonthCondition = new Func<ProjectionRequest, int, DateTime, bool>((req, monthIndex, monthDate) =>
             {
                 var bonusMonths = new[] { 7, 12 };
 
                 return bonusMonths.Contains(monthDate.Month);
             });
-            var isLeaveEncashmentMonth = new Func<int, DateTime, bool>((monthIndex, monthDate) =>
+            var isLeaveEncashmentMonthCondition = new Func<ProjectionRequest, int, DateTime, bool>((req, monthIndex, monthDate) =>
             {
                 var leaveEncashmentMonths = new[] { 8 };
 
                 return leaveEncashmentMonths.Contains(monthDate.Month);
             });
-            var isIncreaseMonth = new Func<int, DateTime, bool>((monthIndex, monthDate) => monthDate.Month == 6);
+            var isIncreaseMonthCondition = new Func<ProjectionRequest, int, DateTime, bool>((req, monthIndex, monthDate) => monthDate.Month == 6);
             var request = new ProjectionRequest
             {
                 Accounts = new List<Account>
                 {
                     new Account
                     {
-                        Name = "Alexander Forbes", // TODO: Figure out how to disallow bonus months to affect this amount. When we get a bonus, the contribution goes up.
-                        Amount = 541966,
+                        Name = "Alexander Forbes",
+                        Amount = 528188,
+                        InterestRate = 0.07, // Conservative percentage.
                         ScheduledTransactions = new List<PricedItem>
                         {
-                            new PricedItem{ Name = "AF Provident Fund Admin Fee", Amount = -173 },
+                            new PricedItem{ Name = "AF Provident Fund Admin Fee", Amount = -500 },
                             new PricedItem{ Name = "AF Provident Fund (Employee Deposit)", Amount = 0.05, Type = PricedItemType.SalaryRatio },
                             new PricedItem{ Name = "AF Provident Fund (Company Deposit)", Amount = 0.05, Type = PricedItemType.SalaryRatio }
                         }
@@ -45,7 +45,8 @@ namespace Finance.Tests.Managers
                     {
                         Name = "Securities & Forex",
                         Amount = 10000,
-                        InterestRate = 0.1,
+                        InterestRate = 0.07, // Conservative percentage.
+                        DefaultInvestmentAccount = true,
                         ScheduledTransactions = new List<PricedItem>
                         {
                             new PricedItem{ Name = "AAPL", Amount = 333 },
@@ -80,7 +81,7 @@ namespace Finance.Tests.Managers
                     new Account
                     {
                         Name = "MFC Vehicle Finance",
-                        Amount = -538000,
+                        Amount = -542590,
                         InterestRate = 0.1465,
                         Type = AccountType.StopAtZero,
                         Limit = 0,
@@ -98,7 +99,6 @@ namespace Finance.Tests.Managers
                         Limit = 0,
                         SalaryDepositAccount = true,
                         InterestRate = 0.2225,
-                        Type = AccountType.StopAtZero,
                         ScheduledTransactions = new List<PricedItem>
                         {
                             new PricedItem{ Name = "Bank Account Charges", Amount = -650 }
@@ -114,7 +114,7 @@ namespace Finance.Tests.Managers
                     new Account
                     {
                         Name = "FNB Credit",
-                        Amount = -170008,
+                        Amount = -170000,
                         Limit = 170000,
                         InterestRate = 0.1975,
                         Type = AccountType.StopAtZero
@@ -122,7 +122,7 @@ namespace Finance.Tests.Managers
                     new Account
                     {
                         Name = "SA Home Loan",
-                        Amount = -174700,
+                        Amount = -1746420,
                         InterestRate = 0.119,
                         Type = AccountType.StopAtZero,
                         ScheduledTransactions = new List<PricedItem>
@@ -158,7 +158,7 @@ namespace Finance.Tests.Managers
                     new PricedItem{ Name = "Cool Ideas Fibre", Amount = 1500 },
                     new PricedItem{ Name = "Apple Watch Discovery", Amount = 450 },
                     new PricedItem{ Name = "Santam Insurance", Amount = 2200 },
-                    new PricedItem{ Name = "Maid", Amount = 1500 },
+                    new PricedItem{ Name = "Maid", Amount = 350 * 5 },
                     new PricedItem{ Name = "Fuel & Carwash", Amount = 2000 },
                     new PricedItem{ Name = "Groceries", Amount = 4000 },
                     new PricedItem{ Name = "Apple Music + iCloud", Amount = 150 },
@@ -171,9 +171,9 @@ namespace Finance.Tests.Managers
                     new PricedItem{ Name = "Cannibis", Amount = 1000 },
                     new PricedItem{ Name = "Infuse Pro", Amount = 50 },
                     new PricedItem{ Name = "Manscaping", Amount = 1000 }
-                }
+                },
+                ProjectionStartDate = new DateTime(2023, 8, 28)
             };
-            var targetDate = new DateTime(2026, 7, 26);
 
             // Register custom conditional transactions.
             request.Conditions[isBonusMonthCondition] = new TaxablePricedItem
@@ -184,14 +184,14 @@ namespace Finance.Tests.Managers
                 OnceOff = true,
                 Type = PricedItemType.SalaryRatio
             };
-            request.Conditions[isIncreaseMonth] = new TaxablePricedItem
+            request.Conditions[isIncreaseMonthCondition] = new TaxablePricedItem
             {
                 Name = "Increase",
                 Amount = 0.05,
                 Taxable = true,
                 Type = PricedItemType.SalaryRatio
             };
-            request.Conditions[isLeaveEncashmentMonth] = new TaxablePricedItem
+            request.Conditions[isLeaveEncashmentMonthCondition] = new TaxablePricedItem
             {
                 Name = "Leave Encashment",
                 Amount = 1.0 / 21 * 5, // Assuming 21 work days per month and encashing 5 days.
@@ -199,26 +199,55 @@ namespace Finance.Tests.Managers
                 OnceOff = true,
                 Type = PricedItemType.SalaryRatio
             };
-
-            var hasUnsettledAccountsTerminalCondition = new Func<int, DateTime, bool>((monthIndex, monthDate) =>
+            // Once-off expense(s)
+            request.Conditions[(req, monthIndex, monthDate) =>
             {
-                var areAllAccountsSettled = request
+                // Specifically for this month.
+                var now = DateTime.Now;
+
+                return monthDate.Month == now.Month && monthDate.Year == now.Year;
+            }] = new TaxablePricedItem
+            {
+                Name = "Mozambique Diving",
+                Amount = -25000,
+                OnceOff = true,
+                Type = PricedItemType.Absolute
+            };
+            request.Conditions[(req, monthIndex, monthDate) =>
+            {
+                // Specifically for October.
+                var now = DateTime.Now;
+
+                return monthDate.Month == 10 && monthDate.Year == now.Year;
+            }
+            ] = new TaxablePricedItem
+            {
+                Name = "Diving Gear + Derivco Service Award",
+                Amount = -25000 + 12000,
+                OnceOff = true,
+                Type = PricedItemType.Absolute
+            };
+
+            // End conditions.
+            var hasUnsettledAccountsTerminalCondition = new Func<ProjectionRequest, int, DateTime, bool>((req, monthIndex, monthDate) =>
+            {
+                var areAllAccountsSettled = req
                                                 .Accounts
                                                 .All(a => a.RunningBalance >= 0);
 
                 return !areAllAccountsSettled;
             });
-            var hasNotMetFinancialGoalsYetTerminalCondition = new Func<int, DateTime, bool>((monthIndex, monthDate) =>
+            var hasNotMetFinancialGoalsYetTerminalCondition = new Func<ProjectionRequest, int, DateTime, bool>((req, monthIndex, monthDate) =>
             {
-                var hasFinancialGoalsBeenMet = request
+                var hasFinancialGoalsBeenMet = req
                                                 .Accounts
-                                                .Sum(a => a.RunningBalance) >= 13150000;
+                                                .Sum(a => a.RunningBalance) >= 30000000;
 
                 return !hasFinancialGoalsBeenMet;
             });
-            var belowZeroNetWorthTerminalCondition = new Func<int, DateTime, bool>((monthIndex, monthDate) =>
+            var belowZeroNetWorthTerminalCondition = new Func<ProjectionRequest, int, DateTime, bool>((req, monthIndex, monthDate) =>
             {
-                var isNetWorthAboveZero = request
+                var isNetWorthAboveZero = req
                                                 .Accounts
                                                 .SelectMany(a => a.Transactions)
                                                 .Sum(t => t.Amount) >= 0;
@@ -226,30 +255,31 @@ namespace Finance.Tests.Managers
                 return !isNetWorthAboveZero;
             });
 
-            //var projectionForSpecificDate = await instance.ProjectToDateAsync(request, targetDate);
+            var projectionForSpecificDate = await instance.ProjectToDateAsync(request, new DateTime(2023 + 3, 09, 05));
 
-            // December 2025
-            //var projectionForWhenNetWorthExceedsZero = await instance.ProjectTillIsTerminalAsync(request, belowZeroNetWorthTerminalCondition);
+            // Nov 2025
+            var projectionForWhenNetWorthExceedsZero = await instance.ProjectTillIsTerminalAsync(request, belowZeroNetWorthTerminalCondition);
 
-            // Feb 2027
-            //var projectionForAllDebtSettled = await instance.ProjectTillIsTerminalAsync(request, hasUnsettledAccountsTerminalCondition);
+            // Dec 2026
+            var projectionForAllDebtSettled = await instance.ProjectTillIsTerminalAsync(request, hasUnsettledAccountsTerminalCondition);
 
-            // December 2033
-            //var projectionTillFinancialGoalsMet = await instance.ProjectTillIsTerminalAsync(request, hasNotMetFinancialGoalsYetTerminalCondition);
+            // Feb 2037
+            var projectionTillFinancialGoalsMet = await instance.ProjectTillIsTerminalAsync(request, hasNotMetFinancialGoalsYetTerminalCondition);
 
-            // Assert
-            var customCheck = await instance.ProjectTillIsTerminalAsync(request, new Func<int, DateTime, bool>((monthIndex, monthDate) =>
+            // R 57m
+            var projectTillRetirementAt50 = await instance.ProjectToDateAsync(request, new DateTime(2023 + (50 - 32), 09, 05));
+
+            // Project till the Fusion account is settled.
+            var projectTillFusionAccountSettled = await instance.ProjectTillIsTerminalAsync(request, new Func<ProjectionRequest, int, DateTime, bool>((req, monthIndex, monthDate) =>
             {
-                var isFusionSettled = request
+                var isFusionSettled = req
                     .Accounts
                     .First(a => a.Name == "FNB Fusion Overdraft");
 
                 return isFusionSettled.RunningBalance < 0;
             }));
 
-            Assert.NotNull(customCheck);
-
-            // TODO: Object extension for cloning.
+            Assert.NotNull(projectionTillFinancialGoalsMet);
         }
     }
 }

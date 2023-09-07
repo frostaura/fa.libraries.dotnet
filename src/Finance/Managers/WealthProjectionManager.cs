@@ -1,5 +1,6 @@
 ﻿using Finance.Interfaces.Managers;
 using Finance.Models;
+using Newtonsoft.Json;
 
 namespace Finance.Managers
 {
@@ -16,7 +17,7 @@ namespace Finance.Managers
 		/// <returns>The projection data.</returns>
 		public Task<ProjectionResponse> ProjectToDateAsync(ProjectionRequest request, DateTime targetDate)
         {
-            var shouldProjectDelegate = new Func<int, DateTime, bool>((monthIndex, currentDate) => currentDate <= targetDate);
+            var shouldProjectDelegate = new Func<ProjectionRequest, int, DateTime, bool>((req, monthIndex, currentDate) => currentDate <= targetDate);
 
             return ProjectTillIsTerminalAsync(request, shouldProjectDelegate);
         }
@@ -29,7 +30,7 @@ namespace Finance.Managers
         /// <returns>The projection data.</returns>
         public Task<ProjectionResponse> ProjectToNetWorthAsync(ProjectionRequest request, double targetNetWorth)
         {
-            var shouldProjectDelegate = new Func<int, DateTime, bool>((monthIndex, currentDate) => request
+            var shouldProjectDelegate = new Func<ProjectionRequest, int, DateTime, bool>((req, monthIndex, currentDate) => req
                                                                                                     .Accounts
                                                                                                     .SelectMany(a => a.Transactions)
                                                                                                     .Sum(t => t.Amount) >= targetNetWorth);
@@ -43,20 +44,21 @@ namespace Finance.Managers
 		/// <param name="request">Required projection request data.</param>
 		/// <param name="isTerminalDelegate">The determiner for when to stop the projection.</param>
 		/// <returns>The projection data.</returns>
-		public Task<ProjectionResponse> ProjectTillIsTerminalAsync(ProjectionRequest request, Func<int, DateTime, bool> isTerminalDelegate)
+		public Task<ProjectionResponse> ProjectTillIsTerminalAsync(ProjectionRequest request, Func<ProjectionRequest, int, DateTime, bool> isTerminalDelegate)
         {
-            var accountsWithNegativeBalances = request
+            var clonedRequest = CloneRequest(request);
+            var accountsWithNegativeBalances = clonedRequest
                                                 .Accounts
                                                 .Where(a => a.Amount < 0);
-            var mainAccount = request
+            var mainAccount = clonedRequest
                 .Accounts
                 .Single(a => a.SalaryDepositAccount);
             // Create the monthly loop from the 1st of this month.
-            var runningDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 28);
+            var runningDate = clonedRequest.ProjectionStartDate;
             var monthIndex = 0;
 
             // Reset all account transactions.
-            foreach (var account in request.Accounts)
+            foreach (var account in clonedRequest.Accounts)
             {
                 account.Transactions.Clear();
                 account.Transactions.Add(new PricedTransactionItem
@@ -67,16 +69,20 @@ namespace Finance.Managers
                 });
             }
 
-            while (isTerminalDelegate(monthIndex, runningDate))
+            while (isTerminalDelegate(clonedRequest, monthIndex, runningDate))
             {
-                var taxableIncomeAmount = request
+                var taxableIncomeAmount = clonedRequest
                     .Income
                     .Where(i => i.Taxable)
                     .Sum(i => i.Amount);
+                var salaryIncomeAmount = clonedRequest
+                    .Income
+                    .Single(i => i.Name.Contains("salary", StringComparison.CurrentCultureIgnoreCase))
+                    .Amount;
 
-                foreach (var condition in request.Conditions)
+                foreach (var condition in clonedRequest.Conditions)
                 {
-                    if (!condition.Key(monthIndex, runningDate)) continue;
+                    if (!condition.Key(clonedRequest, monthIndex, runningDate)) continue;
 
                     var item = new TaxablePricedItem
                     {
@@ -96,13 +102,13 @@ namespace Finance.Managers
 
                     if(item.Taxable) taxableIncomeAmount += item.Amount;
 
-                    request
+                    clonedRequest
                         .Income
                         .Add(item);
                 }
 
                 // Calculate income per-cycle (month).
-                var absoluteIncomeItems = request
+                var absoluteIncomeItems = clonedRequest
                     .Income
                     .Where(i => i.Type == Enums.PricedItemType.Absolute)
                     .Select(i => new PricedTransactionItem
@@ -111,27 +117,27 @@ namespace Finance.Managers
                         Name = i.Name,
                         TransactionDate = runningDate
                     });
-                var salaryRatioIncomeItems = request
+                var salaryRatioIncomeItems = clonedRequest
                     .Income
                     .Where(i => i.Type == Enums.PricedItemType.SalaryRatio)
                     .Select(i => new PricedTransactionItem
                     {
-                        Amount = i.Amount * taxableIncomeAmount,
+                        Amount = i.Amount * salaryIncomeAmount,
                         Name = i.Name,
                         TransactionDate = runningDate
                     });
                 var incomeItems = absoluteIncomeItems.Concat(salaryRatioIncomeItems);
                 // Calculate expenses per-cycle (month).
-                var absoluteExpenseItems = request
+                var absoluteExpenseItems = clonedRequest
                     .Expenses
                     .Where(e => e.Type == Enums.PricedItemType.Absolute)
                     .Select(i => new PricedTransactionItem { Amount = -i.Amount, Name = i.Name, TransactionDate = runningDate });
-                var salaryRatioExpenseItems = request
+                var salaryRatioExpenseItems = clonedRequest
                     .Expenses
                     .Where(e => e.Type == Enums.PricedItemType.SalaryRatio)
-                    .Select(i => new PricedTransactionItem { Amount = -i.Amount * taxableIncomeAmount, Name = i.Name, TransactionDate = runningDate });
+                    .Select(i => new PricedTransactionItem { Amount = -i.Amount * salaryIncomeAmount, Name = i.Name, TransactionDate = runningDate });
                 var expenseItems = absoluteExpenseItems.Concat(salaryRatioExpenseItems);
-                var nonExpiredAccounts = request
+                var nonExpiredAccounts = clonedRequest
                     .Accounts
                     .Where(a => a.ExpirationDate == default || a.ExpirationDate > runningDate)
                     .ToList();
@@ -151,7 +157,7 @@ namespace Finance.Managers
                     var salaryRatioDepositAmounts = account
                         .ScheduledTransactions
                         .Where(t => t.Amount > 0 && t.Type == Enums.PricedItemType.SalaryRatio)
-                        .Sum(t => t.Amount * taxableIncomeAmount);
+                        .Sum(t => t.Amount * salaryIncomeAmount);
                     var depositAmount = absoluteDepositAmounts + salaryRatioDepositAmounts;
 
                     mainAccount.Transactions.Add(new PricedTransactionItem
@@ -176,7 +182,7 @@ namespace Finance.Managers
                         .Where(t => t.Type == Enums.PricedItemType.SalaryRatio)
                         .Select(t => new PricedTransactionItem
                         {
-                            Amount = t.Amount * taxableIncomeAmount,
+                            Amount = t.Amount * salaryIncomeAmount,
                             Name = t.Name,
                             TransactionDate = runningDate
                         });
@@ -209,7 +215,7 @@ namespace Finance.Managers
                 mainAccount.Transactions.AddRange(expenseItems);
 
                 // Get a list of all the accounts that are in debt. This strategy of debt settlement is tackling highest interest rates first.
-                var accountsInDebt = request
+                var accountsInDebt = clonedRequest
                     .Accounts
                     .Where(a => a.RunningBalance < 0)
                     .OrderByDescending(a => a.InterestRate)
@@ -245,12 +251,32 @@ namespace Finance.Managers
                     }
                 }
 
+                // If there is still cash left in the checking account, invest it automatically.
+                if(mainAccount.Available > 0)
+                {
+                    var deposit = new PricedTransactionItem
+                    {
+                        Name = $"Reinvestment Deposit",
+                        TransactionDate = runningDate,
+                        Amount = mainAccount.Available
+                    };
+
+                    clonedRequest.Accounts.First(a => a.DefaultInvestmentAccount).Transactions.Add(deposit);
+                    mainAccount.Transactions.Add(new PricedTransactionItem
+                    {
+                        Name = deposit.Name,
+                        Amount = -deposit.Amount,
+                        TransactionDate = deposit.TransactionDate,
+                        Type = deposit.Type
+                    });
+                }
+
                 // Clean up once-off income items.
-                request
+                clonedRequest
                     .Income
                     .Where(i => i.OnceOff)
                     .ToList()
-                    .ForEach( i => request.Income.Remove(i));
+                    .ForEach( i => clonedRequest.Income.Remove(i));
 
                 runningDate = runningDate.AddMonths(1);
                 monthIndex++;
@@ -258,15 +284,46 @@ namespace Finance.Managers
 
             return Task.FromResult(new ProjectionResponse
             {
-                ProjectionEndDate = request
+                ProjectionEndDate = clonedRequest
                                         .Accounts
                                         .SelectMany(a => a.Transactions)
                                         .Max(t => t.TransactionDate),
-                NetWorth = request
+                NetWorth = clonedRequest
                             .Accounts
                             .SelectMany(a => a.Transactions)
-                            .Sum(t => t.Amount)
+                            .Sum(t => t.Amount),
+                AugmentedRequest = clonedRequest
             });
+        }
+
+        /// <summary>
+        /// Deep clone a request.
+        /// </summary>
+        /// <returns>Cloned request.</returns>
+        private ProjectionRequest CloneRequest(ProjectionRequest request)
+        {
+            var response = new ProjectionRequest
+            {
+                Accounts = Clone(request.Accounts),
+                Conditions = request.Conditions,
+                Expenses = Clone(request.Expenses),
+                Income = Clone(request.Income),
+                ProjectionStartDate = request.ProjectionStartDate
+            };
+
+            return response;
+        }
+
+        /// <summary>
+        /// Deep clone an object.
+        /// </summary>
+        /// <typeparam name="T">Object type.</typeparam>
+        /// <param name="obj">Object instance.</param>
+        /// <returns>Cloned object.</returns>
+        private T Clone<T>(T obj)
+        {
+            return JsonConvert
+                .DeserializeObject<T>(JsonConvert.SerializeObject(obj));
         }
     }
 }

@@ -16,6 +16,10 @@ namespace Finance.Models
 		/// </summary>
 		public double InterestRate { get; set; } = 0.0;
 		/// <summary>
+		/// Whether this account is the default investment account.
+		/// </summary>
+		public bool DefaultInvestmentAccount { get; set; }
+		/// <summary>
 		/// Max value the account can be.
 		/// </summary>
 		public double Limit { get; set; }

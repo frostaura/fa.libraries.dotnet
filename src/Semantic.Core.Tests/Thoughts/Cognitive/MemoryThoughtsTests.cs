@@ -97,11 +97,11 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
             var kernel = Config.SEMANTIC_CONFIG.GetComprehensiveKernel();
             var logger = Substitute.For<ILogger<MemoryThoughts>>();
             var instance = new MemoryThoughts(kernel, logger);
-            string memory = default;
+            string query = default;
 
-            var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.RecallFromMemoryAsync(memory));
+            var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.RecallFromMemoryAsync(query));
 
-            Assert.Equal(nameof(memory), actual.ParamName);
+            Assert.Equal(nameof(query), actual.ParamName);
         }
 
         [Fact]

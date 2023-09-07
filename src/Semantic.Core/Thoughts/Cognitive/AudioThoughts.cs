@@ -54,7 +54,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
                 .GetDefaultVoiceSettingsAsync();
             var clipPath = await _elevenLabsClient
                 .TextToSpeechEndpoint
-                .TextToSpeechAsync(text, voices.FirstOrDefault(), defaultVoiceSettings);
+                .TextToSpeechAsync(text.ThrowIfNullOrWhitespace(nameof(text)), voices.FirstOrDefault(), defaultVoiceSettings);
 
             return clipPath;
         }

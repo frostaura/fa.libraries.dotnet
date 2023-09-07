@@ -68,7 +68,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
                 MaxTokens = 16000
             };
 
-            return PromptAsync(prompt, ModelType.LargeLLM, chatSettings, token);
+            return PromptAsync(prompt.ThrowIfNullOrWhitespace(nameof(prompt)), ModelType.LargeLLM, chatSettings, token);
         }
 
         /// <summary>

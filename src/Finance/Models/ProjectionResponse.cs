@@ -16,6 +16,11 @@ namespace Finance.Models
 		/// Net worth amount.
 		/// </summary>
 		public double NetWorth { get; set; }
-	}
+		/// <summary>
+		/// The augmented accounts of the original request.
+		/// </summary>
+        public ProjectionRequest AugmentedRequest { get; set; }
+
+    }
 }
 

@@ -1,12 +1,11 @@
-﻿using System;
-using Finance.Models;
+﻿using Finance.Models;
 
 namespace Finance.Interfaces.Managers
 {
-	/// <summary>
-	/// A manager for projection features. This could be for wealth or other numbers over time.
-	/// </summary>
-	public interface IProjectionManager
+    /// <summary>
+    /// A manager for projection features. This could be for wealth or other numbers over time.
+    /// </summary>
+    public interface IProjectionManager
 	{
 		/// <summary>
 		/// Project to a specific date.
@@ -28,7 +27,7 @@ namespace Finance.Interfaces.Managers
         /// <param name="request">Required projection request data.</param>
         /// <param name="isTerminalDelegate">The determiner for when to stop the projection.</param>
         /// <returns>The projection data.</returns>
-        Task<ProjectionResponse> ProjectTillIsTerminalAsync(ProjectionRequest request, Func<int, DateTime, bool> isTerminalDelegate);
+        Task<ProjectionResponse> ProjectTillIsTerminalAsync(ProjectionRequest request, Func<ProjectionRequest, int, DateTime, bool> isTerminalDelegate);
     }
 }
 
