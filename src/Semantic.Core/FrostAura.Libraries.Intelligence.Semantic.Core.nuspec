@@ -7,7 +7,7 @@
         <authors>Dean Martin</authors>
         <owners>FrostAura</owners>
         <iconUrl>https://avatars1.githubusercontent.com/u/8956241</iconUrl>
-        <projectUrl>https://github.com/faGH/fa.libraries.dotnet/tree/master/MediaServer.Core</projectUrl>
+        <projectUrl>https://github.com/faGH/fa.libraries.dotnet/tree/master/src/Semantic.Core</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>FrostAura MediaServer Core suite for providing models and interfaces and helpers for Media Server integration.</description>
         <summary />

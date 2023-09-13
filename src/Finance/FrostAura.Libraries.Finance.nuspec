@@ -2,12 +2,12 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>FrostAura.Libraries.Finance</id>
-        <version>7.0.2</version>
+        <version>0.0.1</version>
         <title>FrostAura.Libraries.Finance</title>
         <authors>Dean Martin</authors>
         <owners>FrostAura</owners>
         <iconUrl>https://avatars1.githubusercontent.com/u/8956241</iconUrl>
-        <projectUrl>https://github.com/faGH/fa.libraries.dotnet/tree/master/Data</projectUrl>
+        <projectUrl>https://github.com/faGH/fa.libraries.dotnet/tree/master/src/Finance</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>FrostAura Finance library suite for wealth management, projections and forecasts.</description>
         <summary />
