@@ -48,7 +48,7 @@
     <Folder Include="Thoughts\Chains\Media\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Semantic.Core\Semantic.Core.csproj" />
+    <ProjectReference Include="..\Semantic.Core\FrostAura.Libraries.Intelligence.Semantic.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="harvard.wav">
