@@ -40,14 +40,6 @@ jobs:
       run: dotnet test src/Communication.Tests/ --no-restore --verbosity normal
     - name: Pack Communication
       run: dotnet pack src/Communication/Communication.csproj /p:NuspecFile=./FrostAura.Libraries.Communication.nuspec --version-suffix "${{ github.run_id }}" -o "$OUT_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
-    - name: Test MediaServer.Core
-      run: dotnet test src/MediaServer.Core.Tests/ --no-restore --verbosity normal
-    - name: Pack MediaServer.Core
-      run: dotnet pack src/MediaServer.Core/MediaServer.Core.csproj /p:NuspecFile=./FrostAura.Libraries.MediaServer.Core.nuspec --version-suffix "${{ github.run_id }}" -o "$OUT_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
-    - name: Test MediaServer.Plex
-      run: dotnet test src/MediaServer.Plex.Tests/ --no-restore --verbosity normal
-    - name: Pack MediaServer.Plex
-      run: dotnet pack src/MediaServer.Plex/MediaServer.Plex.csproj /p:NuspecFile=./FrostAura.Libraries.MediaServer.Plex.nuspec --version-suffix "${{ github.run_id }}" -o "$OUT_DIR" -c Release --include-symbols -p:SymbolPackageFormat=snupkg
     - name: Test Security.OAuth
       run: dotnet test src/Security.OAuth.Tests/ --no-restore --verbosity normal
     - name: Pack Security.OAuth
