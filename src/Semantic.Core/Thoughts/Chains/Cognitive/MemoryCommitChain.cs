@@ -31,7 +31,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
                 Critisism = "If I get told the same thing many times, I may record duplicate memories.",
                 Arguments = new Dictionary<string, string>
                 {
-                    { "Memory", "$input" },
+                    { "memory", "$input" },
                     { "source", "general" }
                 },
                 OutputKey = "1"
