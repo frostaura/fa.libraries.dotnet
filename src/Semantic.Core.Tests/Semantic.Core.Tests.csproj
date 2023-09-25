@@ -36,6 +36,8 @@
     <None Remove="Thoughts\Chains\Cognitive\" />
     <None Remove="Thoughts\Media\" />
     <None Remove="Thoughts\Chains\Media\" />
+    <None Remove="Extensions\" />
+    <None Remove="Extensions\String\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Thoughts\" />
@@ -46,6 +48,8 @@
     <Folder Include="Thoughts\Chains\Cognitive\" />
     <Folder Include="Thoughts\Media\" />
     <Folder Include="Thoughts\Chains\Media\" />
+    <Folder Include="Extensions\" />
+    <Folder Include="Extensions\String\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Semantic.Core\FrostAura.Libraries.Intelligence.Semantic.Core.csproj" />
