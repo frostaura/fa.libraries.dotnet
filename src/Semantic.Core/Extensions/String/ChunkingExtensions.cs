@@ -21,8 +21,6 @@
 
 			var response = new List<string>();
 
-            // START OF YOUR CODE
-
             // Initialize the start index for substring extraction.
             var startIndex = 0;
 
@@ -55,8 +53,6 @@
 
                 response.Add(remainingChunk);
             }
-
-            // END OF YOUR CODE
 
             return response;
 		}
