@@ -134,7 +134,7 @@ namespace Semantic.Core.Tests.Thoughts.Media
             Assert.Equal(nameof(tags), actual.ParamName);
         }
 
-        [Fact]
+        [Fact(Skip = "This test requires an OAuth token which is an interactive flow. This test is to demonstrate how to use the thought.")]
         public async Task PublishLocalVideoToYouTubeAsync_WithValidTags_ShouldThrow()
         {
             var googleConfig = Substitute.For<IOptions<GoogleConfig>>();

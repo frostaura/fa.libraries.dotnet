@@ -16,7 +16,11 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.IO
         /// <summary>
         /// A function to call between when a page is loaded and read.
         /// </summary>
-        public Action<WebDriver> OnPageLoaded;
+        public Func<WebDriver, Task> OnPageLoadedAsync;
+        /// <summary>
+        /// A function to call after the page read is done.
+        /// </summary>
+        public Func<WebDriver, Task> OnCleanupAsync;
 
         /// <summary>
         /// Overloaded constructor to provide dependencies.
@@ -33,7 +37,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.IO
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>The lazy loaded website text.</returns>
         [SKFunction, Description("Fetch a website's text content by loading it and waiting for all content (including lazy content), using a web driver.")]
-        public async Task<string> LoadTextAsync(
+        public virtual async Task<string> LoadTextAsync(
             [Description("The URI of the website's text to load.")] string uri,
             CancellationToken token = default)
         {
@@ -41,7 +45,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.IO
 
             // Set Chrome options for headless mode
             var chromeOptions = new ChromeOptions();
-            chromeOptions.AddArguments("--headless"); // Run headless
+            chromeOptions.AddArguments("--headless");
 
             // Initialize the ChromeDriver with options
             using (var driver = new ChromeDriver(chromeOptions))
@@ -54,10 +58,13 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.IO
                 wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
 
                 // Call the middleware, if any.
-                OnPageLoaded?.Invoke(driver);
+                await OnPageLoadedAsync?.Invoke(driver);
 
                 // Extract all the text from the page
                 var allText = driver.FindElement(By.TagName("body")).Text;
+
+                // Call the middleware, if any.
+                await OnCleanupAsync?.Invoke(driver);
 
                 // Close the WebDriver
                 driver.Quit();

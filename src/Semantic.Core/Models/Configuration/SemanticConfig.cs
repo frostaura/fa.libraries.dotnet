@@ -28,6 +28,10 @@ namespace FrostAura.Libraries.Semantic.Core.Models.Configuration
         /// Google config.
         /// </summary>
         public GoogleConfig GoogleConfig { get; set; }
+        /// <summary>
+        /// FNB Config
+        /// </summary>
+        public FNBConfig FNBConfig { get; set; }
     }
 }
 
