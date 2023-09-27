@@ -38,6 +38,7 @@
     <None Remove="Thoughts\Chains\Media\" />
     <None Remove="Extensions\" />
     <None Remove="Extensions\String\" />
+    <None Remove="Thoughts\Finance\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Thoughts\" />
@@ -50,6 +51,7 @@
     <Folder Include="Thoughts\Chains\Media\" />
     <Folder Include="Extensions\" />
     <Folder Include="Extensions\String\" />
+    <Folder Include="Thoughts\Finance\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Semantic.Core\FrostAura.Libraries.Intelligence.Semantic.Core.csproj" />

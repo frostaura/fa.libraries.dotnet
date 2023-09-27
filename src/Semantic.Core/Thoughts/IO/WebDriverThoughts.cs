@@ -14,6 +14,11 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.IO
     public class WebDriverThoughts : BaseThought
     {
         /// <summary>
+        /// A function to call between when a page is loaded and read.
+        /// </summary>
+        public Action<WebDriver> OnPageLoaded;
+
+        /// <summary>
         /// Overloaded constructor to provide dependencies.
         /// </summary>
         /// <param name="logger">Instance logger.</param>
@@ -47,6 +52,9 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.IO
                 // Wait for the page to load completely (you can adjust the timeout as needed)
                 var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
                 wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+
+                // Call the middleware, if any.
+                OnPageLoaded?.Invoke(driver);
 
                 // Extract all the text from the page
                 var allText = driver.FindElement(By.TagName("body")).Text;

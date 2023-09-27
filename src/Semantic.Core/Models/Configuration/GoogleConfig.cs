@@ -9,9 +9,9 @@ namespace FrostAura.Libraries.Semantic.Core.Models.Configuration
 	public class GoogleConfig
     {
 		/// <summary>
-		/// The API key to use when connecting to the Google services.
+		/// The OAuth concent token to use.
 		/// </summary>
-		public string ApiKey { get; set; }
+		public string OAuthToken { get; set; }
     }
 }
 
