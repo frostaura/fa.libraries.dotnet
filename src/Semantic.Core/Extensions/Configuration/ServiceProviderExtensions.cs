@@ -75,6 +75,7 @@ namespace FrostAura.Libraries.Semantic.Core.Extensions.Configuration
                 .AddSingleton(Options.Create(config.OpenAIConfig))
                 .AddSingleton(Options.Create(config.PexelsConfig))
                 .AddSingleton(Options.Create(config.PineconeConfig))
+                .AddSingleton(Options.Create(config.FNBConfig))
                 .AddTransient(typeof(IKernel), provider => semanticConfig);
         }
     }

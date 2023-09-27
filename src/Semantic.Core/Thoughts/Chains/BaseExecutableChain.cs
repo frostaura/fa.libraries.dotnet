@@ -59,7 +59,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains
         {
             if (state == default) state = new Dictionary<string, string>();
 
-            state["$input"] = input.ThrowIfNullOrWhitespace(nameof(input));
+            state["$input"] = input;
 
             var output = string.Empty;
 
