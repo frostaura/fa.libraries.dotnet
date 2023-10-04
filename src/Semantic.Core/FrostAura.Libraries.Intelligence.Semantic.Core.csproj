@@ -30,6 +30,7 @@
     <None Remove="Extensions\String\" />
     <None Remove="Thoughts\Finance\" />
     <None Remove="Thoughts\Chains\Finance\" />
+    <None Remove="Thoughts\Chains\PlanningThought\Planner.Solution.prompt.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Extensions\" />
@@ -69,5 +70,8 @@
     <PackageReference Include="Google.Apis.YouTube.v3" Version="1.62.0.3169" />
     <PackageReference Include="Google.Apis.Auth" Version="1.62.1" />
     <PackageReference Include="Google.Apis" Version="1.62.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Thoughts\Chains\PlanningThought\Planner.Solution.prompt.txt" />
   </ItemGroup>
 </Project>
