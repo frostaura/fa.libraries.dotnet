@@ -24,7 +24,8 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive.PlanningThoughts
         public PlanningThought(IServiceProvider serviceProvider, ILogger<PlanningThought> logger)
             :base(logger)
         {
-            _serviceProvider = serviceProvider.ThrowIfNull(nameof(serviceProvider));
+            _serviceProvider = serviceProvider
+                .ThrowIfNull(nameof(serviceProvider));
         }
 
         /// <summary>
@@ -40,9 +41,10 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive.PlanningThoughts
         {
             const string IDENTITY_PARAM_KEY = "identity";
             const string IDENTITY = "You are Zeus, the Greek god, a powerful and intelligent task planner.";
-            var llmThought = (LanguageModelThoughts)_serviceProvider.GetThoughtByName(nameof(LanguageModelThoughts));
+            var llmThought = (LanguageModelThoughts)_serviceProvider
+                .GetThoughtByName(nameof(LanguageModelThoughts));
             var prompt = string.Empty
-                .Replace("{{$" + IDENTITY_PARAM_KEY + "}}", IDENTITY);
+                .Replace($"${IDENTITY_PARAM_KEY}$", IDENTITY);
 
             throw new NotImplementedException("Load prompt from file.");
 
