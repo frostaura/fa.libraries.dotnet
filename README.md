@@ -1,6 +1,6 @@
 # fa.libraries.dotnet
 ## Description
-This is a collection of FrostAura libraries written for dotnet core 7+. Documentation pending.
+This is a collection of FrostAura libraries written for dotnet core 7+. Documentation pending. 
 ## Status
 | Project | Status | Platform
 | --- | --- | --- |
