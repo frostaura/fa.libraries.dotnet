@@ -1,10 +1,10 @@
 {
 	"recommendations": [
-                "ms-python.python",
-                "kevinrose.vsc-python-indent",
-                "ms-toolsai.jupyter",
-                "oderwat.indent-rainbow",
-                "ms-azuretools.vscode-docker",
-                "hediet.vscode-drawio"
+        "ms-python.python",
+        "kevinrose.vsc-python-indent",
+        "ms-toolsai.jupyter",
+        "oderwat.indent-rainbow",
+        "ms-azuretools.vscode-docker",
+        "hediet.vscode-drawio"
 	]
 }
