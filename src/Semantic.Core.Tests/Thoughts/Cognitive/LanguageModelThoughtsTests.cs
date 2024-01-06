@@ -12,7 +12,7 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
 		[Fact]
 		public void Constructor_WithInvalidKernel_ShouldThrow()
 		{
-            IKernel kernel = null;
+            Kernel kernel = null;
             ILogger<LanguageModelThoughts> logger = Substitute.For<ILogger<LanguageModelThoughts>>();
 
             var actual = Assert.Throws<ArgumentNullException>(() => new LanguageModelThoughts(kernel, logger));
@@ -23,7 +23,7 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
         [Fact]
         public void Constructor_WithInvalidLogger_ShouldThrow()
         {
-            IKernel kernel = Substitute.For<IKernel>();
+            Kernel kernel = Config.SEMANTIC_CONFIG.GetComprehensiveKernel();
             ILogger<LanguageModelThoughts> logger = null;
 
             var actual = Assert.Throws<ArgumentNullException>(() => new LanguageModelThoughts(kernel, logger));
@@ -34,7 +34,7 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
         [Fact]
         public void Constructor_WithValidParams_ShouldConstruct()
         {
-            var kernel = Substitute.For<IKernel>();
+            var kernel = Config.SEMANTIC_CONFIG.GetComprehensiveKernel();
             var logger = Substitute.For<ILogger<LanguageModelThoughts>>();
 
             var actual = new LanguageModelThoughts(kernel, logger);

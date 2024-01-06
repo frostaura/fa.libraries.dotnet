@@ -6,7 +6,7 @@ using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.SemanticKernel.SkillDefinition;
+using Microsoft.SemanticKernel;
 using System.ComponentModel;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.Media
@@ -53,7 +53,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Media
         /// <param name="tags">The space-delimited tags for the video.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>OK when successful.</returns>
-        [SKFunction, Description("Publish a local video file to YouTube.")]
+        [KernelFunction, Description("Publish a local video file to YouTube.")]
         public async Task<string> PublishLocalVideoToYouTubeAsync(
             [Description("The file path to the local video.")] string filePath,
             [Description("The title of the video.")] string title,

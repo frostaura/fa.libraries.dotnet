@@ -3,7 +3,7 @@ using FrostAura.Libraries.Core.Extensions.Validation;
 using FrostAura.Libraries.Semantic.Core.Models.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.SemanticKernel.SkillDefinition;
+using Microsoft.SemanticKernel;
 using System.ComponentModel;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
@@ -41,7 +41,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
         /// <param name="text">The text to speak.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>A local file path to the Audio file.</returns>
-        [SKFunction, Description("Convert text to speech and returns the local file path to the audio file.")]
+        [KernelFunction, Description("Convert text to speech and returns the local file path to the audio file.")]
         public async Task<string> TextToSpeechAsync(
             [Description("The text to speak.")] string text,
             CancellationToken token = default)
@@ -52,9 +52,12 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
             var defaultVoiceSettings = await _elevenLabsClient
                 .VoicesEndpoint
                 .GetDefaultVoiceSettingsAsync();
-            var clipPath = await _elevenLabsClient
+            var clip = await _elevenLabsClient
                 .TextToSpeechEndpoint
                 .TextToSpeechAsync(text.ThrowIfNullOrWhitespace(nameof(text)), voices.FirstOrDefault(), defaultVoiceSettings);
+            string clipPath = default;
+
+            throw new NotImplementedException("Save clip first as old API used to do.");
 
             return clipPath;
         }

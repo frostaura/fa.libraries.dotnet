@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel;
+using FrostAura.Libraries.Core.Extensions.Validation;
 using FrostAura.Libraries.Semantic.Core.Models.Thoughts;
 using FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive;
 using FrostAura.Libraries.Semantic.Core.Thoughts.IO;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel.SkillDefinition;
+using Microsoft.SemanticKernel;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
 {
@@ -33,7 +34,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
                 Arguments = new Dictionary<string, string>
                 {
                     { "pythonVersion", "3.8" },
-                    { "pipDependencies", "pydub git+https://github.com/openai/whisper.git" },
+                    { "pipDependencies", "pip pydub git+https://github.com/openai/whisper.git" },
                     { "condaDependencies", "ffmpeg" },
                     { "code", """
                         def transcribe(file_path: str) -> str:
@@ -84,12 +85,12 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
         /// <param name="audioFilePath">The absolute path to an Audio file to transcrobe. For example a .mp3 or .wav file path.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>The response from the Python executed code.</returns>
-        [SKFunction, Description("Take an input Audio file path and get the transcribe text.")]
+        [KernelFunction, Description("Take an input Audio file path and get the transcribe text.")]
         public Task<string> TranscribeAudioFileAsync(
             [Description("The absolute path to an Audio file to transcrobe. For example a .mp3 or .wav file path.")] string audioFilePath,
             CancellationToken token = default)
         {
-            return ExecuteChainAsync(audioFilePath, token: token);
+            return ExecuteChainAsync(audioFilePath.ThrowIfNullOrWhitespace(nameof(audioFilePath)), token: token);
         }
     }
 }

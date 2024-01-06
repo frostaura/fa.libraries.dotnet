@@ -47,19 +47,6 @@ namespace Semantic.Core.Tests.Thoughts.Chains.Cognitive
         }
 
         [Fact]
-        public async Task ExecuteChainAsync_WithInvalidInput_ShouldThrow()
-        {
-            var serviceProvider = Substitute.For<IServiceProvider>();
-            var logger = Substitute.For<ILogger<MemoryCommitChain>>();
-            var instance = new MemoryCommitChain(serviceProvider, logger);
-            string input = default;
-
-            var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.ExecuteChainAsync(input));
-
-            Assert.Equal(nameof(input), actual.ParamName);
-        }
-
-        [Fact]
         public async Task ExecuteChainAsync_WithValidInput_ShouldCallCommitToMemoryAsync()
         {
             var serviceCollection = new ServiceCollection()

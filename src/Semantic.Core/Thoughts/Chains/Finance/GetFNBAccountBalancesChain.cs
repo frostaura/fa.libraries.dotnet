@@ -3,7 +3,7 @@ using FrostAura.Libraries.Semantic.Core.Models.Thoughts;
 using FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive;
 using FrostAura.Libraries.Semantic.Core.Thoughts.IO;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel.SkillDefinition;
+using Microsoft.SemanticKernel;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
 {
@@ -27,7 +27,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
         {
             new Thought
             {
-                Action = $"{nameof(FNBThoughts)}.{nameof(FNBThoughts.GetFNBAccountBalancesAsync)}",
+                Action = $"{nameof(FNBThoughts)}.{nameof(FNBThoughts.GetFNBAccountBalancesRawAsync)}",
                 Reasoning = "I will use this thought to get the raw account balances as text from FNB.",
                 Critisism = "This data is ra HTML inner text so might be difficult to extract the relevant data.",
                 Arguments = new Dictionary<string, string>
@@ -80,7 +80,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
         /// </summary>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>A markdown table with all accounts and balances.</returns>
-        [SKFunction, Description("Get FNB account balances as a markdown table.")]
+        [KernelFunction, Description("Get FNB account balances as a markdown table.")]
         public Task<string> GetFNBAccountBalancesTableAsync(
             CancellationToken token = default)
         {

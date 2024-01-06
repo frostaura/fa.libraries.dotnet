@@ -77,7 +77,7 @@ namespace FrostAura.Libraries.Semantic.Core.Extensions.Configuration
                 .AddSingleton(Options.Create(config.GoogleConfig))
                 .AddSingleton(Options.Create(config.PineconeConfig))
                 .AddSingleton(Options.Create(config.FNBConfig))
-                .AddTransient(typeof(IKernel), provider => semanticConfig);
+                .AddTransient(typeof(Kernel), provider => semanticConfig);
         }
     }
 }

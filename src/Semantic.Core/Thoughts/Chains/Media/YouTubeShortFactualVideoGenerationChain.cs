@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel;
+using FrostAura.Libraries.Core.Extensions.Validation;
 using FrostAura.Libraries.Semantic.Core.Models.Thoughts;
 using FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive;
 using FrostAura.Libraries.Semantic.Core.Thoughts.IO;
 using FrostAura.Libraries.Semantic.Core.Thoughts.Media;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel.SkillDefinition;
+using Microsoft.SemanticKernel;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
 {
@@ -476,12 +477,24 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
         { }
 
         /// <summary>
+        /// Execute the chain of thought sequentially.
+        /// </summary>
+        /// <param name="input">The initial input into the chain.</param>
+        /// <param name="state">The optional state of the chain. Should state be provided for outputs, thoughts that produce such outputs would be skipped.</param>
+        /// <param name="token">The token to use to request cancellation.</param>
+        /// <returns>The chain's final output.</returns>
+        public override Task<string> ExecuteChainAsync(string input = "", Dictionary<string, string> state = null, CancellationToken token = default)
+        {
+            return base.ExecuteChainAsync(input.ThrowIfNullOrWhitespace(nameof(input)), state, token);
+        }
+
+        /// <summary>
         /// Generate a factual documentary style video on a provided topic and return the video file's local file path.
         /// </summary>
         /// <param name="topic">The topic that the video should be on.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>The video file's local file path.</returns>
-        [SKFunction, Description("Generate a factual documentary style video on a provided topic and return the video file's local file path.")]
+        [KernelFunction, Description("Generate a factual documentary style video on a provided topic and return the video file's local file path.")]
         public Task<string> TranscribeAudioFileAsync(
             [Description("The topic that the video should be on.")] string topic,
             CancellationToken token = default)

@@ -2,9 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
-using Microsoft.SemanticKernel.SkillDefinition;
 using Newtonsoft.Json;
-using System;
 using System.ComponentModel;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
@@ -35,17 +33,22 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
         /// <summary>
         /// The semantic kernel to use.
         /// </summary>
-        private readonly IKernel _kernel;
+        private readonly Kernel _kernel;
+        /// <summary>
+        /// The semantic memory store to use.
+        /// </summary>
+        private readonly ISemanticTextMemory _memory;
 
         /// <summary>
         /// Overloaded constructor to provide dependencies.
         /// </summary>
         /// <param name="kernel">The semantic kernel to use.</param>
         /// <param name="logger">Instance logger.</param>
-        public MemoryThoughts(IKernel kernel, ILogger<MemoryThoughts> logger)
+        public MemoryThoughts(Kernel kernel, ILogger<MemoryThoughts> logger)
             :base(logger)
         {
             _kernel = kernel.ThrowIfNull(nameof(kernel));
+            _memory = (ISemanticTextMemory)_kernel.Services.GetService(typeof(ISemanticTextMemory));
         }
 
         /// <summary>
@@ -54,7 +57,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
         /// <param name="memory">The Memory to record.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>The response body as a string.</returns>
-        [SKFunction, Description("Remember something for future reference.")]
+        [KernelFunction, Description("Remember something for future reference.")]
         public async Task<string> CommitToMemoryAsync(
             [Description("The Memory to record.")] string memory,
             [Description("The source of the Memory. A default value of 'general' is acceptable when unsure.")] string source,
@@ -62,15 +65,15 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
         {
             var collection = COLLECTION_PREFIX;
             var chunks = GetTextChunks(memory.ThrowIfNullOrWhitespace(nameof(memory)), CHUNK_SIZE, OVERLAP);
-            var MemoryRecordingTasks = chunks
-                .Select(async c => await _kernel.Memory.SaveInformationAsync(
+            var memoryRecordingTasks = chunks
+                .Select(async c => await _memory.SaveInformationAsync(
                     collection,
                     c.Value,
                     $"{c.Key}.{Guid.NewGuid()}",
                     description: $"Source: {source.ThrowIfNullOrWhitespace(nameof(source))}",
                     cancellationToken: token));
 
-            var response = await Task.WhenAll(MemoryRecordingTasks);
+            var response = await Task.WhenAll(memoryRecordingTasks);
             var responseString = JsonConvert.SerializeObject(response, Formatting.Indented);
 
             return responseString;
@@ -82,14 +85,13 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
         /// <param name="query">The Memory to search for.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>A collection of the closest matching memories.</returns>
-        [SKFunction, Description("Look up something from Memory that was previously remembered.")]
+        [KernelFunction, Description("Look up something from Memory that was previously remembered.")]
         public async Task<string> RecallFromMemoryAsync(
             [Description("The Memory to search for.")] string query,
             CancellationToken token = default)
         {
             var collection = COLLECTION_PREFIX;
-            var memories = _kernel
-                .Memory
+            var memories = _memory
                 .SearchAsync(collection, query.ThrowIfNullOrWhitespace(nameof(query)), TOP_K, cancellationToken: token)
                 .GetAsyncEnumerator();
             var result = new List<MemoryRecordMetadata>();
@@ -119,7 +121,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
         /// <param name="resultsCount">The count of results to return.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>A collection (X resultsCount) of semantically most similar results.</returns>
-        [SKFunction, Description("Look up something from a large text blob using in-Memory vector search.")]
+        [KernelFunction, Description("Look up something from a large text blob using in-Memory vector search.")]
         public async Task<string> SearchTextBlobAsync(
             [Description("The search phrase to lookup.")] string searchPhrase,
             [Description("The large text blob to search.")] string largeTextBlob,

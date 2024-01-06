@@ -1,6 +1,6 @@
 ﻿using FrostAura.Libraries.Core.Extensions.Validation;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel.SkillDefinition;
+using Microsoft.SemanticKernel;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
@@ -36,7 +36,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.IO
         /// <param name="uri">The URI of the website's text to load.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>The lazy loaded website text.</returns>
-        [SKFunction, Description("Fetch a website's text content by loading it and waiting for all content (including lazy content), using a web driver.")]
+        [KernelFunction, Description("Fetch a website's text content by loading it and waiting for all content (including lazy content), using a web driver.")]
         public virtual async Task<string> LoadTextAsync(
             [Description("The URI of the website's text to load.")] string uri,
             CancellationToken token = default)
@@ -58,13 +58,13 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.IO
                 wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
 
                 // Call the middleware, if any.
-                await OnPageLoadedAsync?.Invoke(driver);
+                if (OnPageLoadedAsync is not null) await OnPageLoadedAsync.Invoke(driver);
 
                 // Extract all the text from the page
                 var allText = driver.FindElement(By.TagName("body")).Text;
 
                 // Call the middleware, if any.
-                await OnCleanupAsync?.Invoke(driver);
+                if (OnCleanupAsync is not null) await OnCleanupAsync.Invoke(driver);
 
                 // Close the WebDriver
                 driver.Quit();

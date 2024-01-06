@@ -64,7 +64,7 @@ namespace Semantic.Core.Tests.Thoughts.Finance
             Assert.NotNull(actual);
         }
 
-        [Fact]
+        [Fact(Skip = "Integration Test")]
         public async Task LoadTextAsync_WithValidInput_ShouldRespond()
         {
             var fnbOptions = Substitute.For<IOptions<FNBConfig>>();
@@ -75,7 +75,7 @@ namespace Semantic.Core.Tests.Thoughts.Finance
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var instance = new FNBThoughts(serviceProvider, fnbOptions, logger);
 
-            var actual = await instance.GetFNBAccountBalancesAsync();
+            var actual = await instance.GetFNBAccountBalancesRawAsync();
 
             Assert.NotEmpty(actual);
         }

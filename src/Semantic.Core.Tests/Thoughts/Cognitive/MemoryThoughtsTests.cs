@@ -13,7 +13,7 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
 		[Fact]
 		public void Constructor_WithInvalidKernel_ShouldThrow()
 		{
-            IKernel kernel = null;
+            Kernel kernel = null;
             ILogger<MemoryThoughts> logger = Substitute.For<ILogger<MemoryThoughts>>();
 
             var actual = Assert.Throws<ArgumentNullException>(() => new MemoryThoughts(kernel, logger));
@@ -24,7 +24,7 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
         [Fact]
         public void Constructor_WithInvalidLogger_ShouldThrow()
         {
-            IKernel kernel = Substitute.For<IKernel>();
+            var kernel = Config.SEMANTIC_CONFIG.GetComprehensiveKernel();
             ILogger<MemoryThoughts> logger = null;
 
             var actual = Assert.Throws<ArgumentNullException>(() => new MemoryThoughts(kernel, logger));
@@ -35,7 +35,7 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
         [Fact]
         public void Constructor_WithValidParams_ShouldConstruct()
         {
-            var kernel = Substitute.For<IKernel>();
+            var kernel = Config.SEMANTIC_CONFIG.GetComprehensiveKernel();
             var logger = Substitute.For<ILogger<MemoryThoughts>>();
 
             var actual = new MemoryThoughts(kernel, logger);
@@ -74,9 +74,9 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
         [Fact]
         public async Task CommitToMemoryAsync_WithValidInput_ShouldRespond()
         {
-            var kernel = Substitute.For<IKernel>();
             var memory = Substitute.For<ISemanticTextMemory>();
-            kernel.Memory.ReturnsForAnyArgs(memory);
+            var kernel = Config.SEMANTIC_CONFIG.GetComprehensiveKernel(memory);
+
             var logger = Substitute.For<ILogger<MemoryThoughts>>();
             var instance = new MemoryThoughts(kernel, logger);
             string input = new string(Enumerable.Range(0, 2200)
@@ -85,8 +85,7 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
 
             var actual = await instance.CommitToMemoryAsync(input, "Test");
 
-            kernel
-                .Memory
+            memory
                 .ReceivedWithAnyArgs(3)
                 .SaveInformationAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
         }
@@ -107,17 +106,16 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
         [Fact]
         public async Task RecallFromMemoryAsync_WithValidInput_ShouldRespond()
         {
-            var kernel = Substitute.For<IKernel>();
             var memory = Substitute.For<ISemanticTextMemory>();
-            kernel.Memory.ReturnsForAnyArgs(memory);
+            var kernel = Config.SEMANTIC_CONFIG.GetComprehensiveKernel(memory);
+
             var logger = Substitute.For<ILogger<MemoryThoughts>>();
             var instance = new MemoryThoughts(kernel, logger);
             string input = "What is my name?";
 
             var actual = await instance.RecallFromMemoryAsync(input);
 
-            kernel
-                .Memory
+            memory
                 .ReceivedWithAnyArgs(1)
                 .SearchAsync(Arg.Any<string>(), Arg.Any<string>());
         }

@@ -75,7 +75,7 @@ namespace Semantic.Core.Tests.Thoughts.Media
             Assert.Equal(nameof(searchQuery), actual.ParamName);
         }
 
-        [Fact]
+        [Fact(Skip = "Integration Test")]
         public async Task DownloadAndGetStockVideoAsync_WithValidInputs_ShouldRespond()
         {
             var httpClientFactory = Substitute.For<IHttpClientFactory>();

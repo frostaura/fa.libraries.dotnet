@@ -1,6 +1,6 @@
 ﻿using FrostAura.Libraries.Core.Extensions.Validation;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel.SkillDefinition;
+using Microsoft.SemanticKernel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Security.Cryptography;
@@ -30,7 +30,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
         /// <param name="code">Python code to execute. The only requirement for the structure of this code is that the code should be wrapped in a function called 'main' that accepts zero arguments and returns a string.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>The response from the Python executed code.</returns>
-        [SKFunction, Description("Execute Python code against a specific version of Python as well as with specific PIP package requirements.")]
+        [KernelFunction, Description("Execute Python code against a specific version of Python as well as with specific PIP package requirements.")]
         public async Task<string> InvokeAsync(
             [Description("The version of Python to execute code against. For example '3.8'.")] string pythonVersion,
             [Description("A collection of PIP dependencies the Python code requires. The items can either be a package name (Example: 'pandas==1.2.3') or a package name with its version (Example: 'pandas').")] string pipDependencies,
@@ -56,7 +56,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
 
             Console.WriteLine("Executing Python code against the Conda environment with the required depdencies installed.");
 
-            var response = await ExecuteProcessAsync(pythonExecutablePath, $"-c \"{executableCode}\"", token);
+            var response = await ExecutePythonProcessAsync(pythonExecutablePath, executableCode, token);
             var normalizedResponse = response
                 .Split($"{outputIndicator}>>>")
                 .Last()
@@ -160,8 +160,24 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
         {
             var process = new Process();
 
-            process.StartInfo.FileName = fileName;
-            process.StartInfo.Arguments = command;
+            // If on Windows, use cmd.exe
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                process.StartInfo.FileName = "cmd.exe";
+                process.StartInfo.Arguments = $"/c {fileName} {command}";
+            }
+            else
+            {
+                if (fileName == "conda" && !process.StartInfo.Environment["PATH"].Contains("miniconda3"))
+                {
+                    fileName = $"~/miniconda3/bin/{fileName}";
+                }
+
+                // If on macOS or Linux, use zsh
+                process.StartInfo.FileName = "/bin/zsh";
+                process.StartInfo.Arguments = $"-c \"{fileName} {command}\"";
+            }
+
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
@@ -175,6 +191,59 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
             if (process.ExitCode != 0)
             {
                 throw new ApplicationException($"An error occured during the execution of the Python code (see the inner exception).{Environment.NewLine}{Environment.NewLine}{command}", new Exception(error));
+            }
+
+            if (!string.IsNullOrWhiteSpace(error)) Console.WriteLine(error);
+            Console.WriteLine(output);
+
+            return output;
+        }
+
+        /// <summary>
+        /// Execute any terminal command silently and return the stringified response.
+        /// </summary>
+        /// <param name="fileName">The path of the process to execute. For example python, conda, c:/programf../python etc.</param>
+        /// <param name="code">The command with all arguments in a string form.</param>
+        /// <param name="token">The token to use to request cancellation.</param>
+        /// <returns>The stringifier response.</returns>
+        private async Task<string> ExecutePythonProcessAsync(string fileName, string code, CancellationToken token)
+        {
+            var process = new Process();
+            var tempScriptFilePath = $"{Guid.NewGuid()}.py";
+
+            await File.WriteAllTextAsync(tempScriptFilePath, code, token);
+
+            // If on Windows, use cmd.exe.
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                process.StartInfo.FileName = "cmd.exe";
+                process.StartInfo.Arguments = $"-c \"{fileName} {tempScriptFilePath}\"";
+            }
+            else
+            {
+                if (fileName == "conda" && !process.StartInfo.Environment["PATH"].Contains("miniconda3"))
+                {
+                    fileName = $"~/miniconda3/bin/{fileName}";
+                }
+
+                // If on macOS or Linux, use zsh.
+                process.StartInfo.FileName = "/bin/zsh";
+                process.StartInfo.Arguments = $"-c \"{fileName} {tempScriptFilePath}\"";
+            }
+
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.Start();
+
+            var output = await process.StandardOutput.ReadToEndAsync();
+            var error = await process.StandardError.ReadToEndAsync();
+
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode != 0)
+            {
+                throw new ApplicationException($"An error occured during the execution of the Python code (see the inner exception).{Environment.NewLine}{Environment.NewLine}{code}", new Exception(error));
             }
 
             if (!string.IsNullOrWhiteSpace(error)) Console.WriteLine(error);

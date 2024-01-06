@@ -57,9 +57,10 @@ namespace Semantic.Core.Tests.Thoughts.Chains.Cognitive
         [Fact]
         public async Task ExecuteChainAsync_WithInvalidInput_ShouldThrow()
         {
-            var serviceProvider = Substitute.For<IServiceProvider>();
+            var serviceCollection = new ServiceCollection()
+                .AddSemanticCore(Config.SEMANTIC_CONFIG);
             var logger = Substitute.For<ILogger<YouTubeShortFactualVideoGenerationChain>>();
-            var instance = new YouTubeShortFactualVideoGenerationChain(serviceProvider, logger);
+            var instance = new YouTubeShortFactualVideoGenerationChain(serviceCollection.BuildServiceProvider(), logger);
             string input = default;
 
             var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.ExecuteChainAsync(input));
@@ -67,7 +68,7 @@ namespace Semantic.Core.Tests.Thoughts.Chains.Cognitive
             Assert.Equal(nameof(input), actual.ParamName);
         }
 
-        [Fact]
+        [Fact(Skip = "Integration Test")]
         public async Task ExecuteChainAsync_WithValidInput_ShouldCallInvokeAsyncAsync()
         {
             var serviceCollection = new ServiceCollection()

@@ -2,7 +2,6 @@
 using FrostAura.Libraries.Semantic.Core.Extensions.Configuration;
 using FrostAura.Libraries.Semantic.Core.Models.Thoughts;
 using Microsoft.Extensions.Logging;
-using Polly;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains
 {
@@ -55,7 +54,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>The chain's final output.</returns>
         /// TODO: Add support for an additional context dictionary to allow for secondary parameters as context.
-        public async Task<string> ExecuteChainAsync(string input, Dictionary<string, string> state = default, CancellationToken token = default)
+        public virtual async Task<string> ExecuteChainAsync(string input = "", Dictionary<string, string> state = default, CancellationToken token = default)
         {
             if (state == default) state = new Dictionary<string, string>();
 

@@ -12,7 +12,7 @@ namespace FrostAura.Libraries.Communication.Tests.Integration.Services
 {
     public class TwilioSmsServiceTests
     {
-        [Fact]
+        [Fact(Skip = "Integration Test")]
         public async Task SendMessageAsync_WithValidParams_ShouldSendSms()
         {
             // Setup
@@ -38,7 +38,7 @@ namespace FrostAura.Libraries.Communication.Tests.Integration.Services
             await communicator.SendMessageAsync(request, CancellationToken.None);
         }
 
-        [Fact]
+        [Fact(Skip = "Integration Test")]
         public async Task SendAndWaitForResponseAsync_WithValidParams_ShouldSendAndReceiveSms()
         {
             // Setup

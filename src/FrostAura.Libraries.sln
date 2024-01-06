@@ -29,13 +29,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Communication.Tests", "Comm
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Communication.Tests.Integration", "Communication.Tests.Integration\Communication.Tests.Integration.csproj", "{B42FAAFB-C220-41F5-A6D4-92DD6A82FCE0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Finance", "Finance\FrostAura.Libraries.Finance.csproj", "{B416A044-CAB3-4F9A-99EB-0F9774D2D926}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrostAura.Libraries.Finance", "Finance\FrostAura.Libraries.Finance.csproj", "{B416A044-CAB3-4F9A-99EB-0F9774D2D926}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Finance.Tests", "Finance.Tests\FrostAura.Libraries.Finance.Tests.csproj", "{5A1C01AF-9480-4525-B3E4-DB9C90629F80}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrostAura.Libraries.Finance.Tests", "Finance.Tests\FrostAura.Libraries.Finance.Tests.csproj", "{5A1C01AF-9480-4525-B3E4-DB9C90629F80}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Intelligence", "Intelligence", "{E292F563-CF51-47B7-A81C-D0FE8FC4C02A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Semantic.Core", "Semantic.Core\FrostAura.Libraries.Intelligence.Semantic.Core.csproj", "{D063671B-2B7E-4A03-ACB8-10A9D512B15F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Semantic.Core", "Semantic.Core\Semantic.Core.csproj", "{D063671B-2B7E-4A03-ACB8-10A9D512B15F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Semantic.Core.Tests", "Semantic.Core.Tests\Semantic.Core.Tests.csproj", "{11FEC351-432F-4B92-BD60-1028B84BCF20}"
 EndProject

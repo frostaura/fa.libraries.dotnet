@@ -1,7 +1,7 @@
 ﻿using FrostAura.Libraries.Core.Extensions.Validation;
 using FrostAura.Libraries.Semantic.Core.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel.SkillDefinition;
+using Microsoft.SemanticKernel;
 using System.ComponentModel;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive.PlanningThoughts
@@ -34,7 +34,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive.PlanningThoughts
         /// <param name="query">The query to solve for.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>The response body as a string.</returns>
-        [SKFunction, Description("Solve for a complex query or problem step-by-step. Can be used as a last resort to solve a problem when no other answer is known.")]
+        [KernelFunction, Description("Solve for a complex query or problem step-by-step. Can be used as a last resort to solve a problem when no other answer is known.")]
         public async Task<string> SolveWithExamplesAsync(
             [Description("The query to solve for.")] string query,
             CancellationToken token = default)

@@ -47,20 +47,22 @@ namespace Semantic.Core.Tests.Thoughts.Chains.Cognitive
         }
 
         [Fact]
-        public async Task ExecuteChainAsync_WithInvalidInput_ShouldThrow()
+        public async Task TranscribeAudioFileAsync_WithInvalidInput_ShouldThrow()
         {
-            var serviceProvider = Substitute.For<IServiceProvider>();
+            var serviceCollection = new ServiceCollection()
+                .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            var serviceProvider = serviceCollection.BuildServiceProvider();
             var logger = Substitute.For<ILogger<AudioTranscriptionChain>>();
             var instance = new AudioTranscriptionChain(serviceProvider, logger);
-            string input = default;
+            string audioFilePath = default;
 
-            var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.ExecuteChainAsync(input));
+            var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.TranscribeAudioFileAsync(audioFilePath));
 
-            Assert.Equal(nameof(input), actual.ParamName);
+            Assert.Equal(nameof(audioFilePath), actual.ParamName);
         }
 
         [Fact]
-        public async Task ExecuteChainAsync_WithValidInput_ShouldCallInvokeAsyncAsync()
+        public async Task TranscribeAudioFileAsync_WithValidInput_ShouldCallInvokeAsyncAsync()
         {
             var serviceCollection = new ServiceCollection()
                 .AddSemanticCore(Config.SEMANTIC_CONFIG);
@@ -71,7 +73,7 @@ namespace Semantic.Core.Tests.Thoughts.Chains.Cognitive
             var input = "./harvard.wav";
             var expected = "The stale smell of old beer lingers. It takes heat to bring out the odor. A cold dip restores health and zest. A salt pickle tastes fine with ham. Tacos al pastor are my favorite. A zestful food is the hot cross bun.";
 
-            var actual = await instance.ExecuteChainAsync(input);
+            var actual = await instance.TranscribeAudioFileAsync(input);
 
             Assert.Contains(expected, actual);
         }

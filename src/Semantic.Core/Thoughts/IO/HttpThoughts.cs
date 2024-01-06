@@ -1,6 +1,6 @@
 ﻿using FrostAura.Libraries.Core.Extensions.Validation;
 using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel.SkillDefinition;
+using Microsoft.SemanticKernel;
 using System.ComponentModel;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.IO
@@ -32,7 +32,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.IO
         /// <param name="uri">URI of the request.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>The response body as a string.</returns>
-        [SKFunction, Description("Makes a HTTP GET request to a URI.")]
+        [KernelFunction, Description("Makes a HTTP GET request to a URI.")]
         public Task<string> GetAsync(
             [Description("The URI of the request.")] string uri,
             CancellationToken token = default) =>
@@ -45,7 +45,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.IO
         /// <param name="body">The body of the request.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>The response body as a string.</returns>
-        [SKFunction, Description("Makes a HTTP POST request to a URI.")]
+        [KernelFunction, Description("Makes a HTTP POST request to a URI.")]
         public Task<string> PostAsync(
             [Description("The URI of the request.")] string uri,
             [Description("The body of the request.")] string body,
@@ -59,7 +59,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.IO
         /// <param name="body">The body of the request.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>The response body as a string.</returns>
-        [SKFunction, Description("Makes a HTTP PUT request to a URI.")]
+        [KernelFunction, Description("Makes a HTTP PUT request to a URI.")]
         public Task<string> PutAsync(
             [Description("The URI of the request.")] string uri,
             [Description("The body of the request.")] string body,
@@ -72,7 +72,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.IO
         /// <param name="uri">URI of the request.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>The response body as a string.</returns>
-        [SKFunction, Description("Makes a HTTP DELETE request to a URI.")]
+        [KernelFunction, Description("Makes a HTTP DELETE request to a URI.")]
         public Task<string> DeleteAsync(
             [Description("The URI of the request.")] string uri,
             CancellationToken token = default) =>

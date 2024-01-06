@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>FrostAura.Libraries.Intelligence.Semantic.Core</id>
-        <version>0.1.0</version>
+        <version>0.1.1</version>
         <title>FrostAura.Libraries.Intelligence.Semantic.Core</title>
         <authors>Dean Martin</authors>
         <owners>FrostAura</owners>
@@ -13,20 +13,20 @@
         <summary />
         <dependencies>
             <group targetFramework="net7.0">
-                <dependency id="ElevenLabs-DotNet" version="1.3.5" />
+                <dependency id="ElevenLabs-DotNet" version="2.1.0" />
                 <dependency id="FrostAura.Libraries.Core" version="7.0.2" />
-                <dependency id="Google.Apis" version="1.62.1" />
-                <dependency id="Google.Apis.Auth" version="1.62.1" />
-                <dependency id="Google.Apis.YouTube.v3" version="1.62.0.3169" />
-                <dependency id="Microsoft.Extensions.DependencyInjection" version="7.0.0" />
-                <dependency id="Microsoft.Extensions.Http" version="7.0.0" />
-                <dependency id="Microsoft.Extensions.Logging" version="7.0.0" />
-                <dependency id="Microsoft.Extensions.Logging.Abstractions" version="7.0.1" />
-                <dependency id="Microsoft.SemanticKernel" version="0.24.230918.1-preview" />
-                <dependency id="Microsoft.SemanticKernel.Connectors.Memory.Pinecone" version="0.24.230918.1-preview" />
+                <dependency id="Google.Apis" version="1.64.0" />
+                <dependency id="Google.Apis.Auth" version="1.64.0" />
+                <dependency id="Google.Apis.YouTube.v3" version="1.64.0.3205" />
+                <dependency id="Microsoft.Extensions.DependencyInjection" version="8.0.0" />
+                <dependency id="Microsoft.Extensions.Http" version="8.0.0" />
+                <dependency id="Microsoft.Extensions.Logging" version="8.0.0" />
+                <dependency id="Microsoft.Extensions.Logging.Abstractions" version="8.0.0" />
+                <dependency id="Microsoft.SemanticKernel" version="1.0.1" />
+                <dependency id="Microsoft.SemanticKernel.Connectors.Memory.Pinecone" version="1.0.0-rc3" />
                 <dependency id="Newtonsoft.Json" version="13.0.3" />
                 <dependency id="PexelsDotNetSDK" version="1.0.11" />
-                <dependency id="Selenium.WebDriver" version="4.13.1" />
+                <dependency id="Selenium.WebDriver" version="4.16.2" />
             </group>
         </dependencies>
     </metadata>

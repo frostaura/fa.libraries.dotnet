@@ -58,7 +58,7 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
             Assert.Equal(nameof(text), actual.ParamName);
         }
 
-        [Fact]
+        [Fact(Skip = "Integration Test")]
         public async Task TextToSpeechAsync_WithValidText_ShouldReturnFilePath()
         {
             var elevenLabsConfig = Substitute.For<IOptions<ElevenLabsConfig>>();

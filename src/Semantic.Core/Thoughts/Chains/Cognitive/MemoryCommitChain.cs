@@ -2,6 +2,7 @@
 using FrostAura.Libraries.Semantic.Core.Thoughts.IO;
 using FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive;
 using Microsoft.Extensions.Logging;
+using FrostAura.Libraries.Core.Extensions.Validation;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
 {
@@ -56,5 +57,17 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
         public MemoryCommitChain(IServiceProvider serviceProvider, ILogger<MemoryCommitChain> logger)
             : base(serviceProvider, logger)
         { }
+
+        /// <summary>
+        /// Execute the chain of thought sequentially.
+        /// </summary>
+        /// <param name="input">The initial input into the chain.</param>
+        /// <param name="state">The optional state of the chain. Should state be provided for outputs, thoughts that produce such outputs would be skipped.</param>
+        /// <param name="token">The token to use to request cancellation.</param>
+        /// <returns>The chain's final output.</returns>
+        public override Task<string> ExecuteChainAsync(string input = "", Dictionary<string, string> state = null, CancellationToken token = default)
+        {
+            return base.ExecuteChainAsync(input.ThrowIfNullOrWhitespace(nameof(input)), state, token);
+        }
     }
 }

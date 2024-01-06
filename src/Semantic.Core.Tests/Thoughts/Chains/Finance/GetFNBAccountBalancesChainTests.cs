@@ -47,7 +47,7 @@ namespace Semantic.Core.Tests.Thoughts.Chains.Finance
             Assert.NotEmpty(actual.ChainOfThoughts);
         }
 
-        [Fact]
+        [Fact(Skip = "Integration Test")]
         public async Task ExecuteChainAsync_WithValidInput_ShouldCallInvokeAsyncAsync()
         {
             var serviceCollection = new ServiceCollection()
@@ -55,9 +55,8 @@ namespace Semantic.Core.Tests.Thoughts.Chains.Finance
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var logger = Substitute.For<ILogger<GetFNBAccountBalancesChain>>();
             var instance = new GetFNBAccountBalancesChain(serviceProvider, logger);
-            var input = string.Empty;
 
-            var actual = await instance.ExecuteChainAsync(input);
+            var actual = await instance.ExecuteChainAsync();
 
             Assert.NotEmpty(actual);
         }

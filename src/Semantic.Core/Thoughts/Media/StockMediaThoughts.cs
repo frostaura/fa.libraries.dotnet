@@ -1,10 +1,11 @@
 ﻿using FrostAura.Libraries.Core.Extensions.Validation;
+using FrostAura.Libraries.Semantic.Core.Extensions.Resilience;
 using FrostAura.Libraries.Semantic.Core.Models.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.SemanticKernel.SkillDefinition;
+using Microsoft.SemanticKernel;
 using PexelsDotNetSDK.Api;
-using System;
+using Polly;
 using System.ComponentModel;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.Media
@@ -49,7 +50,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Media
         /// <param name="orientation">The orientation of the video.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>A collection of local file paths for the videos downloaded.</returns>
-        [SKFunction, Description("Get local file paths to stock videos matching a search phrase.")]
+        [KernelFunction, Description("Get local file paths to stock videos matching a search phrase.")]
         public async Task<string> DownloadAndGetStockVideoAsync(
             [Description("The video search term.")] string searchQuery,
             [Description("The video orientation (portrait|landscape|square|all).")] string orientation = "all",
@@ -79,19 +80,23 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Media
         /// <param name="savePath">The path to save it to.</param>
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>Void</returns>
-        private async Task DownloadVideoUrlToFileAsync(string videoUrl, string savePath, CancellationToken token)
+        private Task DownloadVideoUrlToFileAsync(string videoUrl, string savePath, CancellationToken token)
         {
-            using (var client = _httpClientFactory.CreateClient())
+            return Task.Run(async () =>
             {
-                using (var response = await client.GetAsync(videoUrl, token))
+                using (var client = _httpClientFactory.CreateClient())
                 {
-                    using (Stream contentStream = await response.Content.ReadAsStreamAsync(),
-                                  stream = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
+                    using (var response = await client.GetAsync(videoUrl, token))
                     {
-                        await contentStream.CopyToAsync(stream);
+                        using (Stream contentStream = await response.Content.ReadAsStreamAsync(),
+                                        stream = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
+                        {
+                            await contentStream.CopyToAsync(stream);
+                        }
                     }
                 }
-            }
+            })
+            .AsResilientTask();
         }
     }
 }
