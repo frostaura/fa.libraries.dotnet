@@ -6,6 +6,21 @@
     <Nullable>enable</Nullable>
     <RootNamespace>FrostAura.Libraries.Semantic.Core</RootNamespace>
   </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>SKEXP0001</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>SKEXP0003</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>SKEXP0011</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>SKEXP0012</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>SKEXP0052</NoWarn>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Extensions\" />
