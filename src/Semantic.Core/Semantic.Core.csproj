@@ -4,6 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AssemblyName>FrostAura.Libraries.Semantic.Core</AssemblyName>
     <RootNamespace>FrostAura.Libraries.Semantic.Core</RootNamespace>
     <NoWarn>$(NoWarn);SKEXP0001;SKEXP0002;SKEXP0003;SKEXP0011;SKEXP0012;SKEXP0052</NoWarn>
   </PropertyGroup>

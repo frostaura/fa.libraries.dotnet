@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Finance\FrostAura.Libraries.Finance.csproj" />
+    <ProjectReference Include="..\Finance\Finance.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Managers\" />
