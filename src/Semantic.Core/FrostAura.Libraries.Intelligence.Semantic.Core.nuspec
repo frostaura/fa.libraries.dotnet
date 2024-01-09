@@ -31,7 +31,7 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="bin\Release\net7.0\FrostAura.Libraries.Intelligence.Semantic.Core.dll" target="lib\net7.0\FrostAura.Libraries.Intelligence.Semantic.Core.dll" />
-        <file src="bin\Release\net7.0\FrostAura.Libraries.Intelligence.Semantic.Core.pdb" target="lib\net7.0\FrostAura.Libraries.Intelligence.Semantic.Core.pdb" />
+        <file src="bin\Release\net7.0\FrostAura.Libraries.Semantic.Core.dll" target="lib\net7.0\FrostAura.Libraries.Semantic.Core.dll" />
+        <file src="bin\Release\net7.0\FrostAura.Libraries.Semantic.Core.pdb" target="lib\net7.0\FrostAura.Libraries.Semantic.Core.pdb" />
     </files>
 </package>
