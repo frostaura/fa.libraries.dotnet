@@ -8,6 +8,7 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <RootNamespace>FrostAura.Libraries.Semantic.Core.Tests</RootNamespace>
+    <NoWarn>$(NoWarn);SKEXP0001;SKEXP0002;SKEXP0003;SKEXP0011;SKEXP0012;SKEXP0052</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

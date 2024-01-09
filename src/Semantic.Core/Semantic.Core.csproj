@@ -5,21 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>FrostAura.Libraries.Semantic.Core</RootNamespace>
-  </PropertyGroup>
-  <PropertyGroup>
-    <NoWarn>SKEXP0001</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup>
-    <NoWarn>SKEXP0003</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup>
-    <NoWarn>SKEXP0011</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup>
-    <NoWarn>SKEXP0012</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup>
-    <NoWarn>SKEXP0052</NoWarn>
+    <NoWarn>$(NoWarn);SKEXP0001;SKEXP0002;SKEXP0003;SKEXP0011;SKEXP0012;SKEXP0052</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
