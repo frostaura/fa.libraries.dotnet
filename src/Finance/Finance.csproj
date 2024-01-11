@@ -9,23 +9,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FrostAura.Libraries.Core" Version="7.0.1" />
+    <PackageReference Include="FrostAura.Libraries.Core" Version="7.0.2" />
+    <PackageReference Include="NSubstitute" Version="5.1.0" />
+    <PackageReference Include="FrostAura.Libraries.Data" Version="7.0.5" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Managers\" />
-    <None Remove="Engines\" />
     <None Remove="Interfaces\" />
     <None Remove="Interfaces\Managers\" />
-    <None Remove="Interfaces\Engines\" />
     <None Remove="Models\" />
     <None Remove="Enums\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Managers\" />
-    <Folder Include="Engines\" />
     <Folder Include="Interfaces\" />
     <Folder Include="Interfaces\Managers\" />
-    <Folder Include="Interfaces\Engines\" />
     <Folder Include="Models\" />
     <Folder Include="Enums\" />
   </ItemGroup>

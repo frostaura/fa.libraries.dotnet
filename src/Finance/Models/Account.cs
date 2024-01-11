@@ -1,13 +1,15 @@
 ﻿using System.Diagnostics;
 using Finance.Enums;
+using FrostAura.Libraries.Core.Extensions.Validation;
+using FrostAura.Libraries.Data.Models.EntityFramework;
 
 namespace Finance.Models
 {
 	/// <summary>
 	/// Financial account information.
 	/// </summary>
-	[DebuggerDisplay("{Name} ({InterestRate}):  R {Amount} -> R {RunningBalance} (R {Available} available)")]
-	public class Account : PricedItem
+	[DebuggerDisplay("{Name} ({InterestRate}): {Balance}")]
+	public class Account : BaseNamedEntity
     {
 		/// <summary>
 		/// The interest rate, positive or nagative, expressed as a ratio.
@@ -19,14 +21,6 @@ namespace Finance.Models
 		/// Whether this account is the default investment account.
 		/// </summary>
 		public bool DefaultInvestmentAccount { get; set; }
-		/// <summary>
-		/// Max value the account can be.
-		/// </summary>
-		public double Limit { get; set; }
-		/// <summary>
-		/// How much is still available on the account given all the transactions and the limit.
-		/// </summary>
-		public double Available => Math.Round(Transactions.Sum(t => t.Amount) + Limit, 2);
 		/// <summary>
 		/// Whether this is the account that the primary salary gets deposited into.
 		/// </summary>
@@ -40,19 +34,39 @@ namespace Finance.Models
 		/// <summary>
 		/// All transactions for the respective account.
 		/// </summary>
-		public List<PricedTransactionItem> Transactions = new List<PricedTransactionItem>();
+		public List<PricedItem> Transactions = new List<PricedItem>();
 		/// <summary>
 		/// The running balance as determined from all active transactions for the account.
 		/// </summary>
-		public double RunningBalance => Math.Round(Transactions.Sum(t => t.Amount), 2);
+		public double Balance => Math.Round(Transactions.Sum(t => t.Amount), 2);
 		/// <summary>
 		/// The type of the account.
 		/// </summary>
-		public AccountType Type { get; set; } = AccountType.Debit;
+		public AccountType Type { get; private set; }
 		/// <summary>
 		/// The expiration date of the account, if any.
 		/// </summary>
 		public DateTime ExpirationDate { get; set; }
+
+		/// <summary>
+		/// Overloaded constructor to allow for providing parameters.
+		/// </summary>
+		/// <param name="name">Name of the account.</param>
+		/// <param name="balance">Initial balance of the account, if any.</param>
+		/// <param name="accountType">Account type.</param>
+		public Account(string name, double balance = 0.0, AccountType accountType = AccountType.Debit)
+		{
+			Name = name.ThrowIfNullOrWhitespace(nameof(name));
+			Type = accountType;
+
+			if (balance != 0.0)
+			{
+                Transactions.Add(new PricedItem
+                {
+                    Amount = balance,
+                    Name = "Initial Balance Brought Forward"
+                });
+            }
+        }
 	}
 }
-

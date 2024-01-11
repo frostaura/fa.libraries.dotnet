@@ -5,7 +5,7 @@ namespace Finance.Interfaces.Managers
     /// <summary>
     /// A manager for projection features. This could be for wealth or other numbers over time.
     /// </summary>
-    public interface IProjectionManager
+    public interface IWealthProjectionManager
 	{
 		/// <summary>
 		/// Project to a specific date.
