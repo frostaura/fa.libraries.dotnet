@@ -53,7 +53,7 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
             var instance = new AudioThoughts(elevenLabsConfig, logger);
             string text = default;
 
-            var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.TextToSpeechAsync(text));
+            var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.ElevenLabsTextToSpeechAsync(text));
 
             Assert.Equal(nameof(text), actual.ParamName);
         }
@@ -67,7 +67,7 @@ namespace Semantic.Core.Tests.Thoughts.Cognitive
             var instance = new AudioThoughts(elevenLabsConfig, logger);
             string text = "Hi, my name is Iluvatar. How are you?";
 
-            var actual = await instance.TextToSpeechAsync(text);
+            var actual = await instance.ElevenLabsTextToSpeechAsync(text);
 
             Assert.NotEmpty(actual);
             Assert.Contains(".mp3", actual);

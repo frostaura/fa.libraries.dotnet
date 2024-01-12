@@ -42,7 +42,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive
         /// <param name="token">The token to use to request cancellation.</param>
         /// <returns>A local file path to the Audio file.</returns>
         [KernelFunction, Description("Convert text to speech and returns the local file path to the audio file.")]
-        public async Task<string> TextToSpeechAsync(
+        public async Task<string> ElevenLabsTextToSpeechAsync(
             [Description("The text to speak.")] string text,
             CancellationToken token = default)
         {

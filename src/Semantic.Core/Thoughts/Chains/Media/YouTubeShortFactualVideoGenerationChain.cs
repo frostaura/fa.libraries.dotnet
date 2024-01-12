@@ -304,7 +304,7 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
             #region Synthesize Voice-over
             new Thought
             {
-                Action = $"{nameof(AudioThoughts)}.{nameof(AudioThoughts.TextToSpeechAsync)}",
+                Action = $"{nameof(AudioThoughts)}.{nameof(AudioThoughts.ElevenLabsTextToSpeechAsync)}",
                 Reasoning = "I will generate a voice-over for the video that speaks the script fashionably.",
                 Critisism = "I don't have control over the pitch and speed of the voice here.",
                 Arguments = new Dictionary<string, string>
