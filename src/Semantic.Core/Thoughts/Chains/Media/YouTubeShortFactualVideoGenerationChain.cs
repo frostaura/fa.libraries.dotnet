@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
 using FrostAura.Libraries.Core.Extensions.Validation;
+using FrostAura.Libraries.Semantic.Core.Abstractions.Thoughts;
+using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
 using FrostAura.Libraries.Semantic.Core.Models.Thoughts;
 using FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive;
 using FrostAura.Libraries.Semantic.Core.Thoughts.IO;
@@ -7,35 +9,38 @@ using FrostAura.Libraries.Semantic.Core.Thoughts.Media;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 
-namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
+namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive;
+
+/// <summary>
+/// A chain that can generate a factual documentary style video on a provided topic and return the video file's local file path.
+/// </summary>
+public class YouTubeShortFactualVideoGenerationChain : BaseChain
 {
-	public class YouTubeShortFactualVideoGenerationChain : BaseExecutableChain
-	{
-        /// <summary>
-        /// An example query that this chain example can be used to solve for.
-        /// </summary>
-        public override string QueryExample => "Create a short factual video in documentary style on any interesting cosmos/space topic and push it to YouTube.";
-        /// <summary>
-        /// An example query input that this chain example can be used to solve for.
-        /// </summary>
-        public override string QueryInputExample => "cosmos/space";
-        /// The reasoning for the solution of the chain.
-        /// </summary>
-        public override string Reasoning => "I can chain a couple of LLM calls together in order to generate creative content, I can then download some relevant videos (I think 6 should be enough) and edit it together creatively using code interpreter, since I know Python well.";
-        /// <summary>
-        /// A collection of thoughts.
-        /// </summary>
-        public override List<Thought> ChainOfThoughts => new List<Thought>
+    /// <summary>
+    /// An example query that this chain example can be used to solve for.
+    /// </summary>
+    public override string QueryExample => "Create a short factual video in documentary style on any interesting cosmos/space topic and push it to YouTube.";
+    /// <summary>
+    /// An example query input that this chain example can be used to solve for.
+    /// </summary>
+    public override string QueryInputExample => "cosmos/space";
+    /// The reasoning for the solution of the chain.
+    /// </summary>
+    public override string Reasoning => "I can chain a couple of LLM calls together in order to generate creative content, I can then download some relevant videos (I think 6 should be enough) and edit it together creatively using code interpreter, since I know Python well.";
+    /// <summary>
+    /// A collection of thoughts.
+    /// </summary>
+    public override List<Thought> ChainOfThoughts => new List<Thought>
+    {
+        #region Generate Title, Description & Tags
+        new Thought
         {
-            #region Generate Title, Description & Tags
-            new Thought
+            Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
+            Reasoning = "I will generate a captivating title that's likely to go viral on a platform like YouTube.",
+            Critisism = "I should be careful not to return the same response each time, given the same topic so will keep my prompt general.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
-                Reasoning = "I will generate a captivating title that's likely to go viral on a platform like YouTube.",
-                Critisism = "I should be careful not to return the same response each time, given the same topic so will keep my prompt general.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "prompt", """
+                { "prompt", """
                         On the theme of "$input", think about at least 10 exciting, random, but factual topics that could make for a viral YouTube short video documentary and that you would have the knowledge to write a script about.
                         Then pick a random one and give me a title for the topic that you've chosen, that I can use for the YouTube video.
                         Do not list any of your considerations.
@@ -43,17 +48,17 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
 
                         Title: 
                         """ }
-                },
-                OutputKey = "TITLE"
             },
-            new Thought
+            OutputKey = "TITLE"
+        },
+        new Thought
+        {
+            Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
+            Reasoning = "I will generate a factual but captivating script for the video that is short enough for a YouTube short video.",
+            Critisism = "I should be sure to stick to the facts when writing the script. I should also be as specific in my prompt to only get exactly what I want, the script.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
-                Reasoning = "I will generate a factual but captivating script for the video that is short enough for a YouTube short video.",
-                Critisism = "I should be sure to stick to the facts when writing the script. I should also be as specific in my prompt to only get exactly what I want, the script.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "prompt", """
+                { "prompt", """
                         Write an essay of 100 words on interesting facts for a documentary-style video with the title "$TITLE".
                         Make it interesting and factual. Don't return it in point form rather make it story-like.
                         Do not list any of your considerations.
@@ -62,34 +67,34 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
 
                         Essay Body: 
                         """ }
-                },
-                OutputKey = "SCRIPT"
             },
-            new Thought
+            OutputKey = "SCRIPT"
+        },
+        new Thought
+        {
+            Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
+            Reasoning = "I will generate a short description for the YouTube video based on the script.",
+            Critisism = "I should keep it captivating since this is for a social platform.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
-                Reasoning = "I will generate a short description for the YouTube video based on the script.",
-                Critisism = "I should keep it captivating since this is for a social platform.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "prompt", """
+                { "prompt", """
                         Write a captivating short description for the script video with the following script.
 
                         Script: $SCRIPT
 
                         Description: 
                         """ }
-                },
-                OutputKey = "DESCRIPTION"
             },
-            new Thought
+            OutputKey = "DESCRIPTION"
+        },
+        new Thought
+        {
+            Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
+            Reasoning = "I will generate a space-delimited list of tags for the YouTube video that should help it go viral.",
+            Critisism = "I should have a couple of good tags but not over-do it.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
-                Reasoning = "I will generate a space-delimited list of tags for the YouTube video that should help it go viral.",
-                Critisism = "I should have a couple of good tags but not over-do it.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "prompt", """
+                { "prompt", """
                         Give me up to 10 tags for a YouTube short video, based on the following script.
                         Each tag should be lower-case only.
                         Each tag, if it consists of more than a single word, should be joined by -. For example, tag-with-more-words
@@ -99,37 +104,37 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
 
                         Tags: 
                         """ }
-                },
-                OutputKey = "TAGS"
             },
-            #endregion
+            OutputKey = "TAGS"
+        },
+        #endregion
 
-            #region Search for & Download Videos
-            new Thought
+        #region Search for & Download Videos
+        new Thought
+        {
+            Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
+            Reasoning = "I will generate a search query for a stock video which I can later use to download a stock video. This is just for video 1 of 6.",
+            Critisism = "Doing this for each video is inefficient.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
-                Reasoning = "I will generate a search query for a stock video which I can later use to download a stock video. This is just for video 1 of 6.",
-                Critisism = "Doing this for each video is inefficient.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "prompt", """
+                { "prompt", """
                         Given a YouTube short video script, generate a SINGLE (no comma-separated queries), short and consise search query I could use on a stock video website like Pexels to find relevant content.
                         ---
                         Script: $SCRIPT
                         ---
                         Search Query: 
                         """ }
-                },
-                OutputKey = "VIDEO_QUERY_1"
             },
-            new Thought
+            OutputKey = "VIDEO_QUERY_1"
+        },
+        new Thought
+        {
+            Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
+            Reasoning = "I will generate a search query for a stock video which I can later use to download a stock video. This is just for video 2 of 6.",
+            Critisism = "Doing this for each video is inefficient.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
-                Reasoning = "I will generate a search query for a stock video which I can later use to download a stock video. This is just for video 2 of 6.",
-                Critisism = "Doing this for each video is inefficient.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "prompt", """
+                { "prompt", """
                         Given a YouTube short video script, generate a SINGLE (no comma-separated queries), short and consise search query I could use on a stock video website like Pexels to find relevant content.
                         Also DO NOT use the following items as they are already used. Instead produce a search query that's diverse from the items listed below.
                         - $VIDEO_QUERY_1
@@ -138,17 +143,17 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
                         ---
                         Search Query: 
                         """ }
-                },
-                OutputKey = "VIDEO_QUERY_2"
             },
-            new Thought
+            OutputKey = "VIDEO_QUERY_2"
+        },
+        new Thought
+        {
+            Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
+            Reasoning = "I will generate a search query for a stock video which I can later use to download a stock video. This is just for video 3 of 6.",
+            Critisism = "Doing this for each video is inefficient.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
-                Reasoning = "I will generate a search query for a stock video which I can later use to download a stock video. This is just for video 3 of 6.",
-                Critisism = "Doing this for each video is inefficient.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "prompt", """
+                { "prompt", """
                         Given a YouTube short video script, generate a SINGLE (no comma-separated queries), short and consise search query I could use on a stock video website like Pexels to find relevant content.
                         Also DO NOT use the following items as they are already used. Instead produce a search query that's diverse from the items listed below.
                         - $VIDEO_QUERY_1
@@ -158,17 +163,17 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
                         ---
                         Search Query: 
                         """ }
-                },
-                OutputKey = "VIDEO_QUERY_3"
             },
-            new Thought
+            OutputKey = "VIDEO_QUERY_3"
+        },
+        new Thought
+        {
+            Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
+            Reasoning = "I will generate a search query for a stock video which I can later use to download a stock video. This is just for video 4 of 6.",
+            Critisism = "Doing this for each video is inefficient.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
-                Reasoning = "I will generate a search query for a stock video which I can later use to download a stock video. This is just for video 4 of 6.",
-                Critisism = "Doing this for each video is inefficient.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "prompt", """
+                { "prompt", """
                         Given a YouTube short video script, generate a SINGLE (no comma-separated queries), short and consise search query I could use on a stock video website like Pexels to find relevant content.
                         Also DO NOT use the following items as they are already used. Instead produce a search query that's diverse from the items listed below.
                         - $VIDEO_QUERY_1
@@ -179,17 +184,17 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
                         ---
                         Search Query: 
                         """ }
-                },
-                OutputKey = "VIDEO_QUERY_4"
             },
-            new Thought
+            OutputKey = "VIDEO_QUERY_4"
+        },
+        new Thought
+        {
+            Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
+            Reasoning = "I will generate a search query for a stock video which I can later use to download a stock video. This is just for video 5 of 6.",
+            Critisism = "Doing this for each video is inefficient.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
-                Reasoning = "I will generate a search query for a stock video which I can later use to download a stock video. This is just for video 5 of 6.",
-                Critisism = "Doing this for each video is inefficient.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "prompt", """
+                { "prompt", """
                         Given a YouTube short video script, generate a SINGLE (no comma-separated queries), short and consise search query I could use on a stock video website like Pexels to find relevant content.
                         Also DO NOT use the following items as they are already used. Instead produce a search query that's diverse from the items listed below.
                         - $VIDEO_QUERY_1
@@ -201,17 +206,17 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
                         ---
                         Search Query: 
                         """ }
-                },
-                OutputKey = "VIDEO_QUERY_5"
             },
-            new Thought
+            OutputKey = "VIDEO_QUERY_5"
+        },
+        new Thought
+        {
+            Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
+            Reasoning = "I will generate a search query for a stock video which I can later use to download a stock video. This is just for video 6 of 6.",
+            Critisism = "Doing this for each video is inefficient.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(LanguageModelThoughts)}.{nameof(LanguageModelThoughts.PromptLLMAsync)}",
-                Reasoning = "I will generate a search query for a stock video which I can later use to download a stock video. This is just for video 6 of 6.",
-                Critisism = "Doing this for each video is inefficient.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "prompt", """
+                { "prompt", """
                         Given a YouTube short video script, generate a SINGLE (no comma-separated queries), short and consise search query I could use on a stock video website like Pexels to find relevant content.
                         Also DO NOT use the following items as they are already used. Instead produce a search query that's diverse from the items listed below.
                         - $VIDEO_QUERY_1
@@ -224,109 +229,109 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
                         ---
                         Search Query: 
                         """ }
-                },
-                OutputKey = "VIDEO_QUERY_6"
             },
-            new Thought
+            OutputKey = "VIDEO_QUERY_6"
+        },
+        new Thought
+        {
+            Action = $"{nameof(StockMediaThoughts)}.{nameof(StockMediaThoughts.DownloadAndGetStockVideoAsync)}",
+            Reasoning = "I will download a stock video for each query generated. This is for query 1 of 6.",
+            Critisism = "Doing this for each video is inefficient. Would be good to make this concurrent somehow.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(StockMediaThoughts)}.{nameof(StockMediaThoughts.DownloadAndGetStockVideoAsync)}",
-                Reasoning = "I will download a stock video for each query generated. This is for query 1 of 6.",
-                Critisism = "Doing this for each video is inefficient. Would be good to make this concurrent somehow.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "searchQuery", "$VIDEO_QUERY_1" },
-                    { "orientation", "portrait" }
-                },
-                OutputKey = "VIDEO_1_PATH"
+                { "searchQuery", "$VIDEO_QUERY_1" },
+                { "orientation", "portrait" }
             },
-            new Thought
+            OutputKey = "VIDEO_1_PATH"
+        },
+        new Thought
+        {
+            Action = $"{nameof(StockMediaThoughts)}.{nameof(StockMediaThoughts.DownloadAndGetStockVideoAsync)}",
+            Reasoning = "I will download a stock video for each query generated. This is for query 2 of 6.",
+            Critisism = "Doing this for each video is inefficient. Would be good to make this concurrent somehow.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(StockMediaThoughts)}.{nameof(StockMediaThoughts.DownloadAndGetStockVideoAsync)}",
-                Reasoning = "I will download a stock video for each query generated. This is for query 2 of 6.",
-                Critisism = "Doing this for each video is inefficient. Would be good to make this concurrent somehow.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "searchQuery", "$VIDEO_QUERY_2" },
-                    { "orientation", "portrait" }
-                },
-                OutputKey = "VIDEO_2_PATH"
+                { "searchQuery", "$VIDEO_QUERY_2" },
+                { "orientation", "portrait" }
             },
-            new Thought
+            OutputKey = "VIDEO_2_PATH"
+        },
+        new Thought
+        {
+            Action = $"{nameof(StockMediaThoughts)}.{nameof(StockMediaThoughts.DownloadAndGetStockVideoAsync)}",
+            Reasoning = "I will download a stock video for each query generated. This is for query 3 of 6.",
+            Critisism = "Doing this for each video is inefficient. Would be good to make this concurrent somehow.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(StockMediaThoughts)}.{nameof(StockMediaThoughts.DownloadAndGetStockVideoAsync)}",
-                Reasoning = "I will download a stock video for each query generated. This is for query 3 of 6.",
-                Critisism = "Doing this for each video is inefficient. Would be good to make this concurrent somehow.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "searchQuery", "$VIDEO_QUERY_3" },
-                    { "orientation", "portrait" }
-                },
-                OutputKey = "VIDEO_3_PATH"
+                { "searchQuery", "$VIDEO_QUERY_3" },
+                { "orientation", "portrait" }
             },
-            new Thought
+            OutputKey = "VIDEO_3_PATH"
+        },
+        new Thought
+        {
+            Action = $"{nameof(StockMediaThoughts)}.{nameof(StockMediaThoughts.DownloadAndGetStockVideoAsync)}",
+            Reasoning = "I will download a stock video for each query generated. This is for query 4 of 6.",
+            Critisism = "Doing this for each video is inefficient. Would be good to make this concurrent somehow.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(StockMediaThoughts)}.{nameof(StockMediaThoughts.DownloadAndGetStockVideoAsync)}",
-                Reasoning = "I will download a stock video for each query generated. This is for query 4 of 6.",
-                Critisism = "Doing this for each video is inefficient. Would be good to make this concurrent somehow.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "searchQuery", "$VIDEO_QUERY_4" },
-                    { "orientation", "portrait" }
-                },
-                OutputKey = "VIDEO_4_PATH"
+                { "searchQuery", "$VIDEO_QUERY_4" },
+                { "orientation", "portrait" }
             },
-            new Thought
+            OutputKey = "VIDEO_4_PATH"
+        },
+        new Thought
+        {
+            Action = $"{nameof(StockMediaThoughts)}.{nameof(StockMediaThoughts.DownloadAndGetStockVideoAsync)}",
+            Reasoning = "I will download a stock video for each query generated. This is for query 5 of 6.",
+            Critisism = "Doing this for each video is inefficient. Would be good to make this concurrent somehow.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(StockMediaThoughts)}.{nameof(StockMediaThoughts.DownloadAndGetStockVideoAsync)}",
-                Reasoning = "I will download a stock video for each query generated. This is for query 5 of 6.",
-                Critisism = "Doing this for each video is inefficient. Would be good to make this concurrent somehow.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "searchQuery", "$VIDEO_QUERY_5" },
-                    { "orientation", "portrait" }
-                },
-                OutputKey = "VIDEO_5_PATH"
+                { "searchQuery", "$VIDEO_QUERY_5" },
+                { "orientation", "portrait" }
             },
-            new Thought
+            OutputKey = "VIDEO_5_PATH"
+        },
+        new Thought
+        {
+            Action = $"{nameof(StockMediaThoughts)}.{nameof(StockMediaThoughts.DownloadAndGetStockVideoAsync)}",
+            Reasoning = "I will download a stock video for each query generated. This is for query 6 of 6.",
+            Critisism = "Doing this for each video is inefficient. Would be good to make this concurrent somehow.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(StockMediaThoughts)}.{nameof(StockMediaThoughts.DownloadAndGetStockVideoAsync)}",
-                Reasoning = "I will download a stock video for each query generated. This is for query 6 of 6.",
-                Critisism = "Doing this for each video is inefficient. Would be good to make this concurrent somehow.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "searchQuery", "$VIDEO_QUERY_6" },
-                    { "orientation", "portrait" }
-                },
-                OutputKey = "VIDEO_6_PATH"
+                { "searchQuery", "$VIDEO_QUERY_6" },
+                { "orientation", "portrait" }
             },
-            #endregion
+            OutputKey = "VIDEO_6_PATH"
+        },
+        #endregion
 
-            #region Synthesize Voice-over
-            new Thought
+        #region Synthesize Voice-over
+        new Thought
+        {
+            Action = $"{nameof(AudioThoughts)}.{nameof(AudioThoughts.ElevenLabsTextToSpeechAsync)}",
+            Reasoning = "I will generate a voice-over for the video that speaks the script fashionably.",
+            Critisism = "I don't have control over the pitch and speed of the voice here.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(AudioThoughts)}.{nameof(AudioThoughts.ElevenLabsTextToSpeechAsync)}",
-                Reasoning = "I will generate a voice-over for the video that speaks the script fashionably.",
-                Critisism = "I don't have control over the pitch and speed of the voice here.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "text", "$SCRIPT" }
-                },
-                OutputKey = "VOICEOVER_AUDIO_PATH"
+                { "text", "$SCRIPT" }
             },
-            #endregion
+            OutputKey = "VOICEOVER_AUDIO_PATH"
+        },
+        #endregion
 
-            #region Edit Video via Code Interpreter
-            new Thought
+        #region Edit Video via Code Interpreter
+        new Thought
+        {
+            Action = $"{nameof(CodeInterpreterThoughts)}.{nameof(CodeInterpreterThoughts.InvokeAsync)}",
+            Reasoning = "I will use my code Python code interpreter to construct a script that can use the MoviePy library to put a creative video together with all the content we now have and respond with the video file's path.",
+            Critisism = "I need to ensure that I use the correct package versions so that the Python environment has the required dependencies installed otherwise my Python code may not execute.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(CodeInterpreterThoughts)}.{nameof(CodeInterpreterThoughts.InvokeAsync)}",
-                Reasoning = "I will use my code Python code interpreter to construct a script that can use the MoviePy library to put a creative video together with all the content we now have and respond with the video file's path.",
-                Critisism = "I need to ensure that I use the correct package versions so that the Python environment has the required dependencies installed otherwise my Python code may not execute.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "pythonVersion", "3.8" },
-                    { "pipDependencies", "pydub==0.25.1 moviepy==1.0.3 Pillow==9.5.0" },
-                    { "condaDependencies", "ffmpeg imagemagick" },
-                    { "code", """
+                { "pythonVersion", "3.8" },
+                { "pipDependencies", "pydub==0.25.1 moviepy==1.0.3 Pillow==9.5.0" },
+                { "condaDependencies", "ffmpeg imagemagick" },
+                { "code", """
                         def main() -> str:
                             # Set up constants and I use tripple quotes to make sure any strings are safe when interpolated.
                             video_transcript = '''$SCRIPT'''
@@ -437,69 +442,72 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
 
                             return output_path
                         """ }
-                },
-                OutputKey = "VIDEO_PATH"
             },
-            #endregion
+            OutputKey = "VIDEO_PATH"
+        },
+        #endregion
 
-            new Thought
+        new Thought
+        {
+            Action = $"{nameof(YouTubeThoughts)}.{nameof(YouTubeThoughts.PublishLocalVideoToYouTubeAsync)}",
+            Reasoning = "I can use the YouTube publish thought to upload the YouTube short video.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(YouTubeThoughts)}.{nameof(YouTubeThoughts.PublishLocalVideoToYouTubeAsync)}",
-                Reasoning = "I can use the YouTube publish thought to upload the YouTube short video.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "filePath", "$VIDEO_PATH" },
-                    { "description", "$DESCRIPTION" },
-                    { "tags", "$TAGS" }
-                },
-                OutputKey = "YOUTUBE_OUT"
+                { "filePath", "$VIDEO_PATH" },
+                { "description", "$DESCRIPTION" },
+                { "tags", "$TAGS" }
             },
+            OutputKey = "YOUTUBE_OUT"
+        },
 
-            new Thought
+        new Thought
+        {
+            Action = $"{nameof(SystemThoughts)}.{nameof(SystemThoughts.OutputTextAsync)}",
+            Reasoning = "I can simply proxy the response as a direct and response is appropriate for an exact transcription.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(OutputThoughts)}.{nameof(OutputThoughts.OutputTextAsync)}",
-                Reasoning = "I can simply proxy the response as a direct and response is appropriate for an exact transcription.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "output", "A short video called '$TITLE' has been created and pushed to YouTube." }
-                },
-                OutputKey = "OUT"
-            }
-        };
-
-        /// <summary>
-        /// Overloaded constructor to provide dependencies.
-        /// </summary>
-        /// <param name="serviceProvider">The dependency service provider.</param>
-        /// <param name="logger">Instance logger.</param>
-        public YouTubeShortFactualVideoGenerationChain(IServiceProvider serviceProvider, ILogger<YouTubeShortFactualVideoGenerationChain> logger)
-            : base(serviceProvider, logger)
-        { }
-
-        /// <summary>
-        /// Execute the chain of thought sequentially.
-        /// </summary>
-        /// <param name="input">The initial input into the chain.</param>
-        /// <param name="state">The optional state of the chain. Should state be provided for outputs, thoughts that produce such outputs would be skipped.</param>
-        /// <param name="token">The token to use to request cancellation.</param>
-        /// <returns>The chain's final output.</returns>
-        public override Task<string> ExecuteChainAsync(string input = "", Dictionary<string, string> state = null, CancellationToken token = default)
-        {
-            return base.ExecuteChainAsync(input.ThrowIfNullOrWhitespace(nameof(input)), state, token);
+                { "output", "A short video called '$TITLE' has been created and pushed to YouTube." }
+            },
+            OutputKey = "OUT"
         }
+    };
 
-        /// <summary>
-        /// Generate a factual documentary style video on a provided topic and return the video file's local file path.
-        /// </summary>
-        /// <param name="topic">The topic that the video should be on.</param>
-        /// <param name="token">The token to use to request cancellation.</param>
-        /// <returns>The video file's local file path.</returns>
-        [KernelFunction, Description("Generate a factual documentary style video on a provided topic and return the video file's local file path.")]
-        public Task<string> TranscribeAudioFileAsync(
-            [Description("The topic that the video should be on.")] string topic,
-            CancellationToken token = default)
-        {
-            return ExecuteChainAsync(topic, token: token);
-        }
+    /// <summary>
+    /// Overloaded constructor to provide dependencies.
+    /// </summary>
+    /// <param name="serviceProvider">The dependency service provider.</param>
+    /// <param name="semanticKernelLanguageModels">A component for communicating with language models.</param>
+    /// <param name="logger">Instance logger.</param>
+    public YouTubeShortFactualVideoGenerationChain(IServiceProvider serviceProvider, ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels, ILogger<YouTubeShortFactualVideoGenerationChain> logger)
+        : base(serviceProvider, semanticKernelLanguageModels, logger)
+    { }
+
+    /// <summary>
+    /// Generate a factual documentary style video on a provided topic and return the video file's local file path.
+    /// </summary>
+    /// <param name="topic">The topic that the video should be on.</param>
+    /// <param name="token">The token to use to request cancellation.</param>
+    /// <returns>The video file's local file path.</returns>
+    [KernelFunction, Description("Generate a factual documentary style video on a provided topic and return the video file's local file path.")]
+    public Task<string> GenerateDocumentaryVideoAsync(
+        [Description("The topic that the video should be on.")] string topic,
+        CancellationToken token = default)
+    {
+        return ExecuteChainAsync(topic.ThrowIfNullOrWhitespace(nameof(topic)), token: token);
+    }
+
+    /// <summary>
+    /// Generate a factual documentary style video on a provided topic and return the video file's local file path.
+    /// </summary>
+    /// <param name="topic">The topic that the video should be on.</param>
+    /// <param name="state">The state of the chain. Should state be provided for outputs, thoughts that produce such outputs would be skipped.</param>
+    /// <param name="token">The token to use to request cancellation.</param>
+    /// <returns>The video file's local file path.</returns>
+    public Task<string> GenerateDocumentaryVideoWithStateAsync(
+        string topic,
+        Dictionary<string, string> state,
+        CancellationToken token = default)
+    {
+        return ExecuteChainAsync(topic.ThrowIfNullOrWhitespace(topic), state: state, token: token);
     }
 }

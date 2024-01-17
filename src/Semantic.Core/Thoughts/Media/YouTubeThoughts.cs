@@ -1,4 +1,6 @@
 ﻿using FrostAura.Libraries.Core.Extensions.Validation;
+using FrostAura.Libraries.Semantic.Core.Abstractions.Thoughts;
+using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
 using FrostAura.Libraries.Semantic.Core.Models.Configuration;
 using Google.Apis.Services;
 using Google.Apis.Upload;
@@ -28,10 +30,12 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Media
         /// <summary>
         /// Overloaded constructor to provide dependencies.
         /// </summary>
+        /// <param name="serviceProvider">The dependency service provider.</param>
+        /// <param name="semanticKernelLanguageModels">A component for communicating with language models.</param>
         /// <param name="googleConfig">The Pexels SDK client.</param>
         /// <param name="logger">Instance logger.</param>
-        public YouTubeThoughts(IOptions<GoogleConfig> googleConfig, ILogger<YouTubeThoughts> logger)
-            :base(logger)
+        public YouTubeThoughts(IServiceProvider serviceProvider, ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels, IOptions<GoogleConfig> googleConfig, ILogger<YouTubeThoughts> logger)
+            :base(serviceProvider, semanticKernelLanguageModels, logger)
         {
             _googleConfig = googleConfig
                 .ThrowIfNull(nameof(googleConfig))

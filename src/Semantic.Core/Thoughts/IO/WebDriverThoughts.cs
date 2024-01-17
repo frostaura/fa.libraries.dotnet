@@ -1,4 +1,6 @@
 ﻿using FrostAura.Libraries.Core.Extensions.Validation;
+using FrostAura.Libraries.Semantic.Core.Abstractions.Thoughts;
+using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using OpenQA.Selenium;
@@ -6,71 +8,74 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using System.ComponentModel;
 
-namespace FrostAura.Libraries.Semantic.Core.Thoughts.IO
+namespace FrostAura.Libraries.Semantic.Core.Thoughts.IO;
+
+/// <summary>
+/// Web driver thoughts.
+/// </summary>
+public class WebDriverThoughts : BaseThought
 {
     /// <summary>
-    /// Web driver thoughts.
+    /// A function to call between when a page is loaded and read.
     /// </summary>
-    public class WebDriverThoughts : BaseThought
+    public Func<WebDriver, Task> OnPageLoadedAsync;
+    /// <summary>
+    /// A function to call after the page read is done.
+    /// </summary>
+    public Func<WebDriver, Task> OnCleanupAsync;
+
+    /// <summary>
+    /// Overloaded constructor to provide dependencies.
+    /// </summary>
+    /// <param name="serviceProvider">The dependency service provider.</param>
+    /// <param name="semanticKernelLanguageModels">A component for communicating with language models.</param>
+    /// <param name="logger">Instance logger.</param>
+    public WebDriverThoughts(IServiceProvider serviceProvider, ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels, ILogger<WebDriverThoughts> logger)
+        : base(serviceProvider, semanticKernelLanguageModels, logger)
+    { }
+
+    /// <summary>
+    /// Fetch a website's text content by loading it and waiting for all content (including lazy content), using a web driver.
+    /// </summary>
+    /// <param name="uri">The URI of the website's text to load.</param>
+    /// <param name="token">The token to use to request cancellation.</param>
+    /// <returns>The lazy loaded website text.</returns>
+    [KernelFunction, Description("Fetch a website's text content by loading it and waiting for all content (including lazy content), using a web driver.")]
+    public virtual async Task<string> LoadTextAsync(
+        [Description("The URI of the website's text to load.")] string uri,
+        CancellationToken token = default)
     {
-        /// <summary>
-        /// A function to call between when a page is loaded and read.
-        /// </summary>
-        public Func<WebDriver, Task> OnPageLoadedAsync;
-        /// <summary>
-        /// A function to call after the page read is done.
-        /// </summary>
-        public Func<WebDriver, Task> OnCleanupAsync;
+        uri.ThrowIfNullOrWhitespace(nameof(uri));
 
-        /// <summary>
-        /// Overloaded constructor to provide dependencies.
-        /// </summary>
-        /// <param name="logger">Instance logger.</param>
-        public WebDriverThoughts(ILogger<WebDriverThoughts> logger)
-            : base(logger)
-        { }
+        // Set Chrome options for headless mode
+        var chromeOptions = new ChromeOptions();
 
-        /// <summary>
-        /// Fetch a website's text content by loading it and waiting for all content (including lazy content), using a web driver.
-        /// </summary>
-        /// <param name="uri">The URI of the website's text to load.</param>
-        /// <param name="token">The token to use to request cancellation.</param>
-        /// <returns>The lazy loaded website text.</returns>
-        [KernelFunction, Description("Fetch a website's text content by loading it and waiting for all content (including lazy content), using a web driver.")]
-        public virtual async Task<string> LoadTextAsync(
-            [Description("The URI of the website's text to load.")] string uri,
-            CancellationToken token = default)
+        chromeOptions.AddArguments("--headless");
+        chromeOptions.AddArguments("--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0");
+
+        // Initialize the ChromeDriver with options
+        using (var driver = new ChromeDriver(chromeOptions))
         {
-            uri.ThrowIfNullOrWhitespace(nameof(uri));
+            // Navigate to the TechCrunch website
+            driver.Navigate().GoToUrl(uri);
 
-            // Set Chrome options for headless mode
-            var chromeOptions = new ChromeOptions();
-            chromeOptions.AddArguments("--headless");
+            // Wait for the page to load completely (you can adjust the timeout as needed)
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
 
-            // Initialize the ChromeDriver with options
-            using (var driver = new ChromeDriver(chromeOptions))
-            {
-                // Navigate to the TechCrunch website
-                driver.Navigate().GoToUrl(uri);
+            // Call the middleware, if any.
+            if (OnPageLoadedAsync is not null) await OnPageLoadedAsync.Invoke(driver);
 
-                // Wait for the page to load completely (you can adjust the timeout as needed)
-                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-                wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+            // Extract all the text from the page
+            var allText = driver.FindElement(By.TagName("body")).Text;
 
-                // Call the middleware, if any.
-                if (OnPageLoadedAsync is not null) await OnPageLoadedAsync.Invoke(driver);
+            // Call the middleware, if any.
+            if (OnCleanupAsync is not null) await OnCleanupAsync.Invoke(driver);
 
-                // Extract all the text from the page
-                var allText = driver.FindElement(By.TagName("body")).Text;
+            // Close the WebDriver
+            driver.Quit();
 
-                // Call the middleware, if any.
-                if (OnCleanupAsync is not null) await OnCleanupAsync.Invoke(driver);
-
-                // Close the WebDriver
-                driver.Quit();
-
-                return allText;
-            };
-        }
+            return allText;
+        };
     }
 }

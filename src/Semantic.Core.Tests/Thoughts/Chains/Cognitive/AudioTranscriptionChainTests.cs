@@ -4,78 +4,99 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 using FrostAura.Libraries.Semantic.Core.Extensions.Configuration;
+using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
 
-namespace Semantic.Core.Tests.Thoughts.Chains.Cognitive
+namespace Semantic.Core.Tests.Thoughts.Chains.Cognitive;
+
+public class AudioTranscriptionChainTests
 {
-    public class AudioTranscriptionChainTests
+    [Fact]
+    public void Constructor_WithInvalidServiceProvider_ShouldThrow()
     {
-        [Fact]
-        public void Constructor_WithInvalidLogger_ShouldThrow()
-        {
-            ILogger<AudioTranscriptionChain> logger = null;
-            IServiceProvider serviceProvider = Substitute.For<IServiceProvider>();
+        IServiceProvider serviceProvider = null;
+        ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
+        ILogger<AudioTranscriptionChain> logger = Substitute.For<ILogger<AudioTranscriptionChain>>();
 
-            var actual = Assert.Throws<ArgumentNullException>(() => new AudioTranscriptionChain(serviceProvider, logger));
+        var actual = Assert.Throws<ArgumentNullException>(() => new AudioTranscriptionChain(serviceProvider, semanticKernelLanguageModels, logger));
 
-            Assert.Equal(nameof(logger), actual.ParamName);
-        }
+        Assert.Equal(nameof(serviceProvider), actual.ParamName);
+    }
 
-        [Fact]
-        public void Constructor_WithInvalidServiceProvider_ShouldThrow()
-        {
-            ILogger<AudioTranscriptionChain> logger = Substitute.For<ILogger<AudioTranscriptionChain>>();
-            IServiceProvider serviceProvider = null;
+    [Fact]
+    public void Constructor_WithInvalidISemanticKernelLanguageModelsDataAccess_ShouldThrow()
+    {
+        IServiceProvider serviceProvider = Substitute.For<IServiceProvider>();
+        ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels = null;
+        ILogger<AudioTranscriptionChain> logger = Substitute.For<ILogger<AudioTranscriptionChain>>();
 
-            var actual = Assert.Throws<ArgumentNullException>(() => new AudioTranscriptionChain(serviceProvider, logger));
+        var actual = Assert.Throws<ArgumentNullException>(() => new AudioTranscriptionChain(serviceProvider, semanticKernelLanguageModels, logger));
 
-            Assert.Equal(nameof(serviceProvider), actual.ParamName);
-        }
+        Assert.Equal(nameof(semanticKernelLanguageModels), actual.ParamName);
+    }
 
-        [Fact]
-        public void Constructor_WithValidParams_ShouldConstruct()
-        {
-            var serviceProvider = Substitute.For<IServiceProvider>();
-            var logger = Substitute.For<ILogger<AudioTranscriptionChain>>();
+    [Fact]
+    public void Constructor_WithInvalidLogger_ShouldThrow()
+    {
+        IServiceProvider serviceProvider = Substitute.For<IServiceProvider>();
+        ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
+        ILogger<AudioTranscriptionChain> logger = null;
 
-            var actual = new AudioTranscriptionChain(serviceProvider, logger);
+        var actual = Assert.Throws<ArgumentNullException>(() => new AudioTranscriptionChain(serviceProvider, semanticKernelLanguageModels, logger));
 
-            Assert.NotNull(actual);
-            Assert.NotEmpty(actual.QueryExample);
-            Assert.NotEmpty(actual.QueryInputExample);
-            Assert.NotEmpty(actual.Reasoning);
-            Assert.NotEmpty(actual.ChainOfThoughts);
-        }
+        Assert.Equal(nameof(logger), actual.ParamName);
+    }
 
-        [Fact]
-        public async Task TranscribeAudioFileAsync_WithInvalidInput_ShouldThrow()
-        {
-            var serviceCollection = new ServiceCollection()
-                .AddSemanticCore(Config.SEMANTIC_CONFIG);
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            var logger = Substitute.For<ILogger<AudioTranscriptionChain>>();
-            var instance = new AudioTranscriptionChain(serviceProvider, logger);
-            string audioFilePath = default;
+    [Fact]
+    public void Constructor_WithValidParams_ShouldConstruct()
+    {
+        var serviceCollection = new ServiceCollection()
+            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
+        var logger = Substitute.For<ILogger<AudioTranscriptionChain>>();
 
-            var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.TranscribeAudioFileAsync(audioFilePath));
+        var actual = new AudioTranscriptionChain(serviceProvider, semanticKernelLanguageModels, logger);
 
-            Assert.Equal(nameof(audioFilePath), actual.ParamName);
-        }
+        Assert.NotNull(actual);
+        Assert.NotEmpty(actual.QueryExample);
+        Assert.NotEmpty(actual.QueryInputExample);
+        Assert.NotEmpty(actual.Reasoning);
+        Assert.NotEmpty(actual.ChainOfThoughts);
+    }
 
-        [Fact]
-        public async Task TranscribeAudioFileAsync_WithValidInput_ShouldCallInvokeAsyncAsync()
-        {
-            var serviceCollection = new ServiceCollection()
-                .AddSemanticCore(Config.SEMANTIC_CONFIG);
+    [Fact]
+    public async Task TranscribeAudioFileAsync_WithInvalidInput_ShouldThrow()
+    {
+        var serviceCollection = new ServiceCollection()
+            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
+        var logger = Substitute.For<ILogger<AudioTranscriptionChain>>();
+        var instance = new AudioTranscriptionChain(serviceProvider, semanticKernelLanguageModels, logger);
+        string audioFilePath = default;
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            var logger = Substitute.For<ILogger<AudioTranscriptionChain>>();
-            var instance = new AudioTranscriptionChain(serviceProvider, logger);
-            var input = "./harvard.wav";
-            var expected = "The stale smell of old beer lingers. It takes heat to bring out the odor. A cold dip restores health and zest. A salt pickle tastes fine with ham. Tacos al pastor are my favorite. A zestful food is the hot cross bun.";
+        var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.TranscribeAudioFileAsync(audioFilePath));
 
-            var actual = await instance.TranscribeAudioFileAsync(input);
+        Assert.Equal(nameof(audioFilePath), actual.ParamName);
+    }
 
-            Assert.Contains(expected, actual);
-        }
+    [Fact]
+    public async Task TranscribeAudioFileAsync_WithValidInput_ShouldCallInvokeAsync()
+    {
+        var userProxy = Substitute.For<IUserProxyDataAccess>();
+        var serviceCollection = new ServiceCollection()
+            .AddSemanticCore(Config.SEMANTIC_CONFIG)
+            .AddSingleton(userProxy);
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
+        var logger = Substitute.For<ILogger<AudioTranscriptionChain>>();
+        var instance = new AudioTranscriptionChain(serviceProvider, semanticKernelLanguageModels, logger);
+        var input = "./harvard.wav";
+        var expected = "The stale smell of old beer lingers. It takes heat to bring out the odor. A cold dip restores health and zest. A salt pickle tastes fine with ham. Tacos al pastor are my favorite. A zestful food is the hot cross bun.";
+
+        var actual = await instance.TranscribeAudioFileAsync(input);
+
+        Assert.Contains(expected, actual);
     }
 }

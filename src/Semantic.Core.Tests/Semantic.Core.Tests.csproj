@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="xunit" Version="2.6.4" />
+    <PackageReference Include="xunit" Version="2.6.6" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.6">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -22,7 +22,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.0.1" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="NSubstitute" Version="5.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
@@ -33,7 +33,6 @@
     <None Remove="Thoughts\Cognitive\" />
     <None Remove="Thoughts\IO\" />
     <None Remove="Thoughts\Chains\" />
-    <None Remove="Thoughts\System\" />
     <None Remove="Thoughts\Chains\Cognitive\" />
     <None Remove="Thoughts\Media\" />
     <None Remove="Thoughts\Chains\Media\" />
@@ -47,7 +46,6 @@
     <Folder Include="Thoughts\Cognitive\" />
     <Folder Include="Thoughts\IO\" />
     <Folder Include="Thoughts\Chains\" />
-    <Folder Include="Thoughts\System\" />
     <Folder Include="Thoughts\Chains\Cognitive\" />
     <Folder Include="Thoughts\Media\" />
     <Folder Include="Thoughts\Chains\Media\" />

@@ -1,42 +1,47 @@
 ﻿using System.ComponentModel;
 using FrostAura.Libraries.Core.Extensions.Validation;
+using FrostAura.Libraries.Semantic.Core.Abstractions.Thoughts;
+using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
 using FrostAura.Libraries.Semantic.Core.Models.Thoughts;
 using FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive;
 using FrostAura.Libraries.Semantic.Core.Thoughts.IO;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 
-namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
+namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive;
+
+/// <summary>
+/// A chain that can take input text, synthesize speech for the text, save it to a .wav file and return the path to the .wav file.
+/// </summary>
+public class TextToSpeechChain : BaseChain
 {
-	public class TextToSpeechChain : BaseExecutableChain
-	{
-        /// <summary>
-        /// An example query that this chain example can be used to solve for.
-        /// </summary>
-        public override string QueryExample => "Synthesize 'This is a hello world example' to speech.";
-        /// <summary>
-        /// An example query input that this chain example can be used to solve for.
-        /// </summary>
-        public override string QueryInputExample => "This is a hello world example";
-        /// The reasoning for the solution of the chain.
-        /// </summary>
-        public override string Reasoning => "I can use my code interpreter to create a script to use the XTTS model (Using the TTS library) in order to generate a .wav file with the synthesized speech for the given text.";
-        /// <summary>
-        /// A collection of thoughts.
-        /// </summary>
-        public override List<Thought> ChainOfThoughts => new List<Thought>
+    /// <summary>
+    /// An example query that this chain example can be used to solve for.
+    /// </summary>
+    public override string QueryExample => "Synthesize 'This is a hello world example' to speech.";
+    /// <summary>
+    /// An example query input that this chain example can be used to solve for.
+    /// </summary>
+    public override string QueryInputExample => "This is a hello world example";
+    /// The reasoning for the solution of the chain.
+    /// </summary>
+    public override string Reasoning => "I can use my code interpreter to create a script to use the XTTS model (Using the TTS library) in order to generate a .wav file with the synthesized speech for the given text.";
+    /// <summary>
+    /// A collection of thoughts.
+    /// </summary>
+    public override List<Thought> ChainOfThoughts => new List<Thought>
+    {
+        new Thought
         {
-            new Thought
+            Action = $"{nameof(CodeInterpreterThoughts)}.{nameof(CodeInterpreterThoughts.InvokeAsync)}",
+            Reasoning = "I will use my code Python code interpreter to construct a script that can use the XTTS model via the TTS library and synthesize speech, and finally return the path of the file.",
+            Critisism = "I need to ensure that I use the correct package versions so that the Python environment has the required dependencies installed and ensure that I have a voice to reference to speak with.",
+            Arguments = new Dictionary<string, string>
             {
-                Action = $"{nameof(CodeInterpreterThoughts)}.{nameof(CodeInterpreterThoughts.InvokeAsync)}",
-                Reasoning = "I will use my code Python code interpreter to construct a script that can use the XTTS model via the TTS library and synthesize speech, and finally return the path of the file.",
-                Critisism = "I need to ensure that I use the correct package versions so that the Python environment has the required dependencies installed and ensure that I have a voice to reference to speak with.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "pythonVersion", "3.10" },
-                    { "pipDependencies", "TTS" },
-                    { "condaDependencies", "ffmpeg" },
-                    { "code", """
+                { "pythonVersion", "3.10" },
+                { "pipDependencies", "TTS" },
+                { "condaDependencies", "ffmpeg" },
+                { "code", """
                         def download_and_get_speaker_voice_wav_file_path() -> str:
                             import requests
 
@@ -86,42 +91,42 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive
 
                             return synthesize('$input')
                         """ }
-                },
-                OutputKey = "1"
             },
-            new Thought
-            {
-                Action = $"{nameof(OutputThoughts)}.{nameof(OutputThoughts.OutputTextAsync)}",
-                Reasoning = "I can simply proxy the response as a direct and response is appropriate for an exact transcription.",
-                Arguments = new Dictionary<string, string>
-                {
-                    { "output", "$1" }
-                },
-                OutputKey = "2"
-            }
-        };
-
-        /// <summary>
-        /// Overloaded constructor to provide dependencies.
-        /// </summary>
-        /// <param name="serviceProvider">The dependency service provider.</param>
-        /// <param name="logger">Instance logger.</param>
-        public TextToSpeechChain(IServiceProvider serviceProvider, ILogger<TextToSpeechChain> logger)
-            : base(serviceProvider, logger)
-        { }
-
-        /// <summary>
-        /// Take input text, synthesize speech for the text, save it to a .wav file and return the path to the .wav file.
-        /// </summary>
-        /// <param name="text">The text to synthesize speech for.</param>
-        /// <param name="token">The token to use to request cancellation.</param>
-        /// <returns>The path to the .wav file.</returns>
-        [KernelFunction, Description("Take input text, synthesize speech for the text, save it to a .wav file and return the path to the .wav file.")]
-        public Task<string> SpeakTextAndGetFilePathAsync(
-            [Description("The text to synthesize speech for.")] string text,
-            CancellationToken token = default)
+            OutputKey = "1"
+        },
+        new Thought
         {
-            return ExecuteChainAsync(text.ThrowIfNullOrWhitespace(nameof(text)), token: token);
+            Action = $"{nameof(SystemThoughts)}.{nameof(SystemThoughts.OutputTextAsync)}",
+            Reasoning = "I can simply proxy the response as a direct and response is appropriate for an exact transcription.",
+            Arguments = new Dictionary<string, string>
+            {
+                { "output", "$1" }
+            },
+            OutputKey = "2"
         }
+    };
+
+    /// <summary>
+    /// Overloaded constructor to provide dependencies.
+    /// </summary>
+    /// <param name="serviceProvider">The dependency service provider.</param>
+    /// <param name="semanticKernelLanguageModels">A component for communicating with language models.</param>
+    /// <param name="logger">Instance logger.</param>
+    public TextToSpeechChain(IServiceProvider serviceProvider, ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels, ILogger<TextToSpeechChain> logger)
+        : base(serviceProvider, semanticKernelLanguageModels, logger)
+    { }
+
+    /// <summary>
+    /// Take input text, synthesize speech for the text, save it to a .wav file and return the path to the .wav file.
+    /// </summary>
+    /// <param name="text">The text to synthesize speech for.</param>
+    /// <param name="token">The token to use to request cancellation.</param>
+    /// <returns>The path to the .wav file.</returns>
+    [KernelFunction, Description("Take input text, synthesize speech for the text, save it to a .wav file and return the path to the .wav file.")]
+    public Task<string> SpeakTextAndGetFilePathAsync(
+        [Description("The text to synthesize speech for.")] string text,
+        CancellationToken token = default)
+    {
+        return ExecuteChainAsync(text.ThrowIfNullOrWhitespace(nameof(text)), token: token);
     }
 }
