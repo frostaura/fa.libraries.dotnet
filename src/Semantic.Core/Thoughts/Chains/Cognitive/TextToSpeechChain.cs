@@ -84,11 +84,6 @@ public class TextToSpeechChain : BaseChain
                                 raise e
 
                         def main() -> str:
-                            import os
-
-                            os.environ['REQUESTS_CA_BUNDLE'] = '/Library/Application Support/Netskope/STAgent/download/nscacert_combined.pem'
-                            os.environ['SSL_CERT_FILE'] = '/Library/Application Support/Netskope/STAgent/download/nscacert_combined.pem'
-
                             return synthesize('$input')
                         """ }
             },
@@ -97,7 +92,7 @@ public class TextToSpeechChain : BaseChain
         new Thought
         {
             Action = $"{nameof(SystemThoughts)}.{nameof(SystemThoughts.OutputTextAsync)}",
-            Reasoning = "I can simply proxy the response as a direct and response is appropriate for an exact transcription.",
+            Reasoning = "I can simply proxy the response as a direct and the response is appropriate for an exact transcription.",
             Arguments = new Dictionary<string, string>
             {
                 { "output", "$1" }
