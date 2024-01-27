@@ -103,7 +103,7 @@ public class StockMediaThoughtsTests
     public async Task DownloadAndGetStockVideoAsync_WithInvalidSearchQuery_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         IHttpClientFactory httpClientFactory = Substitute.For<IHttpClientFactory>();
@@ -122,7 +122,7 @@ public class StockMediaThoughtsTests
     public async Task DownloadAndGetStockVideoAsync_WithValidInputs_ShouldRespond()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var httpClientFactory = Substitute.For<IHttpClientFactory>();

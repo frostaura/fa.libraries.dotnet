@@ -39,12 +39,22 @@ public class CodeInterpreterThoughts : BaseThought
         [Description("The version of Python to execute code against. For example '3.8'.")] string pythonVersion,
         [Description("A collection of PIP dependencies the Python code requires. The items can either be a package name (Example: 'pandas==1.2.3') or a package name with its version (Example: 'pandas').")] string pipDependencies,
         [Description("A collection of Conda dependencies the Python code requires. The items can either be a package name (Example: 'ffmpeg==1.2.3') or a package name with its version (Example: 'ffmpeg').")] string condaDependencies,
-        [Description("Python code to execute. The only requirement for the structure of this code is that the code MUST be wrapped in a function called 'main' that accepts zero arguments and returns a string. Example: main() -> str ...")] string code,
+        [Description(@"Python code to execute. The only requirement for the code block MUST contain a function called 'main' (def main() -> str:) that accepts zero arguments and returns a string. Example:
+                    def some_code_you_generated() -> str:
+                        return 'example output'
+                    def main() -> str:
+                        return some_code_you_generated()
+            ")] string code,
         CancellationToken token = default)
     {
         if (!code
                 .ThrowIfNullOrWhitespace(nameof(code))
-                .Contains("def main()")) throw new ArgumentException("The code block is required to contain a function called 'main' (def main() -> str:) that accepts zero arguments and returns a string.", nameof(code));
+                .Contains("def main()")) throw new ArgumentException(@"The code block MUST contain a function called 'main' (def main() -> str:) that accepts zero arguments and returns a string. When encountering tilde (~) in file names, you MUST expand it before using it (With os.path.expanduser(target_file) for example). Example:
+                    def some_code_you_generated() -> str:
+                        return 'example output'
+                    def main() -> str:
+                        return some_code_you_generated()
+            ", nameof(code));
 
         var pythonExecutablePath = await EnsurePythonEnvironmentAndGetPathAsync(
             pythonVersion.ThrowIfNullOrWhitespace(nameof(pythonVersion)),

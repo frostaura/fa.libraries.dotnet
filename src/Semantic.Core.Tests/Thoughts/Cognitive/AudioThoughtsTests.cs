@@ -69,7 +69,7 @@ public class AudioThoughtsTests
     public void Constructor_WithValidParams_ShouldConstruct()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var elevenLabsConfig = Substitute.For<IOptions<ElevenLabsConfig>>();
@@ -85,7 +85,7 @@ public class AudioThoughtsTests
     public async Task TextToSpeechAsync_WithInvalidText_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var elevenLabsConfig = Substitute.For<IOptions<ElevenLabsConfig>>();
@@ -103,7 +103,7 @@ public class AudioThoughtsTests
     public async Task TextToSpeechAsync_WithValidText_ShouldReturnFilePath()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var elevenLabsConfig = Substitute.For<IOptions<ElevenLabsConfig>>();

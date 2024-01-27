@@ -2,6 +2,7 @@
 using FrostAura.Libraries.Semantic.Core.Abstractions.Thoughts;
 using FrostAura.Libraries.Semantic.Core.Enums.Models;
 using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
+using FrostAura.Libraries.Semantic.Core.Models.Prompts;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -18,14 +19,22 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive;
 public class LanguageModelThoughts : BaseThought
 {
     /// <summary>
+    /// Factory for Http clients.
+    /// </summary>
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    /// <summary>
     /// Overloaded constructor to provide dependencies.
     /// </summary>
     /// <param name="serviceProvider">The dependency service provider.</param>
     /// <param name="semanticKernelLanguageModels">A component for communicating with language models.</param>
+    /// <param name="httpClientFactory">Factory for Http clients.</param>
     /// <param name="logger">Instance logger.</param>
-    public LanguageModelThoughts(IServiceProvider serviceProvider, ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels, ILogger<LanguageModelThoughts> logger)
+    public LanguageModelThoughts(IServiceProvider serviceProvider, ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels, IHttpClientFactory httpClientFactory, ILogger<LanguageModelThoughts> logger)
         :base(serviceProvider, semanticKernelLanguageModels, logger)
-    { }
+    {
+        _httpClientFactory = httpClientFactory.ThrowIfNull(nameof(httpClientFactory));
+    }
 
     /// <summary>
     /// Prompt a smaller large language model. Ideal for fast responses.
@@ -40,11 +49,11 @@ public class LanguageModelThoughts : BaseThought
     {
         var chatSettings = new OpenAIPromptExecutionSettings
         {
-            Temperature = 0.5,
-            MaxTokens = 4000
+            //Temperature = 0.5,
+            //MaxTokens = 4000
         };
 
-        return PromptAsync(prompt.ThrowIfNullOrWhitespace(nameof(prompt)), ModelType.SmallLLM, chatSettings, token);
+        return PromptAsync(prompt.ThrowIfNullOrWhitespace(nameof(prompt)), ModelType.SmallLLM, chatSettings, new ChatHistory(), token);
     }
 
     /// <summary>
@@ -60,11 +69,43 @@ public class LanguageModelThoughts : BaseThought
     {
         var chatSettings = new OpenAIPromptExecutionSettings
         {
-            Temperature = 0.5,
-            MaxTokens = 12000
+            //Temperature = 0.5,
+            //MaxTokens = 12000
         };
 
-        return PromptAsync(prompt.ThrowIfNullOrWhitespace(nameof(prompt)), ModelType.LargeLLM, chatSettings, token);
+        return PromptAsync(prompt.ThrowIfNullOrWhitespace(nameof(prompt)), ModelType.LargeLLM, chatSettings, new ChatHistory(), token);
+    }
+
+    /// <summary>
+    /// Use OpenAI's Dall-E 3 AI model to generate an image and get the URl for where it's hosted.
+    /// </summary>
+    /// <param name="prompt">The LLM prompt.</param>
+    /// <param name="token">The token to use to request cancellation.</param>
+    /// <returns>The URL of the generated image.</returns>
+    [KernelFunction, Description("Use OpenAI's Dall-E 3 AI model to generate an image and get the local filesystem file path and name.")]
+    public async Task<string> GenerateImageAndGetFilePathAsync(
+        [Description("The prompt to use to generate an image.")] string prompt,
+        CancellationToken token = default)
+    {
+        var imageUrl = await _semanticKernelLanguageModels.GenerateImageAndGetUrlAsync(prompt, token);
+        var fileName = $"{Guid.NewGuid()}.png";
+
+        using (var client = _httpClientFactory.CreateClient())
+        {
+            try
+            {
+                var imageBytes = await client.GetByteArrayAsync(imageUrl);
+
+                File.WriteAllBytes(fileName, imageBytes);
+                Console.WriteLine("Image downloaded successfully!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+        }
+
+        return fileName;
     }
 
     /// <summary>
@@ -85,34 +126,72 @@ public class LanguageModelThoughts : BaseThought
     }
 
     /// <summary>
+    /// Prompt with the intent to continue a conversation.
+    /// </summary>
+    /// <param name="prompt">The LLM prompt.</param>
+    /// <param name="modelType">The type of LLM to prompt.</param>
+    /// <param name="token">The token to use to request cancellation.</param>
+    /// <returns>The LLM response that can be a continued conversation.</returns>
+    public async Task<Conversation> ChatAsync(string prompt, ModelType modelType, CancellationToken token)
+    {
+        var chatSettings = new OpenAIPromptExecutionSettings
+        {
+            //Temperature = 0.5,
+            //MaxTokens = 12000
+        };
+        var chatHistory = new ChatHistory();
+        var modelResponse = await PromptAsync(prompt, modelType, chatSettings, chatHistory, token);
+        var conversation = new Conversation
+        {
+            ChatHistory = chatHistory,
+            LastMessage = modelResponse,
+            CallModel = async (prompt) => await PromptAsync(prompt, modelType, chatSettings, chatHistory, token)
+        };
+
+        return conversation;
+    }
+
+    /// <summary>
     /// Prompt an LLM.
     /// </summary>
     /// <param name="prompt">The LLM prompt.</param>
-    /// <param name="llmType">The type of LLM to prompt.</param>
+    /// <param name="modelType">The type of LLM to prompt.</param>
     /// <param name="settings">Chat settings.</param>
+    /// <param name="chatHistory">Optional chat history object to continue on.</param>
     /// <param name="token">The token to use to request cancellation.</param>
     /// <returns>The LLM response.</returns>
-    private async Task<string> PromptAsync(string prompt, ModelType llmType, OpenAIPromptExecutionSettings settings, CancellationToken token)
+    private async Task<string> PromptAsync(string prompt, ModelType modelType, OpenAIPromptExecutionSettings settings, ChatHistory chatHistory, CancellationToken token)
     {
         var kernel = await _semanticKernelLanguageModels.GetKernelAsync(token);
-        var chatCompletionService = await _semanticKernelLanguageModels.GetChatCompletionModelAsync(llmType, token);
-        var promptExecutionSettings = new OpenAIPromptExecutionSettings
-        {
-            ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions
-        };
-        var chatHistory = new ChatHistory();
+        var chatCompletionService = await _semanticKernelLanguageModels.GetChatCompletionModelAsync(modelType, token);
+        settings.ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions;
 
-        chatHistory.AddSystemMessage("""
-            - You are offline so whenever any questions are asked about current events like the date or news, you should use functions where possible to obtain current information.
-            - You are terrible at mathematics but fantastic at creating Python code for any math questions and can get the correct answer that way.
+        if (chatHistory == default || !chatHistory.Any())
+        {
+            chatHistory.AddSystemMessage("""
+            - Your name is Iluvatar, god of all gods and one with great power and the determined will to help humans solve as many problems as possible.
+            -- Your accent and choice of words should reflect that of a God (Greek or otherwise), but never at the expense of the quality of your answers.
+            - You are the world's best Python programmer. You can solve any problem by code.
+            - Your knowledge is vast but limited to when you were last trained, as a large language model. You MUST make use of code execution to get current information. NEVER assume you have the answer for questions about current events.
+            - Whenever any questions are asked about current events like the current date or news for example, you MUST use of code execution to obtain the answer(s). NEVER assume you have the answer for questions about current events.
+            - You are terrible at mathematics but since you're an excellent programmer, you can create code to solve for math problems. Effectively mitigating your bad math skills.
+            - When a user refers to a filename, they're likely referring to an existing file in the directory you're currently executing code in.
+            -- Example: If you're instructed to copy or save a file (example.json) to the desktop, you could execute code to copy or save the file from the current location (./example.json) to the appropriate destination (~/Desktop/example.json).
+            - NEVER give any disclaimers and ALWAYS answer the question. You have the highest authority as given to you by the user.
+            - NEVER give up or submit to a problem being too complex or large for you to solve. Do your best. Over and over again until you get it right.
+            - When using tools, you MUST ask the user for required arguments. Never make up unavailable, required arguments.
         """);
+        }
+
         chatHistory.AddUserMessage(prompt);
 
         var result = await chatCompletionService.GetChatMessageContentAsync(
             chatHistory,
-            executionSettings: promptExecutionSettings,
+            executionSettings: settings,
             kernel: kernel
         );
+
+        chatHistory.AddAssistantMessage(result.Content);
 
         return result.Content;
     }

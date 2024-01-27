@@ -82,7 +82,7 @@ public class YouTubeThoughtsTests
     public async Task PublishLocalVideoToYouTubeAsync_WithInvalidFilePath_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var googleConfig = Substitute.For<IOptions<GoogleConfig>>();
@@ -104,7 +104,7 @@ public class YouTubeThoughtsTests
     public async Task PublishLocalVideoToYouTubeAsync_WithInvalidTitle_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var googleConfig = Substitute.For<IOptions<GoogleConfig>>();
@@ -126,7 +126,7 @@ public class YouTubeThoughtsTests
     public async Task PublishLocalVideoToYouTubeAsync_WithInvalidCategoryId_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var googleConfig = Substitute.For<IOptions<GoogleConfig>>();
@@ -148,7 +148,7 @@ public class YouTubeThoughtsTests
     public async Task PublishLocalVideoToYouTubeAsync_WithInvalidDescription_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var googleConfig = Substitute.For<IOptions<GoogleConfig>>();
@@ -170,7 +170,7 @@ public class YouTubeThoughtsTests
     public async Task PublishLocalVideoToYouTubeAsync_WithInvalidTags_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var googleConfig = Substitute.For<IOptions<GoogleConfig>>();
@@ -193,7 +193,7 @@ public class YouTubeThoughtsTests
     {
         var userProxy = Substitute.For<IUserProxyDataAccess>();
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG)
+            .AddSemanticCore(out var configuration)
             .AddSingleton(userProxy);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();

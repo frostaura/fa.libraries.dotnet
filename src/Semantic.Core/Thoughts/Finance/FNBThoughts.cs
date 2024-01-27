@@ -49,8 +49,8 @@ public class FNBThoughts : BaseThought
     {
         return Task.Run(() =>
         {
-            var webDriverThough = (WebDriverThoughts)_serviceProvider
-                .GetThoughtByName(nameof(WebDriverThoughts));
+            var webDriverThough = _serviceProvider
+                .GetThoughtByName<WebDriverThoughts>(nameof(WebDriverThoughts));
 
             webDriverThough.OnPageLoadedAsync = async (driver) => await NavigateToFNBAccountBalancesAsync(
                 driver,

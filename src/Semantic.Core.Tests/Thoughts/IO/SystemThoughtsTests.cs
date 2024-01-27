@@ -79,7 +79,7 @@ public class SystemThoughtsTests
     public async Task AskForInputAsync_WithInvalidInput_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var userProxy = Substitute.For<IUserProxyDataAccess>();
@@ -96,7 +96,7 @@ public class SystemThoughtsTests
     public async Task AskForInputAsync_WithInput_ShouldCallAskUserAsync()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var userProxy = Substitute.For<IUserProxyDataAccess>();
@@ -115,7 +115,7 @@ public class SystemThoughtsTests
     public async Task OutputTextAsync_WithInvalidInput_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var userProxy = Substitute.For<IUserProxyDataAccess>();
@@ -132,7 +132,7 @@ public class SystemThoughtsTests
     public async Task OutputTextAsync_WithInput_ShouldReturnCorrectValue()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var userProxy = Substitute.For<IUserProxyDataAccess>();

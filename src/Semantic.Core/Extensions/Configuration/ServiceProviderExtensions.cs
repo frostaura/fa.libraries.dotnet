@@ -1,9 +1,13 @@
 ﻿using System.Reflection;
+using FrostAura.Libraries.Core.Extensions.Validation;
 using FrostAura.Libraries.Semantic.Core.Abstractions.Thoughts;
 using FrostAura.Libraries.Semantic.Core.Data;
+using FrostAura.Libraries.Semantic.Core.Data.Logging;
 using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
 using FrostAura.Libraries.Semantic.Core.Models.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace FrostAura.Libraries.Semantic.Core.Extensions.Configuration;
@@ -30,30 +34,71 @@ public static class ServiceProviderExtensions
     }
 
     /// <summary>
+    /// Get a though instance from it's name.
+    /// </summary>
+    /// <param name="serviceProvider">The service provider for dependency injection.</param>
+    /// <param name="name">Name of the action.</param>
+    /// <returns>The action instance.</returns>
+    public static TThoughtType GetThoughtByName<TThoughtType>(this IServiceProvider serviceProvider, string name)
+        where TThoughtType: BaseThought
+    {
+        return (TThoughtType)serviceProvider
+            .GetThoughtByName(name);
+    }
+
+    /// <summary>
+    /// Add Semantic Core services by first creating a default configuration context.
+    /// </summary>
+    /// <param name="services">Services collection to add to.</param>
+    /// <param name="configuration">Application configuration to use.</param>
+    /// <returns>The ammended collection.</returns>
+    public static IServiceCollection AddSemanticCore(this IServiceCollection services, out IConfigurationRoot configuration)
+    {
+        configuration = new ConfigurationBuilder()
+            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: false)
+            .AddJsonFile("appsettings.development.json", optional: true)
+            .AddEnvironmentVariables()
+            .Build();
+
+        return services.AddSemanticCore(configuration);
+    }
+
+    /// <summary>
     /// Add Semantic Core services.
     /// </summary>
     /// <param name="services">Services collection to add to.</param>
-    /// <param name="config">Configuration to use.</param>
+    /// <param name="configuration">Application configuration to use.</param>
+    /// <param name="includeCoreSkills">Whether to include the core FrostAura functions.</param>
     /// <returns>The ammended collection.</returns>
-    public static IServiceCollection AddSemanticCore(this IServiceCollection services, SemanticConfig config)
+    public static IServiceCollection AddSemanticCore(this IServiceCollection services, IConfigurationRoot configuration, bool includeCoreSkills = true)
 	{
-        return services
+        var semanticConfig = new SemanticConfig();
+
+        configuration
+            .GetSection(nameof(SemanticConfig))
+            .Bind(semanticConfig);
+
+        var response = services
             .AddLogging()
+            .AddTransient<ILoggerProvider, ProgressiveLoggerProviderDataAccess>()
             .AddHttpClient()
-            .AddSemanticConfig(config)
-            .AddSemanticServices()
-            .AddAllSemanticThoughts();
+            .AddSemanticConfig(semanticConfig.ThrowIfNull(nameof(semanticConfig)))
+            .AddSemanticServices();
+
+        if (includeCoreSkills) response.AddSemanticThoughts(Assembly.GetAssembly(typeof(BaseThought)));
+
+        return response;
 	}
 
     /// <summary>
-    /// Add all thoughts as services.
+    /// Add all thoughts as services from a particular assembly. These would be classes that inherits BaseThought.
     /// </summary>
     /// <param name="services">Services collection to add to.</param>
     /// <returns>The ammended collection.</returns>
-    private static IServiceCollection AddAllSemanticThoughts(this IServiceCollection services)
+    public static IServiceCollection AddSemanticThoughts(this IServiceCollection services, Assembly assembly)
     {
-        Assembly
-            .GetAssembly(typeof(BaseThought))
+        assembly
             .GetTypes()
             .Where(t => t.IsSubclassOf(typeof(BaseThought)) && !t.IsAbstract)
             .ToList()

@@ -37,7 +37,7 @@ public class PlanningThought : BaseThought
         const string IDENTITY_PARAM_KEY = "identity";
         const string IDENTITY = "You are Zeus, the Greek god, a powerful and intelligent task planner.";
         var llmThought = (LanguageModelThoughts)_serviceProvider
-            .GetThoughtByName(nameof(LanguageModelThoughts));
+            .GetThoughtByName<LanguageModelThoughts>(nameof(LanguageModelThoughts));
         var prompt = string.Empty
             .Replace($"${IDENTITY_PARAM_KEY}$", IDENTITY);
 

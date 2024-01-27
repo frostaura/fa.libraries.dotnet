@@ -62,7 +62,7 @@ public class CodeInterpreterThoughtsTests
     public async Task InvokeAsync_WithInvalidPythonVersion_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var logger = Substitute.For<ILogger<CodeInterpreterThoughts>>();
@@ -81,7 +81,7 @@ public class CodeInterpreterThoughtsTests
     public async Task InvokeAsync_WithInvalidCode_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var logger = Substitute.For<ILogger<CodeInterpreterThoughts>>();
@@ -112,7 +112,7 @@ public class CodeInterpreterThoughtsTests
     public async Task InvokeAsync_WithValidParams_ShouldExecuteAndRespondCorrectly(string code, string expected)
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var logger = Substitute.For<ILogger<CodeInterpreterThoughts>>();

@@ -46,13 +46,12 @@ public class GetFNBAccountBalancesChainTests
         Assert.Equal(nameof(logger), actual.ParamName);
     }
 
-    //[Fact(Skip = "Integration Test")]
-    [Fact]
+    [Fact(Skip = "Integration Test")]
     public async Task GetFNBAccountBalancesTableAsync_WithValidInput_ShouldReturnBalancesAsync()
     {
         var userProxy = Substitute.For<IUserProxyDataAccess>();
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG)
+            .AddSemanticCore(out var configuration)
             .AddSingleton(userProxy);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();

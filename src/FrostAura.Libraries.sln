@@ -39,6 +39,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Semantic.Core", "Semantic.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Semantic.Core.Tests", "Semantic.Core.Tests\Semantic.Core.Tests.csproj", "{11FEC351-432F-4B92-BD60-1028B84BCF20}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Semantic.Core.Examples", "Semantic.Core.Examples\Semantic.Core.Examples.csproj", "{7AD813CF-73D4-473A-B2BB-A9355E5A0CA7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,6 +107,10 @@ Global
 		{11FEC351-432F-4B92-BD60-1028B84BCF20}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11FEC351-432F-4B92-BD60-1028B84BCF20}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11FEC351-432F-4B92-BD60-1028B84BCF20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AD813CF-73D4-473A-B2BB-A9355E5A0CA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AD813CF-73D4-473A-B2BB-A9355E5A0CA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AD813CF-73D4-473A-B2BB-A9355E5A0CA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AD813CF-73D4-473A-B2BB-A9355E5A0CA7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -125,6 +131,7 @@ Global
 		{5A1C01AF-9480-4525-B3E4-DB9C90629F80} = {B55A0203-A73A-4A98-898C-D3B17F923F62}
 		{D063671B-2B7E-4A03-ACB8-10A9D512B15F} = {E292F563-CF51-47B7-A81C-D0FE8FC4C02A}
 		{11FEC351-432F-4B92-BD60-1028B84BCF20} = {E292F563-CF51-47B7-A81C-D0FE8FC4C02A}
+		{7AD813CF-73D4-473A-B2BB-A9355E5A0CA7} = {E292F563-CF51-47B7-A81C-D0FE8FC4C02A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8BAAA4A6-3B27-4D70-9A5C-C5BC51879840}

@@ -62,7 +62,7 @@ public class WebDriverThoughtsTests
     public async Task LoadTextAsync_WithInvalidInput_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var logger = Substitute.For<ILogger<WebDriverThoughts>>();
@@ -78,7 +78,7 @@ public class WebDriverThoughtsTests
     public async Task LoadTextAsync_WithValidInput_ShouldRespond()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var logger = Substitute.For<ILogger<WebDriverThoughts>>();

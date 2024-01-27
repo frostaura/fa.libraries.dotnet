@@ -59,7 +59,7 @@ public class YouTubeShortFactualVideoGenerationChainTests
     {
         var userProxy = Substitute.For<IUserProxyDataAccess>();
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG)
+            .AddSemanticCore(out var configuration)
             .AddSingleton(userProxy);
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var logger = Substitute.For<ILogger<YouTubeShortFactualVideoGenerationChain>>();
@@ -76,7 +76,7 @@ public class YouTubeShortFactualVideoGenerationChainTests
     {
         var userProxy = Substitute.For<IUserProxyDataAccess>();
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG)
+            .AddSemanticCore(out var configuration)
             .AddSingleton(userProxy);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();

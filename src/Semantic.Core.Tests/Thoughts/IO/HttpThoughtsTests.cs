@@ -79,7 +79,7 @@ public class HttpThoughtsTests
     public async Task GetAsync_WithInvalidInput_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var httpClientFactory = Substitute.For<IHttpClientFactory>();
@@ -96,7 +96,7 @@ public class HttpThoughtsTests
     public async Task GetAsync_WithValidInput_ShouldRespond()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var httpClientFactory = Substitute.For<IHttpClientFactory>();

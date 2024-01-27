@@ -1,4 +1,5 @@
-﻿using FrostAura.Libraries.Core.Extensions.Validation;
+﻿using System.Runtime.CompilerServices;
+using FrostAura.Libraries.Core.Extensions.Validation;
 using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
 using Microsoft.Extensions.Logging;
 
@@ -20,7 +21,7 @@ public abstract class BaseThought
     /// <summary>
     /// Instance logger.
     /// </summary>
-    protected readonly ILogger _logger;
+    private readonly ILogger _logger;
 
     /// <summary>
     /// Overloaded constructor to provide dependencies.
@@ -33,5 +34,49 @@ public abstract class BaseThought
         _serviceProvider = serviceProvider.ThrowIfNull(nameof(serviceProvider));
         _semanticKernelLanguageModels = semanticKernelLanguageModels.ThrowIfNull(nameof(semanticKernelLanguageModels));
         _logger = logger.ThrowIfNull(nameof(logger));
+    }
+
+    /// <summary>
+    /// Create a baselined disposable logging scope.
+    /// </summary>
+    /// <param name="scopeDescription">The main items grouping text.</param>
+    /// <returns>A disposable logging scope.</returns>
+    protected IDisposable BeginSemanticScope(string scopeDescription)
+    {
+        return _logger.BeginScope(new KeyValuePair<string, object>(scopeDescription, this));
+    }
+
+    /// <summary>
+    /// Log information with additional semantic data decorations.
+    /// </summary>
+    /// <param name="message">The message to log.</param>
+    protected void LogSemanticInformation(string message)
+    {
+        var operationId = RuntimeHelpers.GetHashCode(this);
+
+        _logger.LogInformation($"[[[{operationId}]]]{message}");
+    }
+
+    /// <summary>
+    /// Log debug with additional semantic data decorations.
+    /// </summary>
+    /// <param name="message">The message to log.</param>
+    protected void LogSemanticDebug(string message)
+    {
+        var operationId = RuntimeHelpers.GetHashCode(this);
+
+        _logger.LogDebug($"[[[{operationId}]]]{message}");
+    }
+
+    /// <summary>
+    /// Log error with additional semantic data decorations.
+    /// </summary>
+    /// <param name="message">The message to log.</param>
+    /// <param name="exception">Exception instance.</param>
+    protected void LogSemanticError(string message, Exception exception)
+    {
+        var operationId = RuntimeHelpers.GetHashCode(this);
+
+        _logger.LogError($"[[[{operationId}]]]{message}", exception);
     }
 }

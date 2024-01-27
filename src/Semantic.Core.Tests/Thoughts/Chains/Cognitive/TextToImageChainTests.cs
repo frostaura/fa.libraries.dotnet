@@ -66,7 +66,7 @@ public class TextToImageChainTests
     public async Task GenerateImageAndGetFilePathAsync_WithInvalidInput_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var logger = Substitute.For<ILogger<TextToImageChain>>();
@@ -83,7 +83,7 @@ public class TextToImageChainTests
     {
         var userProxy = Substitute.For<IUserProxyDataAccess>();
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG)
+            .AddSemanticCore(out var configuration)
             .AddSingleton(userProxy);
 
         var serviceProvider = serviceCollection.BuildServiceProvider();

@@ -58,7 +58,7 @@ public class OpenAILanguageModelsDataAccess : ISemanticKernelLanguageModelsDataA
     public async Task<IChatCompletionService> GetChatCompletionModelAsync(ModelType modelType, CancellationToken token)
     {
         var kernel = await GetKernelAsync(token);
-        var model = kernel.GetRequiredService<IChatCompletionService>();
+        var model = kernel.GetRequiredService<IChatCompletionService>(serviceKey: modelType.ToString());
 
         return model;
     }

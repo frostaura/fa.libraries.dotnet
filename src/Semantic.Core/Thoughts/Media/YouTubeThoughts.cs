@@ -93,13 +93,13 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Media
                 switch (progress.Status)
                 {
                     case UploadStatus.Uploading:
-                        _logger.LogInformation($"Uploading: {progress.BytesSent} bytes sent.");
+                        LogSemanticInformation($"Uploading: {progress.BytesSent} bytes sent.");
                         break;
                     case UploadStatus.Completed:
-                        _logger.LogInformation("Upload completed.");
+                        LogSemanticInformation("Upload completed.");
                         break;
                     case UploadStatus.Failed:
-                        _logger.LogError($"Upload failed: {progress.Exception}", progress.Exception);
+                        LogSemanticError($"Upload failed: {progress.Exception}", progress.Exception);
                         break;
                 }
             };

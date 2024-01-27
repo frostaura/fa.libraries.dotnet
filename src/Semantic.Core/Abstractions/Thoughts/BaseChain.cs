@@ -62,7 +62,7 @@ public abstract class BaseChain : BaseThought
 
         foreach (var thought in ChainOfThoughts)
         {
-            _logger.LogDebug(thought.ToString());
+            LogSemanticDebug(thought.ToString());
 
             // If there is already the state that this thought is expected to provide, use that state and skip executing the thought.
             if(state.ContainsKey($"${thought.OutputKey}"))
@@ -78,7 +78,7 @@ public abstract class BaseChain : BaseThought
 
             output = thought.Observation;
 
-            _logger.LogInformation(thought.ToString());
+            LogSemanticInformation(thought.ToString());
         };
 
         return output;

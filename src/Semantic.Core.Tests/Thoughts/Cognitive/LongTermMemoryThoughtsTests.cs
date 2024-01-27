@@ -87,7 +87,7 @@ public class LongTermMemoryThoughtsTests
     public async Task CommitToMemoryAsync_WithInvalidMemory_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var options = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var semanticMemoryConfig = Substitute.For<IOptions<SemanticMemoryConfig>>();
         semanticMemoryConfig.Value.Returns(Substitute.For<SemanticMemoryConfig>());
@@ -105,7 +105,7 @@ public class LongTermMemoryThoughtsTests
     public async Task CommitToMemoryAsync_WithInvalidSource_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var options = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var logger = Substitute.For<ILogger<LongTermMemoryThoughts>>();
         var semanticMemoryConfig = Substitute.For<IOptions<SemanticMemoryConfig>>();
@@ -124,7 +124,7 @@ public class LongTermMemoryThoughtsTests
     {
         var memory = Substitute.For<ISemanticTextMemory>();
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
@@ -150,7 +150,7 @@ public class LongTermMemoryThoughtsTests
     public async Task RecallFromMemoryAsync_WithInvalidMemory_ShouldThrow()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         semanticKernelLanguageModels
             .GetSemanticTextMemoryAsync(Arg.Any<CancellationToken>())
@@ -170,7 +170,7 @@ public class LongTermMemoryThoughtsTests
     public async Task RecallFromMemoryAsync_WithValidInputAndStoreAndValue_ShouldRespond()
     {
         var serviceCollection = new ServiceCollection()
-            .AddSemanticCore(Config.SEMANTIC_CONFIG);
+            .AddSemanticCore(out var configuration);
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         semanticKernelLanguageModels
             .GetSemanticTextMemoryAsync(Arg.Any<CancellationToken>())
