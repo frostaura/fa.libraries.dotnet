@@ -81,14 +81,13 @@ public class FNBThoughtsTests
     [Fact(Skip = "Integration Test")]
     public async Task LoadTextAsync_WithValidInput_ShouldRespond()
     {
-        var fnbOptions = Substitute.For<IOptions<FNBConfig>>();
-        fnbOptions.Value.Returns(Config.SEMANTIC_CONFIG.FNBConfig);
         var logger = Substitute.For<ILogger<FNBThoughts>>();
         var userProxy = Substitute.For<IUserProxyDataAccess>();
         var serviceCollection = new ServiceCollection()
             .AddSemanticCore(out var configuration)
             .AddSingleton(userProxy);
         var serviceProvider = serviceCollection.BuildServiceProvider();
+        var fnbOptions = serviceProvider.GetRequiredService<IOptions<FNBConfig>>();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var instance = new FNBThoughts(serviceProvider, semanticKernelLanguageModels, fnbOptions, logger);
 

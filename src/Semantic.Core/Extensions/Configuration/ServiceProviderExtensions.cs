@@ -123,6 +123,7 @@ public static class ServiceProviderExtensions
             .AddSingleton(Options.Create(config.PineconeConfig))
             .AddSingleton(Options.Create(config.FNBConfig))
             .AddSingleton(Options.Create(config.SemanticMemoryConfig))
+            .AddSingleton(Options.Create(config.MediumConfig))
             .AddSingleton(Options.Create(config));
     }
 

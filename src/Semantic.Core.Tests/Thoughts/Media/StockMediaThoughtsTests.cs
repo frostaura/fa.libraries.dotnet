@@ -43,11 +43,12 @@ public class StockMediaThoughtsTests
     [Fact]
     public void Constructor_WithInvalidHttpClientFactory_ShouldThrow()
     {
-        IServiceProvider serviceProvider = Substitute.For<IServiceProvider>();
+        var serviceCollection = new ServiceCollection()
+            .AddSemanticCore(out var configuration);
+        var serviceProvider = serviceCollection.BuildServiceProvider();
         ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         IHttpClientFactory httpClientFactory = null;
-        IOptions<PexelsConfig> pexelsConfig = Substitute.For<IOptions<PexelsConfig>>();
-        pexelsConfig.Value.Returns(Config.SEMANTIC_CONFIG.PexelsConfig);
+        IOptions<PexelsConfig> pexelsConfig = serviceProvider.GetRequiredService<IOptions<PexelsConfig>>();
         ILogger<StockMediaThoughts> logger = Substitute.For<ILogger<StockMediaThoughts>>();
 
         var actual = Assert.Throws<ArgumentNullException>(() => new StockMediaThoughts(serviceProvider, semanticKernelLanguageModels, httpClientFactory, pexelsConfig, logger));
@@ -107,8 +108,7 @@ public class StockMediaThoughtsTests
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         IHttpClientFactory httpClientFactory = Substitute.For<IHttpClientFactory>();
-        var pexelsConfig = Substitute.For<IOptions<PexelsConfig>>();
-        pexelsConfig.Value.Returns(Config.SEMANTIC_CONFIG.PexelsConfig);
+        var pexelsConfig = serviceProvider.GetRequiredService<IOptions<PexelsConfig>>();
         var logger = Substitute.For<ILogger<StockMediaThoughts>>();
         var instance = new StockMediaThoughts(serviceProvider, semanticKernelLanguageModels, httpClientFactory, pexelsConfig, logger);
         string searchQuery = default;
@@ -127,8 +127,7 @@ public class StockMediaThoughtsTests
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
         var httpClientFactory = Substitute.For<IHttpClientFactory>();
         httpClientFactory.CreateClient().Returns(new HttpClient());
-        var pexelsConfig = Substitute.For<IOptions<PexelsConfig>>();
-        pexelsConfig.Value.Returns(Config.SEMANTIC_CONFIG.PexelsConfig);
+        var pexelsConfig = serviceProvider.GetRequiredService<IOptions<PexelsConfig>>();
         var logger = Substitute.For<ILogger<StockMediaThoughts>>();
         var instance = new StockMediaThoughts(serviceProvider, semanticKernelLanguageModels, httpClientFactory, pexelsConfig, logger);
         string searchQuery = "cats";

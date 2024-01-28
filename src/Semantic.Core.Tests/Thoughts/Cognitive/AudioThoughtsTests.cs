@@ -54,10 +54,11 @@ public class AudioThoughtsTests
     [Fact]
     public void Constructor_WithInvalidLogger_ShouldThrow()
     {
-        IServiceProvider serviceProvider = Substitute.For<IServiceProvider>();
-        ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
-        IOptions<ElevenLabsConfig> elevenLabsConfig = Substitute.For<IOptions<ElevenLabsConfig>>();
-        elevenLabsConfig.Value.Returns(Config.SEMANTIC_CONFIG.ElevenLabsConfig);
+        var serviceCollection = new ServiceCollection()
+            .AddSemanticCore(out var configuration);
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
+        var elevenLabsConfig = serviceProvider.GetRequiredService<IOptions<ElevenLabsConfig>>();
         ILogger<AudioThoughts> logger = null;
 
         var actual = Assert.Throws<ArgumentNullException>(() => new AudioThoughts(serviceProvider, semanticKernelLanguageModels, elevenLabsConfig, logger));
@@ -72,8 +73,7 @@ public class AudioThoughtsTests
             .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
-        var elevenLabsConfig = Substitute.For<IOptions<ElevenLabsConfig>>();
-        elevenLabsConfig.Value.Returns(Config.SEMANTIC_CONFIG.ElevenLabsConfig);
+        var elevenLabsConfig = serviceProvider.GetRequiredService<IOptions<ElevenLabsConfig>>();
         var logger = Substitute.For<ILogger<AudioThoughts>>();
 
         var actual = new AudioThoughts(serviceProvider, semanticKernelLanguageModels, elevenLabsConfig, logger);
@@ -88,8 +88,7 @@ public class AudioThoughtsTests
             .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
-        var elevenLabsConfig = Substitute.For<IOptions<ElevenLabsConfig>>();
-        elevenLabsConfig.Value.Returns(Config.SEMANTIC_CONFIG.ElevenLabsConfig);
+        var elevenLabsConfig = serviceProvider.GetRequiredService<IOptions<ElevenLabsConfig>>();
         var logger = Substitute.For<ILogger<AudioThoughts>>();
         var instance = new AudioThoughts(serviceProvider, semanticKernelLanguageModels, elevenLabsConfig, logger);
         string text = default;
@@ -106,8 +105,7 @@ public class AudioThoughtsTests
             .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
-        var elevenLabsConfig = Substitute.For<IOptions<ElevenLabsConfig>>();
-        elevenLabsConfig.Value.Returns(Config.SEMANTIC_CONFIG.ElevenLabsConfig);
+        var elevenLabsConfig = serviceProvider.GetRequiredService<IOptions<ElevenLabsConfig>>();
         var logger = Substitute.For<ILogger<AudioThoughts>>();
         var instance = new AudioThoughts(serviceProvider, semanticKernelLanguageModels, elevenLabsConfig, logger);
         string text = "Hi, my name is Iluvatar. How are you?";

@@ -40,6 +40,7 @@
     <None Remove="Extensions\String\" />
     <None Remove="Thoughts\Finance\" />
     <None Remove="Thoughts\Chains\Finance\" />
+    <None Remove="Data\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Thoughts\" />
@@ -53,6 +54,7 @@
     <Folder Include="Extensions\String\" />
     <Folder Include="Thoughts\Finance\" />
     <Folder Include="Thoughts\Chains\Finance\" />
+    <Folder Include="Data\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="harvard.wav">

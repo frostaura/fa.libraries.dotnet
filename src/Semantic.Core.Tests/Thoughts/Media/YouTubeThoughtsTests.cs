@@ -85,8 +85,7 @@ public class YouTubeThoughtsTests
             .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
-        var googleConfig = Substitute.For<IOptions<GoogleConfig>>();
-        googleConfig.Value.Returns(Config.SEMANTIC_CONFIG.GoogleConfig);
+        var googleConfig = serviceProvider.GetRequiredService<IOptions<GoogleConfig>>();
         var logger = Substitute.For<ILogger<YouTubeThoughts>>();
         var instance = new YouTubeThoughts(serviceProvider, semanticKernelLanguageModels, googleConfig, logger);
         string filePath = default;
@@ -107,8 +106,7 @@ public class YouTubeThoughtsTests
             .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
-        var googleConfig = Substitute.For<IOptions<GoogleConfig>>();
-        googleConfig.Value.Returns(Config.SEMANTIC_CONFIG.GoogleConfig);
+        var googleConfig = serviceProvider.GetRequiredService<IOptions<GoogleConfig>>();
         var logger = Substitute.For<ILogger<YouTubeThoughts>>();
         var instance = new YouTubeThoughts(serviceProvider, semanticKernelLanguageModels, googleConfig, logger);
         string filePath = "test filename";
@@ -129,8 +127,7 @@ public class YouTubeThoughtsTests
             .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
-        var googleConfig = Substitute.For<IOptions<GoogleConfig>>();
-        googleConfig.Value.Returns(Config.SEMANTIC_CONFIG.GoogleConfig);
+        var googleConfig = serviceProvider.GetRequiredService<IOptions<GoogleConfig>>();
         var logger = Substitute.For<ILogger<YouTubeThoughts>>();
         var instance = new YouTubeThoughts(serviceProvider, semanticKernelLanguageModels, googleConfig, logger);
         string filePath = "test filename";
@@ -151,8 +148,7 @@ public class YouTubeThoughtsTests
             .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
-        var googleConfig = Substitute.For<IOptions<GoogleConfig>>();
-        googleConfig.Value.Returns(Config.SEMANTIC_CONFIG.GoogleConfig);
+        var googleConfig = serviceProvider.GetRequiredService<IOptions<GoogleConfig>>();
         var logger = Substitute.For<ILogger<YouTubeThoughts>>();
         var instance = new YouTubeThoughts(serviceProvider, semanticKernelLanguageModels, googleConfig, logger);
         string filePath = "test filename";
@@ -173,8 +169,7 @@ public class YouTubeThoughtsTests
             .AddSemanticCore(out var configuration);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
-        var googleConfig = Substitute.For<IOptions<GoogleConfig>>();
-        googleConfig.Value.Returns(Config.SEMANTIC_CONFIG.GoogleConfig);
+        var googleConfig = serviceProvider.GetRequiredService<IOptions<GoogleConfig>>();
         var logger = Substitute.For<ILogger<YouTubeThoughts>>();
         var instance = new YouTubeThoughts(serviceProvider, semanticKernelLanguageModels, googleConfig, logger);
         string filePath = "dummy filename";
@@ -197,8 +192,7 @@ public class YouTubeThoughtsTests
             .AddSingleton(userProxy);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
-        var googleConfig = Substitute.For<IOptions<GoogleConfig>>();
-        googleConfig.Value.Returns(Config.SEMANTIC_CONFIG.GoogleConfig);
+        var googleConfig = serviceProvider.GetRequiredService<IOptions<GoogleConfig>>();
         var logger = Substitute.For<ILogger<YouTubeThoughts>>();
         var instance = new YouTubeThoughts(serviceProvider, semanticKernelLanguageModels, googleConfig, logger);
         var filePath = "videos/6907538454af4d90b4832fa31fdaf070.mp4";

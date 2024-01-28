@@ -80,7 +80,7 @@ public class YouTubeShortFactualVideoGenerationChainTests
             .AddSingleton(userProxy);
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
-        var logger = Config.GetLogger<YouTubeShortFactualVideoGenerationChain>(_testOutputHelper);
+        var logger = Substitute.For<ILogger<YouTubeShortFactualVideoGenerationChain>>();
 
         var instance = new YouTubeShortFactualVideoGenerationChain(serviceProvider, semanticKernelLanguageModels, logger);
         var input = "planets";

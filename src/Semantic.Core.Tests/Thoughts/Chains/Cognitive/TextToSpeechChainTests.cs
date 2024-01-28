@@ -78,7 +78,7 @@ public class TextToSpeechChainTests
         Assert.Equal(nameof(text), actual.ParamName);
     }
 
-    [Fact]
+    [Fact(Skip = "Integration Test")]
     public async Task SpeakTextAndGetFilePathAsync_WithValidInput_ShouldCallInvokeAsync()
     {
         var userProxy = Substitute.For<IUserProxyDataAccess>();
