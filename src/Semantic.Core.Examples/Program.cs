@@ -33,9 +33,9 @@ var llmThought = services
     .GetThoughtByName<LanguageModelThoughts>(nameof(LanguageModelThoughts));
 var token = CancellationToken.None;
 
-await services
+/*await services
     .GetRequiredService<Test1>()
-    .UpdateAsync();
+    .UpdateAsync();*/
 
 
 Console.Write("Question / Query: ");

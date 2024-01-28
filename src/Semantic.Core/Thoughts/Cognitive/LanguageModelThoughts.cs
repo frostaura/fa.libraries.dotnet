@@ -82,30 +82,21 @@ public class LanguageModelThoughts : BaseThought
     /// <param name="prompt">The LLM prompt.</param>
     /// <param name="token">The token to use to request cancellation.</param>
     /// <returns>The URL of the generated image.</returns>
-    [KernelFunction, Description("Use OpenAI's Dall-E 3 AI model to generate an image and get the local filesystem file path and name.")]
-    public async Task<string> GenerateImageAndGetFilePathAsync(
+    [KernelFunction, Description("Use OpenAI's Dall-E 3 AI model to generate an image and get the absolute hosting URL.")]
+    public async Task<string> GenerateImageAndGetUrlAsync(
         [Description("The prompt to use to generate an image.")] string prompt,
         CancellationToken token = default)
     {
-        var imageUrl = await _semanticKernelLanguageModels.GenerateImageAndGetUrlAsync(prompt, token);
-        var fileName = $"{Guid.NewGuid()}.png";
-
-        using (var client = _httpClientFactory.CreateClient())
+        using (BeginSemanticScope(nameof(GenerateImageAndGetUrlAsync)))
         {
-            try
-            {
-                var imageBytes = await client.GetByteArrayAsync(imageUrl);
+            LogSemanticInformation($"Generating an image for '{prompt}' with Dall-E 3.");
 
-                File.WriteAllBytes(fileName, imageBytes);
-                Console.WriteLine("Image downloaded successfully!");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred: {ex.Message}");
-            }
+            var imageUrl = await _semanticKernelLanguageModels.GenerateImageAndGetUrlAsync(prompt, token);
+
+            LogSemanticDebug($"Generating completed: {imageUrl}.");
+
+            return imageUrl;
         }
-
-        return fileName;
     }
 
     /// <summary>

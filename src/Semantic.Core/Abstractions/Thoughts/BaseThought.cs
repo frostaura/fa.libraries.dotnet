@@ -54,7 +54,7 @@ public abstract class BaseThought
     {
         var operationId = RuntimeHelpers.GetHashCode(this);
 
-        _logger.LogInformation($"[[[{operationId}]]]{message}");
+        _logger.LogInformation($"[[[{operationId}]]][[[INFO]]]{message}");
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ public abstract class BaseThought
     {
         var operationId = RuntimeHelpers.GetHashCode(this);
 
-        _logger.LogDebug($"[[[{operationId}]]]{message}");
+        _logger.LogDebug($"[[[{operationId}]]][[[DEBUG]]]{message}");
     }
 
     /// <summary>
@@ -77,6 +77,6 @@ public abstract class BaseThought
     {
         var operationId = RuntimeHelpers.GetHashCode(this);
 
-        _logger.LogError($"[[[{operationId}]]]{message}", exception);
+        _logger.LogError($"[[[{operationId}]]][[[ERROR]]]{message}", exception);
     }
 }

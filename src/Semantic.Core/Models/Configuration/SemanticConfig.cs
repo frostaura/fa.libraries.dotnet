@@ -33,4 +33,8 @@ public class SemanticConfig
     /// Semantic Memory Config
     /// </summary>
     public SemanticMemoryConfig SemanticMemoryConfig { get; set; }
+    /// <summary>
+    /// Configuration for Medium blogging platform.
+    /// </summary>
+    public MediumConfig MediumConfig { get; set; }
 }
