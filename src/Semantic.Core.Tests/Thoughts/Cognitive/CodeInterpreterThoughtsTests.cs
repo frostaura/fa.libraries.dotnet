@@ -72,7 +72,7 @@ public class CodeInterpreterThoughtsTests
         string condaDependencies = "";
         string code = "def main()";
 
-        var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.InvokeAsync(pythonVersion, pipDependencies, condaDependencies, code));
+        var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.InvokePythonAsync(pythonVersion, pipDependencies, condaDependencies, code));
 
         Assert.Equal(nameof(pythonVersion), actual.ParamName);
     }
@@ -91,7 +91,7 @@ public class CodeInterpreterThoughtsTests
         string condaDependencies = "";
         string code = default;
 
-        var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.InvokeAsync(pythonVersion, pipDependencies, condaDependencies, code));
+        var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.InvokePythonAsync(pythonVersion, pipDependencies, condaDependencies, code));
 
         Assert.Equal(nameof(code), actual.ParamName);
     }
@@ -121,7 +121,7 @@ public class CodeInterpreterThoughtsTests
         string pipDependencies = "pip";
         string condaDependencies = "ffmpeg";
 
-        var actual = await instance.InvokeAsync(pythonVersion, pipDependencies, condaDependencies, code);
+        var actual = await instance.InvokePythonAsync(pythonVersion, pipDependencies, condaDependencies, code);
 
         Assert.Equal(expected, actual);
     }

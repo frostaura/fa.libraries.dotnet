@@ -50,22 +50,35 @@ public class LongTermMemoryThoughts : BaseThought
         [Description("The source of the memory. A default value of 'general' is acceptable when unsure.")] string source,
         CancellationToken token = default)
     {
-        var chunks = memory
-            .ThrowIfNullOrWhitespace(nameof(memory))
-            .ChunkByDelimiterAfterCharsCount();
-        var memoryStore = await _semanticKernelLanguageModels.GetSemanticTextMemoryAsync(token);
-        var memoryRecordingTasks = chunks
-            .Select(async c => await memoryStore.SaveInformationAsync(
-                _semanticMemoryConfig.CollectionName,
-                c,
-                $"{Guid.NewGuid()}",
-                description: $"Source: {source.ThrowIfNullOrWhitespace(nameof(source))}",
-                cancellationToken: token));
+        using (BeginSemanticScope(nameof(CommitToMemoryAsync)))
+        {
+            LogSemanticInformation("Committing long-term memory to persistent store.");
+            LogSemanticDebug("Chunking the memory.");
 
-        var response = await Task.WhenAll(memoryRecordingTasks);
-        var responseString = JsonConvert.SerializeObject(response, Formatting.Indented);
+            var chunks = memory
+                .ThrowIfNullOrWhitespace(nameof(memory))
+                .ChunkByDelimiterAfterCharsCount();
+            var memoryStore = await _semanticKernelLanguageModels.GetSemanticTextMemoryAsync(token);
 
-        return responseString;
+            LogSemanticDebug("Starting to persist memory chunks.");
+
+            var memoryRecordingTasks = chunks
+                .Select(async c => await memoryStore.SaveInformationAsync(
+                    _semanticMemoryConfig.CollectionName,
+                    c,
+                    $"{Guid.NewGuid()}",
+                    description: $"Source: {source.ThrowIfNullOrWhitespace(nameof(source))}",
+                    cancellationToken: token));
+
+            LogSemanticDebug("Persisting memory chunks succeeded.");
+
+            var response = await Task.WhenAll(memoryRecordingTasks);
+            var responseString = JsonConvert.SerializeObject(response, Formatting.Indented);
+
+            LogSemanticInformation("Successfully committed the memory for the long-term.");
+
+            return responseString;
+        }
     }
 
     /// <summary>
@@ -79,26 +92,34 @@ public class LongTermMemoryThoughts : BaseThought
         [Description("Query for the long-term memory store.")] string query,
         CancellationToken token = default)
     {
-        var memoryStore = await _semanticKernelLanguageModels.GetSemanticTextMemoryAsync(token);
-        var memories = memoryStore
-            .SearchAsync(_semanticMemoryConfig.CollectionName, query.ThrowIfNullOrWhitespace(nameof(query)), _semanticMemoryConfig.TopK, cancellationToken: token)
-            .GetAsyncEnumerator();
-        var result = new List<MemoryRecordMetadata>();
-
-        try
+        using (BeginSemanticScope(nameof(RecallFromMemoryAsync)))
         {
-            while (await memories.MoveNextAsync())
+            LogSemanticInformation($"Retrieving the top {_semanticMemoryConfig.TopK} memories from long-term store.");
+            LogSemanticDebug($"For query: {query}");
+
+            var memoryStore = await _semanticKernelLanguageModels.GetSemanticTextMemoryAsync(token);
+            var memories = memoryStore
+                .SearchAsync(_semanticMemoryConfig.CollectionName, query.ThrowIfNullOrWhitespace(nameof(query)), _semanticMemoryConfig.TopK, cancellationToken: token)
+                .GetAsyncEnumerator();
+            var result = new List<MemoryRecordMetadata>();
+
+            LogSemanticDebug("Successfully fetched memories from the store.");
+
+            try
             {
-                var MemoryResult = memories.Current;
+                while (await memories.MoveNextAsync())
+                {
+                    var MemoryResult = memories.Current;
 
-                result.Add(MemoryResult.Metadata);
+                    result.Add(MemoryResult.Metadata);
+                }
             }
-        }
-        finally
-        {
-            await memories.DisposeAsync();
-        }
+            finally
+            {
+                await memories.DisposeAsync();
+            }
 
-        return JsonConvert.SerializeObject(result);
+            return JsonConvert.SerializeObject(result);
+        }
     }
 }

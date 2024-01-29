@@ -36,4 +36,12 @@ public class OpenAIConfig
     /// The API key to use when connecting to the OpenAI service.
     /// </summary>
     public string ApiKey { get; set; }
+    /// <summary>
+    /// Max count of messages to retain between chats in a given conversation.
+    /// </summary>
+    public int MaxConversationMessageCount { get; set; } = 10;
+    /// <summary>
+    /// The default timeout of calls to models in minutes.
+    /// </summary>
+    public int DefaultTimeoutInMin { get; set; } = 5;
 }

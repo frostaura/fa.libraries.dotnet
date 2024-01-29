@@ -27,7 +27,11 @@ public class AudioThoughts : BaseThought
     /// <param name="semanticKernelLanguageModels">A component for communicating with language models.</param>
     /// <param name="elevenLabsConfig">ElevenLabs configuration.</param>
     /// <param name="logger">Instance logger.</param>
-    public AudioThoughts(IServiceProvider serviceProvider, ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels, IOptions<ElevenLabsConfig> elevenLabsConfig, ILogger<AudioThoughts> logger)
+    public AudioThoughts(
+        IServiceProvider serviceProvider,
+        ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels,
+        IOptions<ElevenLabsConfig> elevenLabsConfig,
+        ILogger<AudioThoughts> logger)
         :base(serviceProvider, semanticKernelLanguageModels, logger)
     {
         var apiKey = elevenLabsConfig
@@ -50,19 +54,34 @@ public class AudioThoughts : BaseThought
         [Description("The text to speak.")] string text,
         CancellationToken token = default)
     {
-        var voices = await _elevenLabsClient
-            .VoicesEndpoint
-            .GetAllVoicesAsync();
-        var defaultVoiceSettings = await _elevenLabsClient
-            .VoicesEndpoint
-            .GetDefaultVoiceSettingsAsync();
-        var clip = await _elevenLabsClient
-            .TextToSpeechEndpoint
-            .TextToSpeechAsync(text.ThrowIfNullOrWhitespace(nameof(text)), voices.FirstOrDefault(), defaultVoiceSettings);
-        string clipPath = default;
+        using (BeginSemanticScope(nameof(ElevenLabsTextToSpeechAsync)))
+        {
+            var voices = await _elevenLabsClient
+                .VoicesEndpoint
+                .GetAllVoicesAsync();
+            var defaultVoiceSettings = await _elevenLabsClient
+                .VoicesEndpoint
+                .GetDefaultVoiceSettingsAsync();
+            var clip = await _elevenLabsClient
+                .TextToSpeechEndpoint
+                .TextToSpeechAsync(text.ThrowIfNullOrWhitespace(nameof(text)), voices.FirstOrDefault(), defaultVoiceSettings);
+            var clipBytes = clip.ClipData.ToArray();
+            var fileName = $"{Guid.NewGuid()}.wav";
 
-        throw new NotImplementedException("Save clip first as old API used to do.");
+            try
+            {
+                LogSemanticInformation($"Saving the clip to '{fileName}'.");
 
-        return clipPath;
+                File.WriteAllBytes(fileName, clipBytes);
+                LogSemanticDebug("Clip downloaded successfully!");
+            }
+            catch (Exception ex)
+            {
+                LogSemanticError($"An error occurred saving the clip to '{fileName}'.", ex);
+                throw;
+            }
+
+            return fileName;
+        }
     }
 }

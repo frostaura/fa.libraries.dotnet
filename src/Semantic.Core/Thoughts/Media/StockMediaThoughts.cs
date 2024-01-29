@@ -59,21 +59,26 @@ public class StockMediaThoughts : BaseThought
         [Description("The video orientation (portrait|landscape|square|all).")] string orientation = "all",
         CancellationToken token = default)
     {
-        var result = await _pexelsClient.SearchVideosAsync(
-            searchQuery.ThrowIfNullOrWhitespace(nameof(searchQuery)),
-            orientation: orientation.Replace("all", string.Empty));
-        var video = result
-            .videos
-            .Where(v => v.videoFiles.Any(v => v.quality == "hd"))
-            .Select(v => v.videoFiles.First(vv => vv.quality == "hd"))
-            .First();
-        var filePath = $"videos/{Guid.NewGuid().ToString().Replace("-", "")}.mp4";
+        using (BeginSemanticScope(nameof(DownloadAndGetStockVideoAsync)))
+        {
+            LogSemanticInformation($"Searching for videos on '{searchQuery}'.");
 
-        if (!Directory.Exists("videos")) Directory.CreateDirectory("videos");
+            var result = await _pexelsClient.SearchVideosAsync(
+                searchQuery.ThrowIfNullOrWhitespace(nameof(searchQuery)),
+                orientation: orientation.Replace("all", string.Empty));
+            var video = result
+                .videos
+                .Where(v => v.videoFiles.Any(v => v.quality == "hd"))
+                .Select(v => v.videoFiles.First(vv => vv.quality == "hd"))
+                .First();
+            var filePath = $"videos/{Guid.NewGuid().ToString().Replace("-", "")}.mp4";
 
-        await DownloadVideoUrlToFileAsync(video.link, filePath, token);
+            if (!Directory.Exists("videos")) Directory.CreateDirectory("videos");
 
-        return filePath;
+            await DownloadVideoUrlToFileAsync(video.link, filePath, token);
+
+            return filePath;
+        }
     }
 
     /// <summary>
@@ -94,6 +99,7 @@ public class StockMediaThoughts : BaseThought
                     using (Stream contentStream = await response.Content.ReadAsStreamAsync(),
                                     stream = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
                     {
+                        LogSemanticInformation($"Downloading video file '{videoUrl}' to '{savePath}'.");
                         await contentStream.CopyToAsync(stream);
                     }
                 }

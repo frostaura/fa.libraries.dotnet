@@ -41,12 +41,17 @@ public class SystemThoughts : BaseThought
         [Description("The question to ask the end-user.")] string question,
         CancellationToken token = default)
     {
-        return _userProxy
-            .AskUserAsync(question.ThrowIfNullOrWhitespace(nameof(question)), token);
+        using (BeginSemanticScope(nameof(AskForInputAsync)))
+        {
+            LogSemanticInformation($"Asking the user a question: '{question}'");
+
+            return _userProxy
+                .AskUserAsync(question.ThrowIfNullOrWhitespace(nameof(question)), token);
+        }
     }
 
     /// <summary>
-    /// Output text conetnt to the end-user.
+    /// Output text content to the end-user.
     /// </summary>
     /// <param name="token">The token to use to request cancellation.</param>
     /// <returns>The response body as a string.</returns>
@@ -55,6 +60,11 @@ public class SystemThoughts : BaseThought
         [Description("The text to output.")] string output,
         CancellationToken token = default)
     {
-        return Task.FromResult(output.ThrowIfNullOrWhitespace(nameof(output)));
+        using (BeginSemanticScope(nameof(OutputTextAsync)))
+        {
+            LogSemanticInformation($"Returning output to the user: '{output}'");
+
+            return Task.FromResult(output.ThrowIfNullOrWhitespace(nameof(output)));
+        }
     }
 }

@@ -127,9 +127,9 @@ public class OpenAILanguageModelsDataAccess : ISemanticKernelLanguageModelsDataA
                 c.AddStandardResilienceHandler()
                     .Configure(o =>
                     {
-                        o.TotalRequestTimeout = new HttpTimeoutStrategyOptions { Timeout = TimeSpan.FromMinutes(1) };
-                        o.AttemptTimeout = new HttpTimeoutStrategyOptions { Timeout = TimeSpan.FromMinutes(1) };
-                        o.CircuitBreaker = new HttpCircuitBreakerStrategyOptions { SamplingDuration = TimeSpan.FromMinutes(2) };
+                        o.TotalRequestTimeout = new HttpTimeoutStrategyOptions { Timeout = TimeSpan.FromMinutes(_openAIConfig.DefaultTimeoutInMin) };
+                        o.AttemptTimeout = new HttpTimeoutStrategyOptions { Timeout = TimeSpan.FromMinutes(_openAIConfig.DefaultTimeoutInMin) };
+                        o.CircuitBreaker = new HttpCircuitBreakerStrategyOptions { SamplingDuration = TimeSpan.FromMinutes(_openAIConfig.DefaultTimeoutInMin * 2) };
                         o.Retry.BackoffType = DelayBackoffType.Exponential;
                         o.Retry.MaxRetryAttempts = 5;
                         o.Retry.UseJitter = true;

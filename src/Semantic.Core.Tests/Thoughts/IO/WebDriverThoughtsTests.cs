@@ -69,7 +69,7 @@ public class WebDriverThoughtsTests
         var instance = new WebDriverThoughts(serviceProvider, semanticKernelLanguageModels, logger);
         string uri = default;
 
-        var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.LoadTextAsync(uri));
+        var actual = await Assert.ThrowsAsync<ArgumentNullException>(async () => await instance.LoadWebsiteTextAsync(uri));
 
         Assert.Equal(nameof(uri), actual.ParamName);
     }
@@ -85,7 +85,7 @@ public class WebDriverThoughtsTests
         var instance = new WebDriverThoughts(serviceProvider, semanticKernelLanguageModels, logger);
         var uri = "https://techcrunch.com";
 
-        var actual = await instance.LoadTextAsync(uri);
+        var actual = await instance.LoadWebsiteTextAsync(uri);
 
         Assert.NotEmpty(actual);
     }

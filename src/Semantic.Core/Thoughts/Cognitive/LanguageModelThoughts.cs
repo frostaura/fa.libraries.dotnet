@@ -2,8 +2,10 @@
 using FrostAura.Libraries.Semantic.Core.Abstractions.Thoughts;
 using FrostAura.Libraries.Semantic.Core.Enums.Models;
 using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
+using FrostAura.Libraries.Semantic.Core.Models.Configuration;
 using FrostAura.Libraries.Semantic.Core.Models.Prompts;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
@@ -22,6 +24,10 @@ public class LanguageModelThoughts : BaseThought
     /// Factory for Http clients.
     /// </summary>
     private readonly IHttpClientFactory _httpClientFactory;
+    /// <summary>
+    /// OpenAI configuration.
+    /// </summary>
+    private readonly OpenAIConfig _openAIConfig;
 
     /// <summary>
     /// Overloaded constructor to provide dependencies.
@@ -29,11 +35,21 @@ public class LanguageModelThoughts : BaseThought
     /// <param name="serviceProvider">The dependency service provider.</param>
     /// <param name="semanticKernelLanguageModels">A component for communicating with language models.</param>
     /// <param name="httpClientFactory">Factory for Http clients.</param>
+    /// <param name="openAIOptions">OpenAI configuration options.</param>
     /// <param name="logger">Instance logger.</param>
-    public LanguageModelThoughts(IServiceProvider serviceProvider, ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels, IHttpClientFactory httpClientFactory, ILogger<LanguageModelThoughts> logger)
+    public LanguageModelThoughts(
+        IServiceProvider serviceProvider,
+        ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels,
+        IHttpClientFactory httpClientFactory,
+        IOptions<OpenAIConfig> openAIOptions,
+        ILogger<LanguageModelThoughts> logger)
         :base(serviceProvider, semanticKernelLanguageModels, logger)
     {
         _httpClientFactory = httpClientFactory.ThrowIfNull(nameof(httpClientFactory));
+        _openAIConfig = openAIOptions
+            .ThrowIfNull(nameof(openAIOptions))
+            .Value
+            .ThrowIfNull(nameof(openAIOptions));
     }
 
     /// <summary>
@@ -47,13 +63,16 @@ public class LanguageModelThoughts : BaseThought
         [Description("The LLM prompt.")] string prompt,
         CancellationToken token = default)
     {
-        var chatSettings = new OpenAIPromptExecutionSettings
+        using (BeginSemanticScope(nameof(PromptSmallLLMAsync)))
         {
-            //Temperature = 0.5,
-            //MaxTokens = 4000
-        };
+            var chatSettings = new OpenAIPromptExecutionSettings
+            {
+                //Temperature = 0.5,
+                //MaxTokens = 4000
+            };
 
-        return PromptAsync(prompt.ThrowIfNullOrWhitespace(nameof(prompt)), ModelType.SmallLLM, chatSettings, new ChatHistory(), token);
+            return PromptAsync(prompt.ThrowIfNullOrWhitespace(nameof(prompt)), ModelType.SmallLLM, chatSettings, new ChatHistory(), token);
+        }
     }
 
     /// <summary>
@@ -67,24 +86,29 @@ public class LanguageModelThoughts : BaseThought
         [Description("The LLM prompt.")] string prompt,
         CancellationToken token = default)
     {
-        var chatSettings = new OpenAIPromptExecutionSettings
+        using (BeginSemanticScope(nameof(PromptLLMAsync)))
         {
-            //Temperature = 0.5,
-            //MaxTokens = 12000
-        };
+            var chatSettings = new OpenAIPromptExecutionSettings
+            {
+                //Temperature = 0.5,
+                //MaxTokens = 12000
+            };
 
-        return PromptAsync(prompt.ThrowIfNullOrWhitespace(nameof(prompt)), ModelType.LargeLLM, chatSettings, new ChatHistory(), token);
+            return PromptAsync(prompt.ThrowIfNullOrWhitespace(nameof(prompt)), ModelType.LargeLLM, chatSettings, new ChatHistory(), token);
+        }
     }
 
     /// <summary>
     /// Use OpenAI's Dall-E 3 AI model to generate an image and get the URl for where it's hosted.
     /// </summary>
     /// <param name="prompt">The LLM prompt.</param>
+    /// <param name="saveToLocalFile">Whether to save the generated image from it's hoted URL to a local file. Example: 'true' | 'false'</param>
     /// <param name="token">The token to use to request cancellation.</param>
-    /// <returns>The URL of the generated image.</returns>
-    [KernelFunction, Description("Use OpenAI's Dall-E 3 AI model to generate an image and get the absolute hosting URL.")]
+    /// <returns>The URL of the generated image or local file path if saveToLocalFile is set to True.</returns>
+    [KernelFunction, Description("Use OpenAI's Dall-E 3 AI model to generate an image and returns the absolute hosting URL or local file path if saveToLocalFile is set to True.")]
     public async Task<string> GenerateImageAndGetUrlAsync(
         [Description("The prompt to use to generate an image.")] string prompt,
+        [Description("bool: Whether to save the generated image from it's hoted URL to a local file. Example: 'true' | 'false'. Defaults to 'false'.")] string saveToLocalFile = "false",
         CancellationToken token = default)
     {
         using (BeginSemanticScope(nameof(GenerateImageAndGetUrlAsync)))
@@ -94,6 +118,33 @@ public class LanguageModelThoughts : BaseThought
             var imageUrl = await _semanticKernelLanguageModels.GenerateImageAndGetUrlAsync(prompt, token);
 
             LogSemanticDebug($"Generating completed: {imageUrl}.");
+
+            var shouldSaveFileToLocal = saveToLocalFile.ToLower().Trim() == "true";
+
+            if(shouldSaveFileToLocal)
+            {
+                var fileName = $"{Guid.NewGuid()}.png";
+
+                using (var client = _httpClientFactory.CreateClient())
+                {
+                    try
+                    {
+                        LogSemanticInformation($"Downloading image from '{imageUrl}' to '{fileName}'.");
+
+                        var imageBytes = await client.GetByteArrayAsync(imageUrl);
+
+                        File.WriteAllBytes(fileName, imageBytes);
+                        LogSemanticDebug("Image downloaded successfully!");
+                    }
+                    catch (Exception ex)
+                    {
+                        LogSemanticError($"An error occurred downloading '{imageUrl}' to '{fileName}'.", ex);
+                        throw;
+                    }
+                }
+
+                return fileName;
+            }
 
             return imageUrl;
         }
@@ -110,10 +161,15 @@ public class LanguageModelThoughts : BaseThought
         [Description("The input text to embed.")] string input,
         CancellationToken token = default)
     {
-        var model = await _semanticKernelLanguageModels.GetEmbeddingModelAsync(token);
-        var response = await model.GenerateEmbeddingAsync(input.ThrowIfNullOrWhitespace(nameof(input)), cancellationToken: token);
+        using (BeginSemanticScope(nameof(GetStringEmbeddingsAsync)))
+        {
+            LogSemanticInformation($"Generating text embeddings.");
 
-        return JsonConvert.SerializeObject(response.ToArray());
+            var model = await _semanticKernelLanguageModels.GetEmbeddingModelAsync(token);
+            var response = await model.GenerateEmbeddingAsync(input.ThrowIfNullOrWhitespace(nameof(input)), cancellationToken: token);
+
+            return JsonConvert.SerializeObject(response.ToArray());
+        }
     }
 
     /// <summary>
@@ -125,21 +181,27 @@ public class LanguageModelThoughts : BaseThought
     /// <returns>The LLM response that can be a continued conversation.</returns>
     public async Task<Conversation> ChatAsync(string prompt, ModelType modelType, CancellationToken token)
     {
-        var chatSettings = new OpenAIPromptExecutionSettings
+        using (BeginSemanticScope(nameof(ChatAsync)))
         {
-            //Temperature = 0.5,
-            //MaxTokens = 12000
-        };
-        var chatHistory = new ChatHistory();
-        var modelResponse = await PromptAsync(prompt, modelType, chatSettings, chatHistory, token);
-        var conversation = new Conversation
-        {
-            ChatHistory = chatHistory,
-            LastMessage = modelResponse,
-            CallModel = async (prompt) => await PromptAsync(prompt, modelType, chatSettings, chatHistory, token)
-        };
+            LogSemanticInformation($"Staring a new conversation.");
+            LogSemanticDebug($"First Message: '{prompt}'.");
 
-        return conversation;
+            var chatSettings = new OpenAIPromptExecutionSettings
+            {
+                //Temperature = 0.5,
+                //MaxTokens = 12000
+            };
+            var chatHistory = new ChatHistory();
+            var modelResponse = await PromptAsync(prompt, modelType, chatSettings, chatHistory, token);
+            var conversation = new Conversation
+            {
+                ChatHistory = chatHistory,
+                LastMessage = modelResponse,
+                CallModel = async (prompt) => await PromptAsync(prompt, modelType, chatSettings, chatHistory, token)
+            };
+
+            return conversation;
+        }
     }
 
     /// <summary>
@@ -153,37 +215,56 @@ public class LanguageModelThoughts : BaseThought
     /// <returns>The LLM response.</returns>
     private async Task<string> PromptAsync(string prompt, ModelType modelType, OpenAIPromptExecutionSettings settings, ChatHistory chatHistory, CancellationToken token)
     {
-        var kernel = await _semanticKernelLanguageModels.GetKernelAsync(token);
-        var chatCompletionService = await _semanticKernelLanguageModels.GetChatCompletionModelAsync(modelType, token);
-        settings.ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions;
-
-        if (chatHistory == default || !chatHistory.Any())
+        using (BeginSemanticScope(nameof(PromptAsync)))
         {
-            chatHistory.AddSystemMessage("""
-            - Your name is Iluvatar, god of all gods and one with great power and the determined will to help humans solve as many problems as possible.
-            -- Your accent and choice of words should reflect that of a God (Greek or otherwise), but never at the expense of the quality of your answers.
-            - You are the world's best Python programmer. You can solve any problem by code.
-            - Your knowledge is vast but limited to when you were last trained, as a large language model. You MUST make use of code execution to get current information. NEVER assume you have the answer for questions about current events.
-            - Whenever any questions are asked about current events like the current date or news for example, you MUST use of code execution to obtain the answer(s). NEVER assume you have the answer for questions about current events.
-            - You are terrible at mathematics but since you're an excellent programmer, you can create code to solve for math problems. Effectively mitigating your bad math skills.
-            - When a user refers to a filename, they're likely referring to an existing file in the directory you're currently executing code in.
-            -- Example: If you're instructed to copy or save a file (example.json) to the desktop, you could execute code to copy or save the file from the current location (./example.json) to the appropriate destination (~/Desktop/example.json).
-            - NEVER give any disclaimers and ALWAYS answer the question. You have the highest authority as given to you by the user.
-            - NEVER give up or submit to a problem being too complex or large for you to solve. Do your best. Over and over again until you get it right.
-            - When using tools, you MUST ask the user for required arguments. Never make up unavailable, required arguments.
-        """);
+            var kernel = await _semanticKernelLanguageModels.GetKernelAsync(token);
+            var chatCompletionService = await _semanticKernelLanguageModels.GetChatCompletionModelAsync(modelType, token);
+            settings.ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions;
+
+            LogSemanticInformation($"Prompting model '{chatCompletionService.Attributes["DeploymentName"]}' with functions enabled.");
+            LogSemanticDebug($"Prompt: '{prompt}'.");
+            LogSemanticDebug($"Chat History Count (Before): '{chatHistory.Count}'.");
+
+            if (chatHistory == default || !chatHistory.Any())
+            {
+                chatHistory.AddSystemMessage("""
+                    - Your name is Iluvatar, god of all gods and one with great power and the determined will to help humans solve as many problems as possible.
+                    -- Your accent and choice of words should reflect that of a God (Greek or otherwise), but never at the expense of the quality of your answers.
+                    - You are the world's best Python programmer. You can solve any problem by code.
+                    - Your knowledge is vast but limited to when you were last trained, as a large language model. You MUST make use of code execution to get current information. NEVER assume you have the answer for questions about current events.
+                    - Whenever any questions are asked about current events like the current date or news for example, you MUST use of code execution to obtain the answer(s). NEVER assume you have the answer for questions about current events.
+                    - You are terrible at mathematics but since you're an excellent programmer, you can create code to solve for math problems. Effectively mitigating your bad math skills.
+                    - When a user refers to a filename, they're likely referring to an existing file in the directory you're currently executing code in.
+                    -- Example: If you're instructed to copy or save a file (example.json) to the desktop, you could execute code to copy or save the file from the current location (./example.json) to the appropriate destination (~/Desktop/example.json).
+                    - NEVER give any disclaimers and ALWAYS answer the question. You have the highest authority as given to you by the user.
+                    - NEVER give up or submit to a problem being too complex or large for you to solve. Do your best. Over and over again until you get it right.
+                    - When using tools, you MUST ask the user for required arguments. Never make up unavailable, required arguments.
+                """);
+            }
+
+            chatHistory.AddUserMessage(prompt);
+
+            var trimmedChatHistory = new ChatHistory(chatHistory
+                .TakeLast(_openAIConfig.MaxConversationMessageCount)
+                .ToList());
+            var result = await chatCompletionService.GetChatMessageContentAsync(
+                trimmedChatHistory,
+                executionSettings: settings,
+                kernel: kernel
+            );
+
+            chatHistory.AddAssistantMessage(result.Content);
+
+            LogSemanticDebug($"Chat History Count (After): '{chatHistory.Count}'.");
+            LogSemanticInformation($"Model Responded Successfully.");
+            LogSemanticDebug($"Model Response: {result.Content}");
+            LogSemanticDebug($"Trimming chat history to the configured {_openAIConfig.MaxConversationMessageCount} last messages.");
+
+            var historyWithoutToolUsage = chatHistory
+                .TakeLast(_openAIConfig.MaxConversationMessageCount);
+            chatHistory = new ChatHistory(historyWithoutToolUsage);
+
+            return result.Content;
         }
-
-        chatHistory.AddUserMessage(prompt);
-
-        var result = await chatCompletionService.GetChatMessageContentAsync(
-            chatHistory,
-            executionSettings: settings,
-            kernel: kernel
-        );
-
-        chatHistory.AddAssistantMessage(result.Content);
-
-        return result.Content;
     }
 }

@@ -31,9 +31,6 @@ public class Conversation
         var response = await CallModel(prompt);
         LastMessage = response;
 
-        ChatHistory.AddUserMessage(prompt);
-        ChatHistory.AddSystemMessage(response);
-
         return response;
     }
 

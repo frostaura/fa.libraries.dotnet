@@ -81,12 +81,13 @@ public class MediumThoughts : BaseThought
 
                 using (var meRequest = new HttpRequestMessage(HttpMethod.Get, "https://api.medium.com/v1/me"))
                 {
-                    LogSemanticDebug("Calling child thoughts to get some generic work done.");
+                    LogSemanticDebug("Generating a poster image.");
+
                     var llmThoughts = (LanguageModelThoughts)_serviceProvider.GetThoughtByName(nameof(LanguageModelThoughts));
                     var dallEPrompt = await llmThoughts.PromptSmallLLMAsync("You are the world's best prompt engineer for AI models that generate images. Like Dall-E 2, 3 and Midjourney. You take a title for a blog and transform it to a creative but relevant to the content prompt that can be used to generate an image." +
                         $"Title: {title.ThrowIfNullOrWhitespace(nameof(title))}" +
                         "Prompt: ", token);
-                    var dallEImageUrl = await llmThoughts.GenerateImageAndGetUrlAsync(dallEPrompt, token);
+                    var dallEImageUrl = await llmThoughts.GenerateImageAndGetUrlAsync(dallEPrompt, token: token);
                     var contentHeader = $@"
                     <figure>
                       <img src=""{dallEImageUrl}"">
@@ -96,6 +97,7 @@ public class MediumThoughts : BaseThought
                     ";
 
                     LogSemanticDebug("Getting Medium user information.");
+
                     var response = await client.SendAsync(meRequest);
                     var responseStr = await response.Content.ReadAsStringAsync();
                     var me = JsonConvert.DeserializeObject<MeResponse>(responseStr);
@@ -106,7 +108,8 @@ public class MediumThoughts : BaseThought
                         .Replace("\"", "")
                         .Split(',');
 
-                    LogSemanticDebug("Posting to Medium.");
+                    LogSemanticDebug($"Posting to Medium as '{publicationStatus}'.");
+
                     using (var postRequest = new HttpRequestMessage(HttpMethod.Post, $"https://api.medium.com/v1/users/{me.Data.Id}/posts"))
                     {
                         postRequest.Content = new StringContent(JsonConvert.SerializeObject(new

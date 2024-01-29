@@ -1,29 +1,28 @@
 ﻿using System.Runtime.CompilerServices;
-using FrostAura.Libraries.Core.Extensions.Validation;
 using Microsoft.Extensions.Logging;
 
-namespace Semantic.Core.Examples;
+namespace FrostAura.Libraries.Semantic.Core.Tests.Testing.Logging;
 
-public class Test2
+public class Test3
 {
-    private readonly Test3 _test3;
     private readonly ILogger _logger;
 
-    public Test2(Test3 test3, ILogger<Test2> logger)
-	{
+    public Test3(ILogger<Test3> logger)
+    {
         _logger = logger;
-        _test3 = test3.ThrowIfNull(nameof(test3));
     }
 
-    public async Task UpdateAsync()
+    public async Task Update()
     {
         using (BeginSemanticScope($"Scope Name Update {GetType().Name}"))
         {
-            LogSemanticInformation($"Initializing update on {GetType().Name}...");
-            await _test3.Update();
-            LogSemanticInformation($"Again, update on {GetType().Name}...");
-            await _test3.Update();
-            LogSemanticInformation("Update done!");
+            LogSemanticInformation("Ping");
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            LogSemanticInformation("Pong");
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            LogSemanticInformation("Pang");
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            LogSemanticInformation("Pung");
         }
     }
 

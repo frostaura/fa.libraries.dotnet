@@ -1,6 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 using FrostAura.Libraries.Core.Extensions.Validation;
+using FrostAura.Libraries.Semantic.Core.Enums.Logging;
 using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
+using FrostAura.Libraries.Semantic.Core.Models.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace FrostAura.Libraries.Semantic.Core.Abstractions.Thoughts;
@@ -52,9 +54,14 @@ public abstract class BaseThought
     /// <param name="message">The message to log.</param>
     protected void LogSemanticInformation(string message)
     {
-        var operationId = RuntimeHelpers.GetHashCode(this);
+        var logItem = new LogItem
+        {
+            ScopeOperationId = RuntimeHelpers.GetHashCode(this),
+            Message = message,
+            Type = LogType.Information
+        };
 
-        _logger.LogInformation($"[[[{operationId}]]][[[INFO]]]{message}");
+        _logger.LogInformation(logItem.ToString());
     }
 
     /// <summary>
@@ -63,9 +70,14 @@ public abstract class BaseThought
     /// <param name="message">The message to log.</param>
     protected void LogSemanticDebug(string message)
     {
-        var operationId = RuntimeHelpers.GetHashCode(this);
+        var logItem = new LogItem
+        {
+            ScopeOperationId = RuntimeHelpers.GetHashCode(this),
+            Message = message,
+            Type = LogType.Debug
+        };
 
-        _logger.LogDebug($"[[[{operationId}]]][[[DEBUG]]]{message}");
+        _logger.LogDebug(logItem.ToString());
     }
 
     /// <summary>
@@ -73,10 +85,15 @@ public abstract class BaseThought
     /// </summary>
     /// <param name="message">The message to log.</param>
     /// <param name="exception">Exception instance.</param>
-    protected void LogSemanticError(string message, Exception exception)
+    protected void LogSemanticError(string message, Exception exception = default)
     {
-        var operationId = RuntimeHelpers.GetHashCode(this);
+        var logItem = new LogItem
+        {
+            ScopeOperationId = RuntimeHelpers.GetHashCode(this),
+            Message = message,
+            Type = LogType.Error
+        };
 
-        _logger.LogError($"[[[{operationId}]]][[[ERROR]]]{message}", exception);
+        _logger.LogError(logItem.ToString(), exception);
     }
 }

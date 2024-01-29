@@ -37,6 +37,8 @@
     <None Remove="Models\Prompts\" />
     <None Remove="Data\Logging\" />
     <None Remove="Models\Medium\" />
+    <None Remove="Models\Logging\" />
+    <None Remove="Enums\Logging\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Extensions\" />
@@ -64,6 +66,8 @@
     <Folder Include="Models\Prompts\" />
     <Folder Include="Data\Logging\" />
     <Folder Include="Models\Medium\" />
+    <Folder Include="Models\Logging\" />
+    <Folder Include="Enums\Logging\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />

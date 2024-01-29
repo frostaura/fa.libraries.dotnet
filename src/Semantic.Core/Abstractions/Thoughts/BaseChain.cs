@@ -7,8 +7,6 @@ namespace FrostAura.Libraries.Semantic.Core.Abstractions.Thoughts;
 
 /// <summary>
 /// A decorated collection of a thoughts.
-///
-/// TODO: Optimize thought execution based on dependency variables used in order to allow for parallel execution of disconencted thoughts.
 /// </summary>
 public abstract class BaseChain : BaseThought
 {
@@ -54,34 +52,37 @@ public abstract class BaseChain : BaseThought
     /// <returns>The chain's final output.</returns>
     protected virtual async Task<string> ExecuteChainAsync(string input = "", Dictionary<string, string> state = default, CancellationToken token = default)
     {
-        if (state == default) state = new Dictionary<string, string>();
-
-        state["$input"] = input;
-
-        var output = string.Empty;
-
-        foreach (var thought in ChainOfThoughts)
+        using (BeginSemanticScope(nameof(ExecuteChainAsync)))
         {
-            LogSemanticDebug(thought.ToString());
+            if (state == default) state = new Dictionary<string, string>();
 
-            // If there is already the state that this thought is expected to provide, use that state and skip executing the thought.
-            if(state.ContainsKey($"${thought.OutputKey}"))
+            state["$input"] = input;
+
+            var output = string.Empty;
+
+            foreach (var thought in ChainOfThoughts)
             {
-                thought.Observation = state[$"${thought.OutputKey}"];
-            }
-            // The state should be created by executing the thought.
-            else
-            {
-                thought.Observation = await ExecuteThoughtAsync(thought, state, token);
-                state[$"${thought.OutputKey}"] = thought.Observation;
-            }
+                LogSemanticDebug($"Executing {thought} in the chain.");
 
-            output = thought.Observation;
+                // If there is already the state that this thought is expected to provide, use that state and skip executing the thought.
+                if (state.ContainsKey($"${thought.OutputKey}"))
+                {
+                    thought.Observation = state[$"${thought.OutputKey}"];
+                }
+                // The state should be created by executing the thought.
+                else
+                {
+                    thought.Observation = await ExecuteThoughtAsync(thought, state, token);
+                    state[$"${thought.OutputKey}"] = thought.Observation;
+                }
 
-            LogSemanticInformation(thought.ToString());
-        };
+                output = thought.Observation;
 
-        return output;
+                LogSemanticInformation(thought.ToString());
+            };
+
+            return output;
+        }
     }
 
     /// <summary>

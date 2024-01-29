@@ -49,17 +49,22 @@ public class FNBThoughts : BaseThought
     {
         return Task.Run(() =>
         {
-            var webDriverThough = _serviceProvider
-                .GetThoughtByName<WebDriverThoughts>(nameof(WebDriverThoughts));
+            using (BeginSemanticScope(nameof(GetFNBAccountBalancesRawAsync)))
+            {
+                var webDriverThough = _serviceProvider
+                    .GetThoughtByName<WebDriverThoughts>(nameof(WebDriverThoughts));
 
-            webDriverThough.OnPageLoadedAsync = async (driver) => await NavigateToFNBAccountBalancesAsync(
-                driver,
-                _fnbConfig.Username,
-                _fnbConfig.Password
-            );
-            webDriverThough.OnCleanupAsync = OnDoneWithDriverAsync;
+                LogSemanticInformation($"Getting FNB Accounts for user '{_fnbConfig.Username}'.");
 
-            return webDriverThough.LoadTextAsync("https://fnb.co.za", token);
+                webDriverThough.OnPageLoadedAsync = async (driver) => await NavigateToFNBAccountBalancesAsync(
+                    driver,
+                    _fnbConfig.Username,
+                    _fnbConfig.Password
+                );
+                webDriverThough.OnCleanupAsync = OnDoneWithDriverAsync;
+
+                return webDriverThough.LoadWebsiteTextAsync("https://fnb.co.za", token);
+            }
         })
         .AsResilientTask();
     }
@@ -72,6 +77,8 @@ public class FNBThoughts : BaseThought
     /// <param name="password">FNB password.</param>
     private async Task NavigateToFNBAccountBalancesAsync(WebDriver driver, string username, string password)
     {
+        LogSemanticInformation("Filling in the login form.");
+
         var usernameInput = driver.FindElement(By.CssSelector("input#user"));
         var passwordInput = driver.FindElement(By.CssSelector("input#pass"));
         var submitButton = driver.FindElement(By.CssSelector("input#OBSubmit"));
@@ -85,6 +92,7 @@ public class FNBThoughts : BaseThought
 
         var elementToClick = driver.FindElement(By.XPath($"//*[contains(text(), 'Accounts')]"));
 
+        LogSemanticInformation($"Logging in.");
         elementToClick.Click();
 
         // Wait for the navigation to have occured before moving on.
@@ -99,6 +107,7 @@ public class FNBThoughts : BaseThought
     {
         var logoutButton = driver.FindElement(By.CssSelector(".headerButton"));
 
+        LogSemanticInformation($"Logging out.");
         logoutButton.Click();
 
         return Task.CompletedTask;

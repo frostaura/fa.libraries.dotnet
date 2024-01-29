@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 
-namespace Semantic.Core.Examples;
+namespace FrostAura.Libraries.Semantic.Core.Tests.Testing.Logging;
 
 public class Test1
 {
@@ -9,7 +9,7 @@ public class Test1
     private readonly ILogger _logger;
 
     public Test1(Test2 test2, ILogger<Test1> logger)
-	{
+    {
         _logger = logger;
         LogSemanticInformation($"Creating class {GetType().Name}.");
         _test2 = test2;

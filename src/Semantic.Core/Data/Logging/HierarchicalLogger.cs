@@ -1,19 +1,23 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using FrostAura.Libraries.Core.Extensions.Validation;
+using FrostAura.Libraries.Semantic.Core.Models.Logging;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace FrostAura.Libraries.Semantic.Core.Data.Logging;
 
 /// <summary>
 /// A custom logger that allows for status updates.
 /// </summary>
-public class ProgressiveLoggerDataAccess : ILogger
+[DebuggerDisplay("{_callingTypeName}")]
+public class HierarchicalLogger : ILogger
 {
     /// <summary>
     /// The full type name of the calling object.
     /// </summary>
-    private readonly string _categoryName;
+    private readonly string _callingTypeName;
     /// <summary>
     /// Scope information.
     /// </summary>
@@ -22,10 +26,10 @@ public class ProgressiveLoggerDataAccess : ILogger
     /// <summary>
     /// Overloaded constructor to provide depndencies.
     /// </summary>
-    /// <param name="_categoryName">The full type name of the calling object.</param>
-    public ProgressiveLoggerDataAccess(string callingTypeName)
+    /// <param name="callingTypeName">The full type name of the calling object.</param>
+    public HierarchicalLogger(string callingTypeName)
     {
-        _categoryName = callingTypeName
+        _callingTypeName = callingTypeName
             .ThrowIfNullOrWhitespace(nameof(callingTypeName));
         _scopeInformation = new ConcurrentDictionary<int, List<string>>();
     }
@@ -53,7 +57,7 @@ public class ProgressiveLoggerDataAccess : ILogger
 
             _scopeInformation.TryAdd(operationId, new List<string> { scopeName });
 
-            return new ScopeDisposer(operationId, _scopeInformation);
+            return new HierarchicalScope(operationId, _scopeInformation);
         }
 
         return null;
@@ -71,37 +75,30 @@ public class ProgressiveLoggerDataAccess : ILogger
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         var message = formatter(state, exception);
-        var cleanedMessage = message
-            .Split("]]]")
-            .Last();
-        var operationId = GetCurrentOperationId(message);
 
-        if (_scopeInformation.TryGetValue(operationId, out var scopes))
+        try
         {
-            // You can now access information from nested scopes
-            foreach (var scope in scopes)
+            var parsedMessage = JsonConvert.DeserializeObject<LogItem>(message);
+
+            if (_scopeInformation.TryGetValue(parsedMessage.ScopeOperationId, out var scopes))
             {
-                Console.WriteLine($"Scope: {scope}, Message: {cleanedMessage}");
-                // TODO: LogState. For now just 2 levels but supporting nested levels.
-                // TODO: Go through every thought and add info and debug logs as well as scopes.
+                // You can now access information from nested scopes
+                foreach (var scope in scopes)
+                {
+                    Console.WriteLine($"Scope: {scope}, Message: {parsedMessage.Message}");
+                    // TODO: LogState. For now just 2 levels but supporting nested levels.
+                    // TODO: Go through every thought and add info and debug logs as well as scopes.
+                }
             }
         }
-    }
+        catch (Exception)
+        {
+            var consoleColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Red;
 
-    /// <summary>
-    /// Determine the unique operation id based off the incoming message by processing the encoded message.
-    /// </summary>
-    /// <param name="message">Encoded message starting with [[[<OPERATION_ID>]]].</param>
-    /// <returns>The unique operation id for the caller instance.</returns>
-    private int GetCurrentOperationId(string message)
-    {
-        var operationIdStr = message
-            .Split("[[[")
-            .Last()
-            .Split("]]]")
-            .First();
-        int.TryParse(operationIdStr, out var operationId);
+            Console.WriteLine($"Failed to parse error '{message}' as type '{nameof(LogItem)}'.");
 
-        return operationId;
+            Console.ForegroundColor = consoleColor;
+        }
     }
 }

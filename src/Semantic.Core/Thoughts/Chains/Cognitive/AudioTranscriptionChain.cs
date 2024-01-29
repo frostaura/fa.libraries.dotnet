@@ -33,7 +33,7 @@ public class AudioTranscriptionChain : BaseChain
     {
         new Thought
         {
-            Action = $"{nameof(CodeInterpreterThoughts)}.{nameof(CodeInterpreterThoughts.InvokeAsync)}",
+            Action = $"{nameof(CodeInterpreterThoughts)}.{nameof(CodeInterpreterThoughts.InvokePythonAsync)}",
             Reasoning = "I will use my code Python code interpreter to construct a script that can use the OpenAI Whisper model to transcribe the Audio file.",
             Critisism = "I need to ensure that I use the correct package versions so that the Python environment has the required dependencies installed.",
             Arguments = new Dictionary<string, string>

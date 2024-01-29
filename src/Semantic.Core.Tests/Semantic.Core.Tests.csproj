@@ -41,6 +41,9 @@
     <None Remove="Thoughts\Finance\" />
     <None Remove="Thoughts\Chains\Finance\" />
     <None Remove="Data\" />
+    <None Remove="Data\Logging\" />
+    <None Remove="Testing\" />
+    <None Remove="Testing\Logging\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Thoughts\" />
@@ -55,6 +58,9 @@
     <Folder Include="Thoughts\Finance\" />
     <Folder Include="Thoughts\Chains\Finance\" />
     <Folder Include="Data\" />
+    <Folder Include="Data\Logging\" />
+    <Folder Include="Testing\" />
+    <Folder Include="Testing\Logging\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="harvard.wav">

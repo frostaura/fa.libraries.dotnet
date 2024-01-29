@@ -323,7 +323,7 @@ public class YouTubeShortFactualVideoGenerationChain : BaseChain
         #region Edit Video via Code Interpreter
         new Thought
         {
-            Action = $"{nameof(CodeInterpreterThoughts)}.{nameof(CodeInterpreterThoughts.InvokeAsync)}",
+            Action = $"{nameof(CodeInterpreterThoughts)}.{nameof(CodeInterpreterThoughts.InvokePythonAsync)}",
             Reasoning = "I will use my code Python code interpreter to construct a script that can use the MoviePy library to put a creative video together with all the content we now have and respond with the video file's path.",
             Critisism = "I need to ensure that I use the correct package versions so that the Python environment has the required dependencies installed otherwise my Python code may not execute.",
             Arguments = new Dictionary<string, string>

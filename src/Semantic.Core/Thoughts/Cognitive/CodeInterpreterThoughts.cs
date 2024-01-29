@@ -35,7 +35,7 @@ public class CodeInterpreterThoughts : BaseThought
     /// <param name="token">The token to use to request cancellation.</param>
     /// <returns>The response from the Python executed code.</returns>
     [KernelFunction, Description("Execute Python code against a specific version of Python as well as with specific PIP package requirements.")]
-    public async Task<string> InvokeAsync(
+    public async Task<string> InvokePythonAsync(
         [Description("The version of Python to execute code against. For example '3.8'.")] string pythonVersion,
         [Description("A collection of PIP dependencies the Python code requires. The items can either be a package name (Example: 'pandas==1.2.3') or a package name with its version (Example: 'pandas').")] string pipDependencies,
         [Description("A collection of Conda dependencies the Python code requires. The items can either be a package name (Example: 'ffmpeg==1.2.3') or a package name with its version (Example: 'ffmpeg').")] string condaDependencies,
@@ -47,37 +47,45 @@ public class CodeInterpreterThoughts : BaseThought
             ")] string code,
         CancellationToken token = default)
     {
-        if (!code
-                .ThrowIfNullOrWhitespace(nameof(code))
-                .Contains("def main()")) throw new ArgumentException(@"The code block MUST contain a function called 'main' (def main() -> str:) that accepts zero arguments and returns a string. When encountering tilde (~) in file names, you MUST expand it before using it (With os.path.expanduser(target_file) for example). Example:
-                    def some_code_you_generated() -> str:
-                        return 'example output'
-                    def main() -> str:
-                        return some_code_you_generated()
-            ", nameof(code));
+        using (BeginSemanticScope(nameof(InvokePythonAsync)))
+        {
+            if (!code
+            .ThrowIfNullOrWhitespace(nameof(code))
+            .Contains("def main()"))
+            {
+                var exception = new ArgumentException(@"The code block MUST contain a function called 'main' (def main() -> str:) that accepts zero arguments and returns a string. When encountering tilde (~) in file names, you MUST expand it before using it (With os.path.expanduser(target_file) for example). Example:
+                        def some_code_you_generated() -> str:
+                            return 'example output'
+                        def main() -> str:
+                            return some_code_you_generated()
+                ", nameof(code));
 
-        var pythonExecutablePath = await EnsurePythonEnvironmentAndGetPathAsync(
-            pythonVersion.ThrowIfNullOrWhitespace(nameof(pythonVersion)),
-            pipDependencies.Split(' ').ToList(),
-            condaDependencies.Split(' ').ToList(),
-            token);
-        var outputIndicator = "OUTPUT";
-        var executableCode = $"""
+                LogSemanticError($"The Python code block didn't contain a main function.", exception);
+                throw exception;
+            }
+
+            var pythonExecutablePath = await EnsurePythonEnvironmentAndGetPathAsync(
+                pythonVersion.ThrowIfNullOrWhitespace(nameof(pythonVersion)),
+                pipDependencies.Split(' ').ToList(),
+                condaDependencies.Split(' ').ToList(),
+                token);
+            var outputIndicator = "OUTPUT";
+            var executableCode = $"""
                 {code}
 
                 print('{outputIndicator}>>>' + main() + '<<<{outputIndicator}')
                 """;
+            var response = await ExecutePythonProcessAsync(pythonExecutablePath, executableCode, token);
+            var normalizedResponse = response
+                .Split($"{outputIndicator}>>>")
+                .Last()
+                .Split($"<<<{outputIndicator}")
+                .First();
 
-        Console.WriteLine("Executing Python code against the Conda environment with the required depdencies installed.");
+            LogSemanticInformation($"Successfully executed Python code. Response: {normalizedResponse}");
 
-        var response = await ExecutePythonProcessAsync(pythonExecutablePath, executableCode, token);
-        var normalizedResponse = response
-            .Split($"{outputIndicator}>>>")
-            .Last()
-            .Split($"<<<{outputIndicator}")
-            .First();
-
-        return normalizedResponse;
+            return normalizedResponse;
+        }
     }
 
     /// <summary>
@@ -96,14 +104,14 @@ public class CodeInterpreterThoughts : BaseThought
 
         if (!Directory.Exists(environmentPath))
         {
-            Console.WriteLine($"Provisioning a new Conda environment ({environmentPath}).");
+            LogSemanticInformation($"Provisioning a new Conda environment ({environmentPath}).");
             await ExecuteProcessAsync("conda", $"create -y -p {environmentPath} python={pythonVersion}", token);
 
             foreach (var dependency in condaDependencies)
             {
                 if (string.IsNullOrWhiteSpace(dependency)) continue;
 
-                Console.WriteLine($"Installing Conda dependency '{dependency}' into the Conda environment ({environmentPath}).");
+                LogSemanticDebug($"Installing Conda dependency '{dependency}' into the Conda environment ({environmentPath}).");
                 await ExecuteProcessAsync("conda", $"install {dependency} -c conda-forge -y -p {environmentPath}", token);
             }
 
@@ -111,13 +119,13 @@ public class CodeInterpreterThoughts : BaseThought
             {
                 if (string.IsNullOrWhiteSpace(dependency)) continue;
 
-                Console.WriteLine($"Installing PIP dependency '{dependency}' into the Conda environment ({environmentPath}).");
+                LogSemanticDebug($"Installing PIP dependency '{dependency}' into the Conda environment ({environmentPath}).");
                 await ExecuteProcessAsync(pythonExecutablePath, $"-m pip install {dependency}", token);
             }
         }
         else
         {
-            Console.WriteLine($"An environment with the required Python version and dependencies already exists. Using it ({environmentPath}).");
+            LogSemanticInformation($"An environment with the required Python version and dependencies already exists. Using it ({environmentPath}).");
         }
 
         return pythonExecutablePath;
@@ -177,11 +185,15 @@ public class CodeInterpreterThoughts : BaseThought
         // If on Windows, use cmd.exe
         if (Environment.OSVersion.Platform == PlatformID.Win32NT)
         {
+            LogSemanticDebug("Identified Windows as the operating system.");
+
             process.StartInfo.FileName = "cmd.exe";
             process.StartInfo.Arguments = $"/c {fileName} {command}";
         }
         else
         {
+            LogSemanticDebug("Identified Linux-based operating system.");
+
             if (fileName == "conda" && !process.StartInfo.Environment["PATH"].Contains("miniconda3"))
             {
                 fileName = $"~/miniconda3/bin/{fileName}";
@@ -204,11 +216,14 @@ public class CodeInterpreterThoughts : BaseThought
 
         if (process.ExitCode != 0)
         {
-            throw new ApplicationException($"An error occured during the execution of the Python code (see the inner exception).{Environment.NewLine}{Environment.NewLine}{command}", new Exception(error));
+            var exception = new ApplicationException($"An error occured during the execution of the Python code (see the inner exception).{Environment.NewLine}{Environment.NewLine}{command}", new Exception(error));
+
+            LogSemanticError(exception.Message, exception);
+            throw exception;
         }
 
-        if (!string.IsNullOrWhiteSpace(error)) Console.WriteLine(error);
-        Console.WriteLine(output);
+        if (!string.IsNullOrWhiteSpace(error)) LogSemanticError(error);
+        LogSemanticDebug(output);
 
         return output;
     }
@@ -225,16 +240,22 @@ public class CodeInterpreterThoughts : BaseThought
         var process = new Process();
         var tempScriptFilePath = $"{Guid.NewGuid()}.py";
 
+        LogSemanticInformation($"Saving code to execute to a local file '{tempScriptFilePath}'.");
         await File.WriteAllTextAsync(tempScriptFilePath, code, token);
+        LogSemanticDebug($"Executing terminal command: $\"-c \\\"{{fileName}} {{tempScriptFilePath}}\\\"\"");
 
         // If on Windows, use cmd.exe.
         if (Environment.OSVersion.Platform == PlatformID.Win32NT)
         {
+            LogSemanticDebug("Identified Windows as the operating system.");
+
             process.StartInfo.FileName = "cmd.exe";
             process.StartInfo.Arguments = $"-c \"{fileName} {tempScriptFilePath}\"";
         }
         else
         {
+            LogSemanticDebug("Identified Linux-based operating system.");
+
             if (fileName == "conda" && !process.StartInfo.Environment["PATH"].Contains("miniconda3"))
             {
                 fileName = $"~/miniconda3/bin/{fileName}";
@@ -257,11 +278,14 @@ public class CodeInterpreterThoughts : BaseThought
 
         if (process.ExitCode != 0)
         {
-            throw new ApplicationException($"An error occured during the execution of the Python code (see the inner exception).{Environment.NewLine}{Environment.NewLine}{code}", new Exception(error));
+            var exception = new ApplicationException($"An error occured during the execution of the Python code (see the inner exception).{Environment.NewLine}{Environment.NewLine}{code}", new Exception(error));
+
+            LogSemanticError(exception.Message, exception);
+            throw exception;
         }
 
-        if (!string.IsNullOrWhiteSpace(error)) Console.WriteLine(error);
-        Console.WriteLine(output);
+        if (!string.IsNullOrWhiteSpace(error)) LogSemanticError(error);
+        LogSemanticDebug(output);
 
         return output;
     }
