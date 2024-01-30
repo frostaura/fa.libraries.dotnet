@@ -92,13 +92,6 @@ public class HierarchicalLogger : ILogger
             }
         }
         catch (Exception)
-        {
-            var consoleColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Red;
-
-            Console.WriteLine($"Failed to parse error '{message}' as type '{nameof(LogItem)}'.");
-
-            Console.ForegroundColor = consoleColor;
-        }
+        { /* Ignore non-semantic errors. */ }
     }
 }
