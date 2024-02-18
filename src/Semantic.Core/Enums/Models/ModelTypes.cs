@@ -8,5 +8,6 @@ public enum ModelType
 	LargeLLM,
 	SmallLLM,
 	Embedding,
-	ImageGeneration
+	ImageGeneration,
+	Vision
 }

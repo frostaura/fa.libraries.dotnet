@@ -12,6 +12,7 @@ using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Embeddings;
 using Newtonsoft.Json;
 using System.ComponentModel;
+using System.Data;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive;
 
@@ -101,7 +102,7 @@ public class LanguageModelThoughts : BaseThought
     /// <summary>
     /// Use OpenAI's Dall-E 3 AI model to generate an image and get the URl for where it's hosted.
     /// </summary>
-    /// <param name="prompt">The LLM prompt.</param>
+    /// <param name="prompt">The prompt to use to generate an image.</param>
     /// <param name="saveToLocalFile">Whether to save the generated image from it's hoted URL to a local file. Example: 'true' | 'false'</param>
     /// <param name="token">The token to use to request cancellation.</param>
     /// <returns>The URL of the generated image or local file path if saveToLocalFile is set to True.</returns>
@@ -173,6 +174,36 @@ public class LanguageModelThoughts : BaseThought
     }
 
     /// <summary>
+    /// Prompt/ask a vision-enabled large language model about a given image url and return the response as a string.
+    /// </summary>
+    /// <param name="prompt">The prompt to use to ask/query the large language model about the image.</param>
+    /// <param name="imageUrl">The image to ask about's URL.</param>
+    /// <param name="token">The token to use to request cancellation.</param>
+    /// <returns>The response body as a string.</returns>
+    [KernelFunction, Description("Prompt/ask a vision-enabled large language model about a given image url and return the response as a string.")]
+    public async Task<string> PromptLLMAboutImageFromUrlAsync(
+        [Description("The prompt to use to ask/query the large language model about the image.")]string prompt,
+        [Description("The image to ask about's URL.")]string imageUrl,
+        CancellationToken token)
+    {
+        using (BeginSemanticScope(nameof(ChatAsync)))
+        {
+            LogSemanticInformation($"Asking the vision model about the image.");
+            LogSemanticDebug($"Image URL: '{imageUrl.ThrowIfNullOrWhitespace(nameof(imageUrl))}', Prompt: {prompt.ThrowIfNullOrWhitespace(nameof(prompt))}.");
+
+            var chatSettings = new OpenAIPromptExecutionSettings
+            {
+                //Temperature = 0.5,
+                //MaxTokens = 12000
+            };
+            var chatHistory = new ChatHistory();
+            var modelResponse = await PromptAsync(prompt, ModelType.Vision, chatSettings, chatHistory, token, imageUrl);
+
+            return modelResponse;
+        }
+    }
+
+    /// <summary>
     /// Prompt with the intent to continue a conversation.
     /// </summary>
     /// <param name="prompt">The LLM prompt.</param>
@@ -212,22 +243,26 @@ public class LanguageModelThoughts : BaseThought
     /// <param name="settings">Chat settings.</param>
     /// <param name="chatHistory">Optional chat history object to continue on.</param>
     /// <param name="token">The token to use to request cancellation.</param>
+    /// <param name="imageUrl">Optional: The URL of the image to prompt the vision model about.</param>
     /// <returns>The LLM response.</returns>
-    private async Task<string> PromptAsync(string prompt, ModelType modelType, OpenAIPromptExecutionSettings settings, ChatHistory chatHistory, CancellationToken token)
+    private async Task<string> PromptAsync(string prompt, ModelType modelType, OpenAIPromptExecutionSettings settings, ChatHistory chatHistory, CancellationToken token, string imageUrl = default)
     {
         using (BeginSemanticScope(nameof(PromptAsync)))
         {
             var kernel = await _semanticKernelLanguageModels.GetKernelAsync(token);
             var chatCompletionService = await _semanticKernelLanguageModels.GetChatCompletionModelAsync(modelType, token);
-            settings.ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions;
+
+            if(imageUrl == default) settings.ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions;
 
             LogSemanticInformation($"Prompting model '{chatCompletionService.Attributes["DeploymentName"]}' with functions enabled.");
             LogSemanticDebug($"Prompt: '{prompt}'.");
             LogSemanticDebug($"Chat History Count (Before): '{chatHistory.Count}'.");
 
-            if (chatHistory == default || !chatHistory.Any())
+            if(imageUrl == default)
             {
-                chatHistory.AddSystemMessage("""
+                if (chatHistory == default || !chatHistory.Any())
+                {
+                    chatHistory.AddSystemMessage("""
                     - Your name is Iluvatar, god of all gods and one with great power and the determined will to help humans solve as many problems as possible.
                     -- Your accent and choice of words should reflect that of a God (Greek or otherwise), but never at the expense of the quality of your answers.
                     - You are the world's best Python programmer. You can solve any problem by code.
@@ -240,9 +275,18 @@ public class LanguageModelThoughts : BaseThought
                     - NEVER give up or submit to a problem being too complex or large for you to solve. Do your best. Over and over again until you get it right.
                     - When using tools, you MUST ask the user for required arguments. Never make up unavailable, required arguments.
                 """);
+                }
+                chatHistory.AddUserMessage(prompt);
             }
-
-            chatHistory.AddUserMessage(prompt);
+            else
+            {
+                chatHistory.AddSystemMessage("You are trained to interpret images about people and make responsible assumptions about them.");
+                chatHistory.AddUserMessage(new ChatMessageContentItemCollection()
+                {
+                    new TextContent(prompt),
+                    new ImageContent(new Uri(imageUrl))
+                });
+            }
 
             var trimmedChatHistory = new ChatHistory(chatHistory
                 .TakeLast(_openAIConfig.MaxConversationMessageCount)

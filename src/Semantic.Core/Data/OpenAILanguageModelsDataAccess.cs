@@ -155,6 +155,7 @@ public class OpenAILanguageModelsDataAccess : ISemanticKernelLanguageModelsDataA
                 .Services
                 .AddOpenAIChatCompletion(_openAIConfig.LargeModelName, _openAIConfig.ApiKey, serviceId: ModelType.LargeLLM.ToString(), orgId: _openAIConfig.OrgId)
                 .AddOpenAIChatCompletion(_openAIConfig.SmallModelName, _openAIConfig.ApiKey, serviceId: ModelType.SmallLLM.ToString(), orgId: _openAIConfig.OrgId)
+                .AddOpenAIChatCompletion(_openAIConfig.VisionModelName, _openAIConfig.ApiKey, serviceId: ModelType.Vision.ToString(), orgId: _openAIConfig.OrgId)
                 .AddOpenAITextEmbeddingGeneration(_openAIConfig.EmbeddingModelName, _openAIConfig.ApiKey, serviceId: ModelType.Embedding.ToString(), orgId: _openAIConfig.OrgId)
                 .AddOpenAITextToImage(_openAIConfig.ApiKey, serviceId: ModelType.ImageGeneration.ToString(), orgId: _openAIConfig.OrgId);
         }
@@ -165,6 +166,7 @@ public class OpenAILanguageModelsDataAccess : ISemanticKernelLanguageModelsDataA
                 .Services
                 .AddAzureOpenAIChatCompletion(_openAIConfig.LargeModelName, _openAIConfig.Endpoint, _openAIConfig.ApiKey, serviceId: ModelType.LargeLLM.ToString())
                 .AddAzureOpenAIChatCompletion(_openAIConfig.SmallModelName, _openAIConfig.Endpoint, _openAIConfig.ApiKey, serviceId: ModelType.SmallLLM.ToString())
+                .AddAzureOpenAIChatCompletion(_openAIConfig.VisionModelName, _openAIConfig.Endpoint, _openAIConfig.ApiKey, serviceId: ModelType.Vision.ToString())
                 .AddAzureOpenAITextEmbeddingGeneration(_openAIConfig.EmbeddingModelName, _openAIConfig.Endpoint, _openAIConfig.ApiKey, serviceId: ModelType.Embedding.ToString())
                 .AddAzureOpenAITextToImage(_openAIConfig.TextToImageModelName, _openAIConfig.Endpoint, _openAIConfig.ApiKey, serviceId: ModelType.ImageGeneration.ToString());
         }

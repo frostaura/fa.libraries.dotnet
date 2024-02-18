@@ -25,6 +25,10 @@ public class OpenAIConfig
     /// </summary>
     public string TextToImageModelName { get; set; }
     /// <summary>
+    /// The name of the vision model.
+    /// </summary>
+    public string VisionModelName { get; set; }
+    /// <summary>
     /// The endpoint to use for the OpenAI service. If null, the public OpenAI server is configured by default.
     /// </summary>
     public string Endpoint { get; set; }
