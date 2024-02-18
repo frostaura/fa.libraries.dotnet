@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>FrostAura.Libraries.Intelligence.Semantic.Core</id>
-        <version>1.5.0</version>
+        <version>1.5.1</version>
         <title>FrostAura.Libraries.Intelligence.Semantic.Core</title>
         <authors>Dean Martin</authors>
         <owners>FrostAura</owners>
@@ -13,28 +13,28 @@
         <summary />
         <dependencies>
             <group targetFramework="net7.0">
-                <dependency id="ElevenLabs-DotNet" version="2.1.0" />
+                <dependency id="ElevenLabs-DotNet" version="2.1.1" />
                 <dependency id="FrostAura.Libraries.Core" version="7.1.0" />
                 <dependency id="Google.Apis" version="1.66.0" />
                 <dependency id="Google.Apis.Auth" version="1.66.0" />
-                <dependency id="Google.Apis.YouTube.v3" version="1.66.0.3309" />
+                <dependency id="Google.Apis.YouTube.v3" version="1.66.0.3330" />
                 <dependency id="Microsoft.Extensions.Configuration" version="8.0.0" />
                 <dependency id="Microsoft.Extensions.Configuration.EnvironmentVariables" version="8.0.0" />
                 <dependency id="Microsoft.Extensions.Configuration.Json" version="8.0.0" />
                 <dependency id="Microsoft.Extensions.Configuration" version="8.0.0" />
                 <dependency id="Microsoft.Extensions.DependencyInjection" version="8.0.0" />
                 <dependency id="Microsoft.Extensions.Http" version="8.0.0" />
-                <dependency id="Microsoft.Extensions.Http.Polly" version="8.0.1" />
-                <dependency id="Microsoft.Extensions.Http.Resilience" version="8.0.1" />
+                <dependency id="Microsoft.Extensions.Http.Polly" version="8.0.2" />
+                <dependency id="Microsoft.Extensions.Http.Resilience" version="8.2.0" />
                 <dependency id="Microsoft.Extensions.Logging" version="8.0.0" />
                 <dependency id="Microsoft.Extensions.Logging.Abstractions" version="8.0.0" />
                 <dependency id="Microsoft.Extensions.Logging.Debug" version="8.0.0" />
-                <dependency id="Microsoft.SemanticKernel" version="1.2.0" />
+                <dependency id="Microsoft.SemanticKernel" version="1.4.0" />
                 <dependency id="Microsoft.SemanticKernel.Connectors.Memory.Pinecone" version="1.0.0-rc3" />
                 <dependency id="Newtonsoft.Json" version="13.0.3" />
                 <dependency id="PexelsDotNetSDK" version="1.0.11" />
-                <dependency id="Polly" version="8.2.1" />
-                <dependency id="Polly.Core" version="8.2.1" />
+                <dependency id="Polly" version="8.3.0" />
+                <dependency id="Polly.Core" version="8.3.0" />
                 <dependency id="Polly.Extensions.Http" version="3.0.0" />
                 <dependency id="Selenium.WebDriver" version="4.17.0" />
             </group>
