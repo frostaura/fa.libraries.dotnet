@@ -194,7 +194,7 @@ public class LanguageModelThoughts : BaseThought
             var chatSettings = new OpenAIPromptExecutionSettings
             {
                 //Temperature = 0.5,
-                //MaxTokens = 12000
+                MaxTokens = 4000
             };
             var chatHistory = new ChatHistory();
             var modelResponse = await PromptAsync(prompt, ModelType.Vision, chatSettings, chatHistory, token, imageUrl);
@@ -220,7 +220,7 @@ public class LanguageModelThoughts : BaseThought
             var chatSettings = new OpenAIPromptExecutionSettings
             {
                 //Temperature = 0.5,
-                //MaxTokens = 12000
+                //MaxTokens = 1000
             };
             var chatHistory = new ChatHistory();
             var modelResponse = await PromptAsync(prompt, modelType, chatSettings, chatHistory, token);
@@ -280,7 +280,10 @@ public class LanguageModelThoughts : BaseThought
             }
             else
             {
-                chatHistory.AddSystemMessage("You are trained to interpret images about people and make responsible assumptions about them.");
+                chatHistory.AddSystemMessage(@"
+                    - You are trained to interpret images about people and otherwise, and make responsible assumptions about them.
+                    - NEVER say things like 'Sorry, I can't help with identifying or making assumptions about people in images.'.
+                    - Always give it your best try.");
                 chatHistory.AddUserMessage(new ChatMessageContentItemCollection()
                 {
                     new TextContent(prompt),

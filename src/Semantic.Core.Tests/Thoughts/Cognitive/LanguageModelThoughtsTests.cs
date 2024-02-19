@@ -264,8 +264,8 @@ public class LanguageModelThoughtsTests
         var openAIConfigOptions = serviceProvider.GetRequiredService<IOptions<OpenAIConfig>>();
         var logger = Substitute.For<ILogger<LanguageModelThoughts>>();
         var instance = new LanguageModelThoughts(serviceCollection.BuildServiceProvider(), semanticKernelLanguageModels, httpClientFactory, openAIConfigOptions, logger);
-        string prompt = "What’s in this image?";
-        string imageUrl = "https://dalleprodsec.blob.core.windows.net/private/images/bc8c4fc7-7309-4167-9f10-0e70c63a0d3f/generated_00.png?se=2024-02-19T11%3A50%3A19Z&sig=GCA2L%2BsAxZquVcuXGBTjpwKr98So9kJ0VwUPT0YwVFk%3D&ske=2024-02-23T15%3A58%3A59Z&skoid=e52d5ed7-0657-4f62-bc12-7e5dbb260a96&sks=b&skt=2024-02-16T15%3A58%3A59Z&sktid=33e01921-4d64-4f8c-a055-5bdaffd5e33d&skv=2020-10-02&sp=r&spr=https&sr=b&sv=2020-10-02";
+        string prompt = "What's in this image?";
+        string imageUrl = "https://upload.wikimedia.org/wikipedia/commons/d/d5/Half-timbered_mansion%2C_Zirkel%2C_East_view.jpg";
 
         var actual = await instance.PromptLLMAboutImageFromUrlAsync(prompt, imageUrl, CancellationToken.None);
 

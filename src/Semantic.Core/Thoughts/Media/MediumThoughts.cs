@@ -84,13 +84,13 @@ public class MediumThoughts : BaseThought
                     LogSemanticDebug("Generating a poster image.");
 
                     var llmThoughts = (LanguageModelThoughts)_serviceProvider.GetThoughtByName(nameof(LanguageModelThoughts));
-                    var dallEPrompt = await llmThoughts.PromptSmallLLMAsync("You are the world's best prompt engineer for AI models that generate images. Like Dall-E 2, 3 and Midjourney. You take a title for a blog and transform it to a creative but relevant to the content prompt that can be used to generate an image." +
+                    var dallEPrompt = await llmThoughts.PromptLLMAsync("You are the world's best prompt engineer for the Dall-E 3 text to image model. You take a title for a blog and transform it to a creative but relevant to the content prompt that can be used to generate an image." +
                         $"Title: {title.ThrowIfNullOrWhitespace(nameof(title))}" +
-                        "Prompt: ", token);
+                        "Dall-E 3 Prompt: ", token);
                     var dallEImageUrl = await llmThoughts.GenerateImageAndGetUrlAsync(dallEPrompt, token: token);
                     var contentHeader = $@"
                     <figure>
-                      <img src=""{dallEImageUrl}"">
+                      <img src=""{dallEImageUrl}"" alt=""{dallEPrompt}"">
                       <figcaption>Photo by Dall-E 3 (https://bing.com/create).</figcaption>
                     </figure>
                     <hr>
