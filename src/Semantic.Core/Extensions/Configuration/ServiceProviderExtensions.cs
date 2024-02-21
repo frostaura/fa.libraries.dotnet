@@ -81,7 +81,7 @@ public static class ServiceProviderExtensions
 
         var response = services
             .AddLogging()
-            .AddTransient<ILoggerProvider, HierarchicalLoggerProvider>()
+            .AddSingleton<ILoggerProvider, HierarchicalLoggerProvider>()
             .AddHttpClient()
             .AddSemanticConfig(semanticConfig.ThrowIfNull(nameof(semanticConfig)))
             .AddSemanticServices(semanticConfig);

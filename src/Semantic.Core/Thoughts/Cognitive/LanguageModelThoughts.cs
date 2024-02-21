@@ -186,7 +186,7 @@ public class LanguageModelThoughts : BaseThought
         [Description("The image to ask about's URL.")]string imageUrl,
         CancellationToken token)
     {
-        using (BeginSemanticScope(nameof(ChatAsync)))
+        using (BeginSemanticScope(nameof(PromptLLMAboutImageFromUrlAsync)))
         {
             LogSemanticInformation($"Asking the vision model about the image.");
             LogSemanticDebug($"Image URL: '{imageUrl.ThrowIfNullOrWhitespace(nameof(imageUrl))}', Prompt: {prompt.ThrowIfNullOrWhitespace(nameof(prompt))}.");
@@ -215,7 +215,7 @@ public class LanguageModelThoughts : BaseThought
         using (BeginSemanticScope(nameof(ChatAsync)))
         {
             LogSemanticInformation($"Staring a new conversation.");
-            LogSemanticDebug($"First Message: '{prompt}'.");
+            LogSemanticInformation($"First Message: '{prompt}'.");
 
             var chatSettings = new OpenAIPromptExecutionSettings
             {

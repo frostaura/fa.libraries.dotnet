@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using FrostAura.Libraries.Core.Extensions.Validation;
+﻿using FrostAura.Libraries.Core.Extensions.Validation;
 using FrostAura.Libraries.Semantic.Core.Enums.Logging;
 using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
 using FrostAura.Libraries.Semantic.Core.Models.Logging;
@@ -56,7 +55,6 @@ public abstract class BaseThought
     {
         var logItem = new LogItem
         {
-            ScopeOperationId = RuntimeHelpers.GetHashCode(this),
             Message = message,
             Type = LogType.Information
         };
@@ -72,7 +70,6 @@ public abstract class BaseThought
     {
         var logItem = new LogItem
         {
-            ScopeOperationId = RuntimeHelpers.GetHashCode(this),
             Message = message,
             Type = LogType.Debug
         };
@@ -89,7 +86,6 @@ public abstract class BaseThought
     {
         var logItem = new LogItem
         {
-            ScopeOperationId = RuntimeHelpers.GetHashCode(this),
             Message = message,
             Type = LogType.Error
         };

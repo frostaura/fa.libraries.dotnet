@@ -278,7 +278,7 @@ public class CodeInterpreterThoughts : BaseThought
 
         if (process.ExitCode != 0)
         {
-            var exception = new ApplicationException($"An error occured during the execution of the Python code (see the inner exception).{Environment.NewLine}{Environment.NewLine}{code}", new Exception(error));
+            var exception = new ApplicationException($"An error occured during the execution of the Python code (see the inner exception).{Environment.NewLine}{Environment.NewLine}{code}{Environment.NewLine}Error: {error}", new Exception(error));
 
             LogSemanticError(exception.Message, exception);
             throw exception;

@@ -1,7 +1,6 @@
-﻿using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using FrostAura.Libraries.Core.Extensions.Validation;
+﻿using FrostAura.Libraries.Core.Extensions.Validation;
+using FrostAura.Libraries.Semantic.Core.Data.Adapters;
+using FrostAura.Libraries.Semantic.Core.Enums.Logging;
 using FrostAura.Libraries.Semantic.Core.Models.Logging;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -11,27 +10,26 @@ namespace FrostAura.Libraries.Semantic.Core.Data.Logging;
 /// <summary>
 /// A custom logger that allows for status updates.
 /// </summary>
-[DebuggerDisplay("{_callingTypeName}")]
 public class HierarchicalLogger : ILogger
 {
     /// <summary>
-    /// The full type name of the calling object.
+    /// Scopes collection.
     /// </summary>
-    private readonly string _callingTypeName;
+    private readonly List<LogItem> _scopes;
     /// <summary>
-    /// Scope information.
+    /// Handler for when logs occur.
     /// </summary>
-    private readonly ConcurrentDictionary<int, List<string>> _scopeInformation;
+    private readonly Action<List<LogItem>, LogItem> _onEventHandler;
 
     /// <summary>
     /// Overloaded constructor to provide depndencies.
     /// </summary>
-    /// <param name="callingTypeName">The full type name of the calling object.</param>
-    public HierarchicalLogger(string callingTypeName)
+    /// <param name="onEventHandler">Handler for when logs occur.</param>
+    public HierarchicalLogger(Action<List<LogItem>, LogItem> onEventHandler)
     {
-        _callingTypeName = callingTypeName
-            .ThrowIfNullOrWhitespace(nameof(callingTypeName));
-        _scopeInformation = new ConcurrentDictionary<int, List<string>>();
+        _scopes = new List<LogItem>();
+        _onEventHandler = onEventHandler
+            .ThrowIfNull(nameof(onEventHandler));
     }
 
     /// <summary>
@@ -53,11 +51,28 @@ public class HierarchicalLogger : ILogger
             scopeKeyValue.Key is string scopeName &&
             scopeKeyValue.Value is object callerInstance)
         {
-            var operationId = RuntimeHelpers.GetHashCode(callerInstance);
+            var scopeLogItem = new LogItem
+            {
+                Message = scopeName,
+                Type = LogType.ScopeRoot,
+                Status = LogStatus.Busy
+            };
 
-            _scopeInformation.TryAdd(operationId, new List<string> { scopeName });
+            // Determine the parent of the item, if any.
+            var activeScopesDesc = _scopes
+                .Where(s => s.Status == LogStatus.Busy && s.Type == LogType.ScopeRoot)
+                .Reverse()
+                .FirstOrDefault();
 
-            return new HierarchicalScope(operationId, _scopeInformation);
+            if (activeScopesDesc != default)
+            {
+                scopeLogItem.Scope = activeScopesDesc;
+            }
+
+            scopeLogItem.Attributes.Add("CallerInstance", callerInstance);
+            _scopes.Add(scopeLogItem);
+
+            return new DisposableAdapter(() => scopeLogItem.Status = LogStatus.Succeeded);
         }
 
         return null;
@@ -80,18 +95,21 @@ public class HierarchicalLogger : ILogger
         {
             var parsedMessage = JsonConvert.DeserializeObject<LogItem>(message);
 
-            if (_scopeInformation.TryGetValue(parsedMessage.ScopeOperationId, out var scopes))
-            {
-                // You can now access information from nested scopes
-                foreach (var scope in scopes)
-                {
-                    Console.WriteLine($"Scope: {scope}, Message: {parsedMessage.Message}");
-                    // TODO: LogState. For now just 2 levels but supporting nested levels.
-                    // TODO: Go through every thought and add info and debug logs as well as scopes.
-                }
-            }
+            if (parsedMessage == default) return;
+
+            // Determine log item's parent scope.
+            var activeScopesLatestFirst = _scopes
+                .Where(s => s.Status == LogStatus.Busy && s.Type == LogType.ScopeRoot)
+                .Reverse();
+            var activeScope = activeScopesLatestFirst.FirstOrDefault();
+            parsedMessage.Scope = activeScope;
+            parsedMessage.Status = LogStatus.Busy;
+
+            activeScope?.Logs.ForEach(l => l.Status = LogStatus.Succeeded);
+            activeScope?.Logs.Add(parsedMessage);
+            _onEventHandler.Invoke(_scopes, parsedMessage);
         }
-        catch (Exception)
+        catch (Exception e)
         { /* Ignore non-semantic errors. */ }
     }
 }

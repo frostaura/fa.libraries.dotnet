@@ -5,6 +5,7 @@
 /// </summary>
 public enum LogType
 {
+    ScopeRoot,
     Information,
     Debug,
     Error
