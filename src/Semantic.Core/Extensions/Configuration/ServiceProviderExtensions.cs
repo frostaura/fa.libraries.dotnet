@@ -84,7 +84,7 @@ public static class ServiceProviderExtensions
             .AddTransient<ILoggerProvider, HierarchicalLoggerProvider>()
             .AddHttpClient()
             .AddSemanticConfig(semanticConfig.ThrowIfNull(nameof(semanticConfig)))
-            .AddSemanticServices();
+            .AddSemanticServices(semanticConfig);
 
         if (includeCoreSkills) response.AddSemanticThoughts(Assembly.GetAssembly(typeof(BaseThought)));
 
@@ -124,6 +124,7 @@ public static class ServiceProviderExtensions
             .AddSingleton(Options.Create(config.FNBConfig))
             .AddSingleton(Options.Create(config.SemanticMemoryConfig))
             .AddSingleton(Options.Create(config.MediumConfig))
+            .AddSingleton(Options.Create(config.AppConfig))
             .AddSingleton(Options.Create(config));
     }
 
@@ -131,8 +132,9 @@ public static class ServiceProviderExtensions
     /// Add all Semantic Kernel dependency services.
     /// </summary>
     /// <param name="services">Services collection to add to.</param>
+    /// <param name="config">Configuration to use.</param>
     /// <returns>The ammended collection.</returns>
-    private static IServiceCollection AddSemanticServices(this IServiceCollection services)
+    private static IServiceCollection AddSemanticServices(this IServiceCollection services, SemanticConfig config)
     {
         return services
             .AddSingleton<ISemanticKernelLanguageModelsDataAccess, OpenAILanguageModelsDataAccess>();

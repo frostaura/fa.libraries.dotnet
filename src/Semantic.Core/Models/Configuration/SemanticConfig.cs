@@ -5,6 +5,10 @@
 /// </summary>
 public class SemanticConfig
 {
+    // <summary>
+    /// App config.
+    /// </summary>
+    public AppConfig AppConfig { get; set; }
     /// <summary>
     /// OpenAI config.
     /// </summary>

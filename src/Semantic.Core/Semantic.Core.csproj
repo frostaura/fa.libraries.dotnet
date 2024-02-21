@@ -80,7 +80,7 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="PexelsDotNetSDK" Version="1.0.11" />
     <PackageReference Include="ElevenLabs-DotNet" Version="2.1.1" />
-    <PackageReference Include="Selenium.WebDriver" Version="4.17.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.18.1" />
     <PackageReference Include="Google.Apis.YouTube.v3" Version="1.66.0.3330" />
     <PackageReference Include="Google.Apis.Auth" Version="1.66.0" />
     <PackageReference Include="Google.Apis" Version="1.66.0" />
