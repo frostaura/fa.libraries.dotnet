@@ -31,7 +31,6 @@ public class ConsoleUserAgentProxy : IUserProxyDataAccess
     /// <returns>Void</returns>
     public Task OnEventAsync(List<LogItem> scopes, LogItem currentEvent)
     {
-        //Console.Clear();
         var formattedLog = scopes
             .Where(s => s.Scope == default)
             .Select(s => GetEventTreeLogRecursively(scopes, s))
