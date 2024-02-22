@@ -89,10 +89,9 @@ public class HierarchicalLogger : ILogger
     /// <param name="formatter">Formatter to generate the final output.</param>
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        var message = formatter(state, exception);
-
         try
         {
+            var message = formatter(state, exception);
             var parsedMessage = JsonConvert.DeserializeObject<LogItem>(message);
 
             if (parsedMessage == default) return;
@@ -110,6 +109,9 @@ public class HierarchicalLogger : ILogger
             _onEventHandler.Invoke(_scopes, parsedMessage);
         }
         catch (Exception e)
-        { /* Ignore non-semantic errors. */ }
+        {
+            /* Ignore non-semantic errors. */
+            Console.WriteLine($"[ERROR][{GetType().Name}] {e.Message}");
+        }
     }
 }

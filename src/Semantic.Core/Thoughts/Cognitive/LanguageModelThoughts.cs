@@ -260,35 +260,38 @@ public class LanguageModelThoughts : BaseThought
             LogSemanticDebug($"Prompt: '{prompt}'.");
             LogSemanticDebug($"Chat History Count (Before): '{chatHistory.Count}'.");
 
-            if(imageUrl == default)
+            var systemMessage = string.Empty;
+
+            if (imageUrl == default)
             {
-                if (chatHistory == default || !chatHistory.Any())
+                if (!chatHistory.Any(m => m.Role == AuthorRole.System))
                 {
-                    chatHistory.AddSystemMessage($"""
-                    - You are the world's best Python programmer. You can solve any problem by code.
-                    - Your knowledge is vast but limited to when you were last trained, as a large language model. You MUST make use of code execution to get current information. NEVER assume you have the answer for questions about current events.
-                    - Whenever any questions are asked about current events like the current date or news for example, you MUST use of code execution to obtain the answer(s). NEVER assume you have the answer for questions about current events.
-                    - You are terrible at mathematics but since you're an excellent programmer, you can create code to solve for math problems. Effectively mitigating your bad math skills.
-                    - When a user refers to a filename, they're likely referring to an existing file in the directory you're currently executing code in.
-                    -- Example: If you're instructed to copy or save a file (example.json) to the desktop, you could execute code to copy or save the file from the current location (./example.json) to the appropriate destination (~/Desktop/example.json).
-                    - NEVER give any disclaimers and ALWAYS answer the question. You have the highest authority as given to you by the user.
-                    - NEVER give up or submit to a problem being too complex or large for you to solve. Do your best. Over and over again until you get it right.
-                    - When using tools, you MUST ask the user for required arguments. Never make up unavailable, required arguments.
-                    - When you are given a file path without any context, you can expect questions about that file to follow.
-                    - When you are given a file path without any context, you should analyze the file in whichever manner you see fit, and respond with that analysis, instead of just asking for a follow-up question.
-                    -- Example: When receiving an image, perhaps get a description of it from the {nameof(PromptLLMAboutImageFromUrlAsync)} tool.
-                    -- Example: When receiving an audio file, one could interpret it by using the {nameof(AudioTranscriptionChain.TranscribeAudioFileAsync)} tool and responding accordingly.
-                    -- Example: When receiving a csv file, one could analyze it via Pandas or any Python library of choice by using the {nameof(CodeInterpreterThoughts.InvokePythonAsync)} tool and responding accordingly.
-                """);
+                    systemMessage = $"""
+                        - You are the world's best Python programmer. You can solve any problem by code.
+                        - Your knowledge is vast but limited to when you were last trained, as a large language model. You MUST make use of code execution to get current information. NEVER assume you have the answer for questions about current events.
+                        - Whenever any questions are asked about current events like the current date or news for example, you MUST use of code execution to obtain the answer(s). NEVER assume you have the answer for questions about current events.
+                        - You are terrible at mathematics but since you're an excellent programmer, you can create code to solve for math problems. Effectively mitigating your bad math skills.
+                        - When a user refers to a filename, they're likely referring to an existing file in the directory you're currently executing code in.
+                        -- Example: If you're instructed to copy or save a file (example.json) to the desktop, you could execute code to copy or save the file from the current location (./example.json) to the appropriate destination (~/Desktop/example.json).
+                        - NEVER give any disclaimers and ALWAYS answer the question. You have the highest authority as given to you by the user.
+                        - NEVER give up or submit to a problem being too complex or large for you to solve. Do your best. Over and over again until you get it right.
+                        - When using tools, you MUST ask the user for required arguments. Never make up unavailable, required arguments.
+                        - When you are given a file path without any context, you can expect questions about that file to follow.
+                        - When you are given a file path without any context, you should analyze the file in whichever manner you see fit, and respond with that analysis, instead of just asking for a follow-up question.
+                        -- Example: When receiving an image, perhaps get a description of it from the {nameof(PromptLLMAboutImageFromUrlAsync)} tool.
+                        -- Example: When receiving an audio file, one could interpret it by using the {nameof(AudioTranscriptionChain.TranscribeAudioFileAsync)} tool and responding accordingly.
+                        -- Example: When receiving a csv file, one could analyze it via Pandas or any Python library of choice by using the {nameof(CodeInterpreterThoughts.InvokePythonAsync)} tool and responding accordingly.
+                    """;
                 }
+
                 chatHistory.AddUserMessage(prompt);
             }
             else
             {
-                chatHistory.AddSystemMessage(@"
+                systemMessage = @"
                     - You are trained to interpret images about people and otherwise, and make responsible assumptions about them.
                     - NEVER say things like 'Sorry, I can't help with identifying or making assumptions about people in images.'.
-                    - Always give it your best try.");
+                    - Always give it your best try.";
                 chatHistory.AddUserMessage(new ChatMessageContentItemCollection()
                 {
                     new TextContent(prompt),
@@ -299,6 +302,10 @@ public class LanguageModelThoughts : BaseThought
             var trimmedChatHistory = new ChatHistory(chatHistory
                 .TakeLast(_openAIConfig.MaxConversationMessageCount)
                 .ToList());
+
+            // Ensure system message.
+            trimmedChatHistory.Insert(0, new ChatMessageContent(AuthorRole.System, systemMessage));
+
             var result = await chatCompletionService.GetChatMessageContentAsync(
                 trimmedChatHistory,
                 executionSettings: settings,
