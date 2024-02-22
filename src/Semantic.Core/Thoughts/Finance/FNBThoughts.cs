@@ -49,12 +49,12 @@ public class FNBThoughts : BaseThought
     {
         return Task.Run(() =>
         {
-            using (BeginSemanticScope(nameof(GetFNBAccountBalancesRawAsync)))
+            using (_logger.BeginScope("{MethodName}", nameof(GetFNBAccountBalancesRawAsync)))
             {
                 var webDriverThough = _serviceProvider
                     .GetThoughtByName<WebDriverThoughts>(nameof(WebDriverThoughts));
 
-                LogSemanticInformation($"Getting FNB Accounts for user '{_fnbConfig.Username}'.");
+                _logger.LogInformation("Getting FNB Accounts for user {Username}.", _fnbConfig.Username);
 
                 webDriverThough.OnPageLoadedAsync = async (driver) => await NavigateToFNBAccountBalancesAsync(
                     driver,
@@ -77,26 +77,29 @@ public class FNBThoughts : BaseThought
     /// <param name="password">FNB password.</param>
     private async Task NavigateToFNBAccountBalancesAsync(WebDriver driver, string username, string password)
     {
-        LogSemanticInformation("Filling in the login form.");
+        using (_logger.BeginScope("{MethodName}", nameof(NavigateToFNBAccountBalancesAsync)))
+        {
+            _logger.LogInformation("Filling in the login form for {Username}.", username);
 
-        var usernameInput = driver.FindElement(By.CssSelector("input#user"));
-        var passwordInput = driver.FindElement(By.CssSelector("input#pass"));
-        var submitButton = driver.FindElement(By.CssSelector("input#OBSubmit"));
+            var usernameInput = driver.FindElement(By.CssSelector("input#user"));
+            var passwordInput = driver.FindElement(By.CssSelector("input#pass"));
+            var submitButton = driver.FindElement(By.CssSelector("input#OBSubmit"));
 
-        usernameInput.SendKeys(username);
-        passwordInput.SendKeys(password);
-        submitButton.Click();
+            usernameInput.SendKeys(username);
+            passwordInput.SendKeys(password);
+            submitButton.Click();
 
-        // Wait for the navigation to have occured before moving on.
-        await Task.Delay(10000);
+            // Wait for the navigation to have occured before moving on.
+            await Task.Delay(10000);
 
-        var elementToClick = driver.FindElement(By.XPath($"//*[contains(text(), 'Accounts')]"));
+            var elementToClick = driver.FindElement(By.XPath($"//*[contains(text(), 'Accounts')]"));
 
-        LogSemanticInformation($"Logging in.");
-        elementToClick.Click();
+            _logger.LogInformation($"Logging in.");
+            elementToClick.Click();
 
-        // Wait for the navigation to have occured before moving on.
-        await Task.Delay(2500);
+            // Wait for the navigation to have occured before moving on.
+            await Task.Delay(2500);
+        }
     }
 
     /// <summary>
@@ -105,11 +108,14 @@ public class FNBThoughts : BaseThought
     /// <param name="driver">The Selenium web driver with the base page loaded.</param>
     private Task OnDoneWithDriverAsync(WebDriver driver)
     {
-        var logoutButton = driver.FindElement(By.CssSelector(".headerButton"));
+        using (_logger.BeginScope("{MethodName}", nameof(OnDoneWithDriverAsync)))
+        {
+            var logoutButton = driver.FindElement(By.CssSelector(".headerButton"));
 
-        LogSemanticInformation($"Logging out.");
-        logoutButton.Click();
+            _logger.LogInformation($"Logging out.");
+            logoutButton.Click();
 
-        return Task.CompletedTask;
+            return Task.CompletedTask;
+        }
     }
 }

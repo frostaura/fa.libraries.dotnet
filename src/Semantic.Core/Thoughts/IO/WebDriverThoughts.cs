@@ -45,15 +45,15 @@ public class WebDriverThoughts : BaseThought
         [Description("The URI of the website's text to load.")] string uri,
         CancellationToken token = default)
     {
-        using (BeginSemanticScope(nameof(LoadWebsiteTextAsync)))
+        using (_logger.BeginScope("{MethodName}", nameof(LoadWebsiteTextAsync)))
         {
             uri.ThrowIfNullOrWhitespace(nameof(uri));
-            LogSemanticInformation($"Getting website text from URL '{uri}'.");
+            _logger.LogInformation("Getting website text from URL '{URL}'.", uri);
 
             // Set Chrome options for headless mode
             var chromeOptions = new ChromeOptions();
 
-            LogSemanticDebug("Using headless mode and a custom user agent string.");
+            _logger.LogDebug("Using headless mode and a custom user agent string.");
             chromeOptions.AddArguments("--headless");
             chromeOptions.AddArguments("--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0");
 
@@ -61,35 +61,35 @@ public class WebDriverThoughts : BaseThought
             using (var driver = new ChromeDriver(chromeOptions))
             {
                 // Navigate to the website.
-                LogSemanticDebug($"Navigating to '{uri}'.");
+                _logger.LogDebug("Navigating to {URI}.", uri);
                 driver.Navigate().GoToUrl(uri);
 
                 // Wait for the page to load completely (you can adjust the timeout as needed).
-                LogSemanticDebug($"Waiting for the document state to become complete.");
+                _logger.LogDebug("Waiting for the document state to become complete.");
                 var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
                 wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
 
                 // Call the middleware, if any.
                 if (OnPageLoadedAsync is not null)
                 {
-                    LogSemanticDebug($"Calling OnPageLoadedAsync middleware, if any.");
+                    _logger.LogDebug("Calling OnPageLoadedAsync middleware, if any.");
                     await OnPageLoadedAsync.Invoke(driver);
                 }
 
                 // Extract all the text from the page.
                 var websiteText = driver.FindElement(By.TagName("body")).Text;
 
-                LogSemanticDebug($"Website loaded successfully ({websiteText.Length} characters).");
+                _logger.LogDebug("Website loaded successfully ({ResponseCharCount} characters).", websiteText.Length);
 
                 // Call the middleware, if any.
                 if (OnCleanupAsync is not null)
                 {
-                    LogSemanticDebug($"Calling OnCleanupAsync middleware, if any.");
+                    _logger.LogDebug("Calling OnCleanupAsync middleware, if any.");
                     await OnCleanupAsync.Invoke(driver);
                 }
 
                 // Close the WebDriver.
-                LogSemanticDebug($"Closing the web driver.");
+                _logger.LogDebug("Closing the web driver.");
                 driver.Quit();
 
                 return websiteText

@@ -71,9 +71,9 @@ public class MediumThoughts : BaseThought
         [Description("The status which to post the article with. Available options are: 'draft', 'public'")] string publicationStatus = "draft",
         CancellationToken token = default)
     {
-        using (BeginSemanticScope(nameof(PostMediumBlogHTMLAsync)))
+        using (_logger.BeginScope("{MethodName}", nameof(PostMediumBlogHTMLAsync)))
         {
-            LogSemanticInformation($"Posting a new blog to Medium with the title '{title}'.");
+            _logger.LogInformation("Posting a new blog to Medium with the title {Title} (Tags) as {PublicationStatus}.", title, tags, publicationStatus);
 
             using (var client = _httpClientFactory.CreateClient())
             {
@@ -81,7 +81,7 @@ public class MediumThoughts : BaseThought
 
                 using (var meRequest = new HttpRequestMessage(HttpMethod.Get, "https://api.medium.com/v1/me"))
                 {
-                    LogSemanticDebug("Generating a poster image.");
+                    _logger.LogDebug("Generating a poster image.");
 
                     var llmThoughts = (LanguageModelThoughts)_serviceProvider.GetThoughtByName(nameof(LanguageModelThoughts));
                     var dallEPrompt = await llmThoughts.PromptLLMAsync("You are the world's best prompt engineer for the Dall-E 3 text to image model. You take a title for a blog and transform it to a creative but relevant to the content prompt that can be used to generate an image." +
@@ -96,7 +96,7 @@ public class MediumThoughts : BaseThought
                     <hr>
                     ";
 
-                    LogSemanticDebug("Getting Medium user information.");
+                    _logger.LogDebug("Getting Medium user information.");
 
                     var response = await client.SendAsync(meRequest);
                     var responseStr = await response.Content.ReadAsStringAsync();
@@ -108,7 +108,7 @@ public class MediumThoughts : BaseThought
                         .Replace("\"", "")
                         .Split(',');
 
-                    LogSemanticDebug($"Posting to Medium as '{publicationStatus}'.");
+                    _logger.LogDebug("Posting to Medium as '{PublicationStatus}'.", publicationStatus);
 
                     using (var postRequest = new HttpRequestMessage(HttpMethod.Post, $"https://api.medium.com/v1/users/{me.Data.Id}/posts"))
                     {
@@ -123,7 +123,8 @@ public class MediumThoughts : BaseThought
                         var postResponse = await client.SendAsync(postRequest);
                         var postResponseStr = await postResponse.Content.ReadAsStringAsync();
 
-                        LogSemanticDebug($"Post to Medium Response: {postResponseStr}");
+                        _logger.LogDebug("Post to Medium Response: {PostResponseStr}", postResponseStr);
+                        _logger.LogInformation("Posting successful.");
                         return postResponseStr;
                     }
                 }

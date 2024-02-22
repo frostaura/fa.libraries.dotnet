@@ -493,7 +493,11 @@ public class YouTubeShortFactualVideoGenerationChain : BaseChain
         [Description("The topic that the video should be on.")] string topic,
         CancellationToken token = default)
     {
-        return ExecuteChainAsync(topic.ThrowIfNullOrWhitespace(nameof(topic)), token: token);
+        using (_logger.BeginScope("{MethodName}", nameof(GenerateDocumentaryVideoAsync)))
+        {
+            _logger.LogInformation("Starting generation of a documentary video for {Topic}", topic);
+            return ExecuteChainAsync(topic.ThrowIfNullOrWhitespace(nameof(topic)), token: token);
+        }
     }
 
     /// <summary>
@@ -508,6 +512,10 @@ public class YouTubeShortFactualVideoGenerationChain : BaseChain
         Dictionary<string, string> state,
         CancellationToken token = default)
     {
-        return ExecuteChainAsync(topic.ThrowIfNullOrWhitespace(topic), state: state, token: token);
+        using (_logger.BeginScope("{MethodName}", nameof(GenerateDocumentaryVideoWithStateAsync)))
+        {
+            _logger.LogInformation("Starting generation of a documentary video for {Topic}", topic);
+            return ExecuteChainAsync(topic.ThrowIfNullOrWhitespace(topic), state: state, token: token);
+        }
     }
 }

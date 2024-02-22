@@ -54,8 +54,9 @@ public class AudioThoughts : BaseThought
         [Description("The text to speak.")] string text,
         CancellationToken token = default)
     {
-        using (BeginSemanticScope(nameof(ElevenLabsTextToSpeechAsync)))
+        using (_logger.BeginScope("{MethodName}", nameof(ElevenLabsTextToSpeechAsync)))
         {
+            _logger.LogInformation("Converting text '{Text}' to speech.", text);
             var voices = await _elevenLabsClient
                 .VoicesEndpoint
                 .GetAllVoicesAsync();
@@ -70,14 +71,14 @@ public class AudioThoughts : BaseThought
 
             try
             {
-                LogSemanticInformation($"Saving the clip to '{fileName}'.");
+                _logger.LogInformation("Saving the clip to {FilePath}.", fileName);
 
                 File.WriteAllBytes(fileName, clipBytes);
-                LogSemanticDebug("Clip downloaded successfully!");
+                _logger.LogDebug("Clip downloaded successfully!");
             }
             catch (Exception ex)
             {
-                LogSemanticError($"An error occurred saving the clip to '{fileName}'.", ex);
+                _logger.LogError("An error occurred saving the clip to '{FilePath}': {Exception}", fileName, ex);
                 throw;
             }
 

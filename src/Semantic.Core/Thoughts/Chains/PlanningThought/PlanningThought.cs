@@ -34,15 +34,20 @@ public class PlanningThought : BaseThought
         [Description("The query to solve for.")] string query,
         CancellationToken token = default)
     {
-        const string IDENTITY_PARAM_KEY = "identity";
-        const string IDENTITY = "You are Zeus, the Greek god, a powerful and intelligent task planner.";
-        var llmThought = (LanguageModelThoughts)_serviceProvider
-            .GetThoughtByName<LanguageModelThoughts>(nameof(LanguageModelThoughts));
-        var prompt = string.Empty
-            .Replace($"${IDENTITY_PARAM_KEY}$", IDENTITY);
+        using (_logger.BeginScope("{MethodName}", nameof(SolveWithExamplesAsync)))
+        {
+            _logger.LogInformation("Generating a plan for {Query}", query);
 
-        throw new NotImplementedException("Load prompt from file.");
+            const string IDENTITY_PARAM_KEY = "identity";
+            const string IDENTITY = "You are Zeus, the Greek god, a powerful and intelligent task planner.";
+            var llmThought = (LanguageModelThoughts)_serviceProvider
+                .GetThoughtByName<LanguageModelThoughts>(nameof(LanguageModelThoughts));
+            var prompt = string.Empty
+                .Replace($"${IDENTITY_PARAM_KEY}$", IDENTITY);
 
-        var planString = await llmThought.PromptLLMAsync(prompt, token);
+            throw new NotImplementedException("Load prompt from file.");
+
+            var planString = await llmThought.PromptLLMAsync(prompt, token);
+        }
     }
 }

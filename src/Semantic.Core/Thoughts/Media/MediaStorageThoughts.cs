@@ -56,9 +56,9 @@ public class MediaStorageThoughts : BaseThought
         [Description("The local image file path.")] string filePath,
         CancellationToken token = default)
     {
-        using (BeginSemanticScope(nameof(UploadImageFromFileAndGetUrlAsync)))
+        using (_logger.BeginScope("{MethodName}", nameof(UploadImageFromFileAndGetUrlAsync)))
         {
-            LogSemanticInformation($"Uploading local image '{filePath}'.");
+            _logger.LogInformation("Uploading local image {FilePath}.", filePath);
 
             using (var httpClient = _httpClientFactory.CreateClient())
             using (var formData = new MultipartFormDataContent())

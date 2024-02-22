@@ -47,7 +47,7 @@ public class CodeInterpreterThoughts : BaseThought
             ")] string code,
         CancellationToken token = default)
     {
-        using (BeginSemanticScope(nameof(InvokePythonAsync)))
+        using (_logger.BeginScope("{MethodName}", nameof(InvokePythonAsync)))
         {
             if (!code
             .ThrowIfNullOrWhitespace(nameof(code))
@@ -60,10 +60,11 @@ public class CodeInterpreterThoughts : BaseThought
                             return some_code_you_generated()
                 ", nameof(code));
 
-                LogSemanticError($"The Python code block didn't contain a main function.", exception);
+                _logger.LogError("The Python code block didn't contain a main function. Code: {Code}", code);
                 throw exception;
             }
 
+            _logger.LogInformation("Ensuring a Python {PythonVersion} env with {PipDependencies} PIP dependencies.", pythonVersion, pipDependencies);
             var pythonExecutablePath = await EnsurePythonEnvironmentAndGetPathAsync(
                 pythonVersion.ThrowIfNullOrWhitespace(nameof(pythonVersion)),
                 pipDependencies.Split(' ').ToList(),
@@ -82,7 +83,7 @@ public class CodeInterpreterThoughts : BaseThought
                 .Split($"<<<{outputIndicator}")
                 .First();
 
-            LogSemanticInformation($"Successfully executed Python code. Response: {normalizedResponse}");
+            _logger.LogInformation("Successfully executed Python code. Response: {Response}", normalizedResponse);
 
             return normalizedResponse;
         }
@@ -104,14 +105,14 @@ public class CodeInterpreterThoughts : BaseThought
 
         if (!Directory.Exists(environmentPath))
         {
-            LogSemanticInformation($"Provisioning a new Conda environment ({environmentPath}).");
+            _logger.LogInformation("Provisioning a new Conda environment ({EnvironmentPath}).", environmentPath);
             await ExecuteProcessAsync("conda", $"create -y -p {environmentPath} python={pythonVersion}", token);
 
             foreach (var dependency in condaDependencies)
             {
                 if (string.IsNullOrWhiteSpace(dependency)) continue;
 
-                LogSemanticDebug($"Installing Conda dependency '{dependency}' into the Conda environment ({environmentPath}).");
+                _logger.LogDebug("Installing Conda dependency '{Dependency}' into the Conda environment ({EnvironmentPath}).", dependency, environmentPath);
                 await ExecuteProcessAsync("conda", $"install {dependency} -c conda-forge -y -p {environmentPath}", token);
             }
 
@@ -119,13 +120,13 @@ public class CodeInterpreterThoughts : BaseThought
             {
                 if (string.IsNullOrWhiteSpace(dependency)) continue;
 
-                LogSemanticDebug($"Installing PIP dependency '{dependency}' into the Conda environment ({environmentPath}).");
+                _logger.LogDebug("Installing PIP dependency '{Dependency}' into the Conda environment ({EnvironmentPath}).", dependency, environmentPath);
                 await ExecuteProcessAsync(pythonExecutablePath, $"-m pip install {dependency}", token);
             }
         }
         else
         {
-            LogSemanticInformation($"An environment with the required Python version and dependencies already exists. Using it ({environmentPath}).");
+            _logger.LogInformation("An environment with the required Python version and dependencies already exists. Using it ({EnvironmentPath}).", environmentPath);
         }
 
         return pythonExecutablePath;
@@ -180,52 +181,57 @@ public class CodeInterpreterThoughts : BaseThought
     /// <returns>The stringifier response.</returns>
     private async Task<string> ExecuteProcessAsync(string fileName, string command, CancellationToken token)
     {
-        var process = new Process();
-
-        // If on Windows, use cmd.exe
-        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        using (_logger.BeginScope("{MethodName}", nameof(ExecuteProcessAsync)))
         {
-            LogSemanticDebug("Identified Windows as the operating system.");
+            var process = new Process();
 
-            process.StartInfo.FileName = "cmd.exe";
-            process.StartInfo.Arguments = $"/c {fileName} {command}";
-        }
-        else
-        {
-            LogSemanticDebug("Identified Linux-based operating system.");
-
-            if (fileName == "conda" && !process.StartInfo.Environment["PATH"].Contains("miniconda3"))
+            // If on Windows, use cmd.exe
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
-                fileName = $"~/miniconda3/bin/{fileName}";
+                _logger.LogDebug("Identified Windows as the operating system.");
+
+                process.StartInfo.FileName = "cmd.exe";
+                process.StartInfo.Arguments = $"/c {fileName} {command}";
+            }
+            else
+            {
+                _logger.LogDebug("Identified Linux-based operating system.");
+
+                if (fileName == "conda" && !process.StartInfo.Environment["PATH"].Contains("miniconda3"))
+                {
+                    fileName = $"~/miniconda3/bin/{fileName}";
+                }
+
+                // If on macOS or Linux, use zsh
+                process.StartInfo.FileName = "/bin/zsh";
+                process.StartInfo.Arguments = $"-c \"{fileName} {command}\"";
             }
 
-            // If on macOS or Linux, use zsh
-            process.StartInfo.FileName = "/bin/zsh";
-            process.StartInfo.Arguments = $"-c \"{fileName} {command}\"";
+            _logger.LogInformation("Starting process {FileName} {Arguments}", process.StartInfo.FileName, process.StartInfo.Arguments);
+
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.Start();
+
+            var output = await process.StandardOutput.ReadToEndAsync();
+            var error = await process.StandardError.ReadToEndAsync();
+
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode != 0)
+            {
+                var exception = new ApplicationException($"An error occured during the execution of the Python code (see the inner exception).{Environment.NewLine}{Environment.NewLine}{command}", new Exception(error));
+
+                _logger.LogError("{Message}: {Exception}", exception.Message, exception);
+                throw exception;
+            }
+
+            if (!string.IsNullOrWhiteSpace(error)) _logger.LogError(error);
+            _logger.LogDebug(output);
+
+            return output;
         }
-
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.RedirectStandardOutput = true;
-        process.StartInfo.RedirectStandardError = true;
-        process.Start();
-
-        var output = await process.StandardOutput.ReadToEndAsync();
-        var error = await process.StandardError.ReadToEndAsync();
-
-        await process.WaitForExitAsync();
-
-        if (process.ExitCode != 0)
-        {
-            var exception = new ApplicationException($"An error occured during the execution of the Python code (see the inner exception).{Environment.NewLine}{Environment.NewLine}{command}", new Exception(error));
-
-            LogSemanticError(exception.Message, exception);
-            throw exception;
-        }
-
-        if (!string.IsNullOrWhiteSpace(error)) LogSemanticError(error);
-        LogSemanticDebug(output);
-
-        return output;
     }
 
     /// <summary>
@@ -237,56 +243,59 @@ public class CodeInterpreterThoughts : BaseThought
     /// <returns>The stringifier response.</returns>
     private async Task<string> ExecutePythonProcessAsync(string fileName, string code, CancellationToken token)
     {
-        var process = new Process();
-        var tempScriptFilePath = $"{Guid.NewGuid()}.py";
-
-        LogSemanticInformation($"Saving code to execute to a local file '{tempScriptFilePath}'.");
-        await File.WriteAllTextAsync(tempScriptFilePath, code, token);
-        LogSemanticDebug($"Executing terminal command: $\"-c \\\"{{fileName}} {{tempScriptFilePath}}\\\"\"");
-
-        // If on Windows, use cmd.exe.
-        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        using (_logger.BeginScope("{MethodName}", nameof(ExecutePythonProcessAsync)))
         {
-            LogSemanticDebug("Identified Windows as the operating system.");
+            var process = new Process();
+            var tempScriptFilePath = $"{Guid.NewGuid()}.py";
 
-            process.StartInfo.FileName = "cmd.exe";
-            process.StartInfo.Arguments = $"-c \"{fileName} {tempScriptFilePath}\"";
-        }
-        else
-        {
-            LogSemanticDebug("Identified Linux-based operating system.");
+            _logger.LogInformation("Saving code to execute to a local file '{TempScriptFilePath}'.", tempScriptFilePath);
+            await File.WriteAllTextAsync(tempScriptFilePath, code, token);
+            _logger.LogInformation("Executing terminal command: $\"-c \\\"{FileName} {TempScriptFilePath}\\\"\"", fileName, tempScriptFilePath);
 
-            if (fileName == "conda" && !process.StartInfo.Environment["PATH"].Contains("miniconda3"))
+            // If on Windows, use cmd.exe.
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
-                fileName = $"~/miniconda3/bin/{fileName}";
+                _logger.LogDebug("Identified Windows as the operating system.");
+
+                process.StartInfo.FileName = "cmd.exe";
+                process.StartInfo.Arguments = $"-c \"{fileName} {tempScriptFilePath}\"";
+            }
+            else
+            {
+                _logger.LogDebug("Identified Linux-based operating system.");
+
+                if (fileName == "conda" && !process.StartInfo.Environment["PATH"].Contains("miniconda3"))
+                {
+                    fileName = $"~/miniconda3/bin/{fileName}";
+                }
+
+                // If on macOS or Linux, use zsh.
+                process.StartInfo.FileName = "/bin/zsh";
+                process.StartInfo.Arguments = $"-c \"{fileName} {tempScriptFilePath}\"";
             }
 
-            // If on macOS or Linux, use zsh.
-            process.StartInfo.FileName = "/bin/zsh";
-            process.StartInfo.Arguments = $"-c \"{fileName} {tempScriptFilePath}\"";
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.Start();
+
+            var output = await process.StandardOutput.ReadToEndAsync();
+            var error = await process.StandardError.ReadToEndAsync();
+
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode != 0)
+            {
+                var exception = new ApplicationException($"An error occured during the execution of the Python code (see the inner exception).{Environment.NewLine}{Environment.NewLine}{code}{Environment.NewLine}Error: {error}", new Exception(error));
+
+                _logger.LogError("{Message}: {Exception}", exception.Message, exception);
+                throw exception;
+            }
+
+            if (!string.IsNullOrWhiteSpace(error)) _logger.LogError(error);
+            _logger.LogDebug(output);
+
+            return output;
         }
-
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.RedirectStandardOutput = true;
-        process.StartInfo.RedirectStandardError = true;
-        process.Start();
-
-        var output = await process.StandardOutput.ReadToEndAsync();
-        var error = await process.StandardError.ReadToEndAsync();
-
-        await process.WaitForExitAsync();
-
-        if (process.ExitCode != 0)
-        {
-            var exception = new ApplicationException($"An error occured during the execution of the Python code (see the inner exception).{Environment.NewLine}{Environment.NewLine}{code}{Environment.NewLine}Error: {error}", new Exception(error));
-
-            LogSemanticError(exception.Message, exception);
-            throw exception;
-        }
-
-        if (!string.IsNullOrWhiteSpace(error)) LogSemanticError(error);
-        LogSemanticDebug(output);
-
-        return output;
     }
 }

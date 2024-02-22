@@ -1,4 +1,5 @@
-﻿using FrostAura.Libraries.Core.Extensions.Validation;
+﻿using System.Security.Cryptography.X509Certificates;
+using FrostAura.Libraries.Core.Extensions.Validation;
 using FrostAura.Libraries.Semantic.Core.Data.Adapters;
 using FrostAura.Libraries.Semantic.Core.Enums.Logging;
 using FrostAura.Libraries.Semantic.Core.Models.Logging;
@@ -33,13 +34,6 @@ public class HierarchicalLogger : ILogger
     }
 
     /// <summary>
-    /// Determiner for whether this logger is enabled.
-    /// </summary>
-    /// <param name="logLevel">Log level / importance.</param>
-    /// <returns>Whether this logger should be enabled.</returns>
-    public bool IsEnabled(LogLevel logLevel) => true;
-
-    /// <summary>
     /// Begin a logging scope.
     /// </summary>
     /// <typeparam name="TState">The input state for the scope's type.</typeparam>
@@ -47,36 +41,35 @@ public class HierarchicalLogger : ILogger
     /// <returns>A disposable scope.</returns>
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull
     {
-        if (state is KeyValuePair<string, object> scopeKeyValue &&
-            scopeKeyValue.Key is string scopeName &&
-            scopeKeyValue.Value is object callerInstance)
+        var scopeLogItem = new LogItem
         {
-            var scopeLogItem = new LogItem
-            {
-                Message = scopeName,
-                Type = LogType.ScopeRoot,
-                Status = LogStatus.Busy
-            };
+            Message = state.ToString(),
+            Type = LogType.ScopeRoot,
+            Status = LogStatus.Busy
+        };
 
-            // Determine the parent of the item, if any.
-            var activeScopesDesc = _scopes
-                .Where(s => s.Status == LogStatus.Busy && s.Type == LogType.ScopeRoot)
-                .Reverse()
-                .FirstOrDefault();
+        // Determine the parent of the item, if any.
+        var activeScopesDesc = _scopes
+            .Where(s => s.Status == LogStatus.Busy && s.Type == LogType.ScopeRoot)
+            .Reverse()
+            .FirstOrDefault();
 
-            if (activeScopesDesc != default)
-            {
-                scopeLogItem.Scope = activeScopesDesc;
-            }
-
-            scopeLogItem.Attributes.Add("CallerInstance", callerInstance);
-            _scopes.Add(scopeLogItem);
-
-            return new DisposableAdapter(() => scopeLogItem.Status = LogStatus.Succeeded);
+        if (activeScopesDesc != default)
+        {
+            scopeLogItem.Scope = activeScopesDesc;
         }
 
-        return null;
+        _scopes.Add(scopeLogItem);
+
+        return new DisposableAdapter(() => scopeLogItem.Status = LogStatus.Succeeded);
     }
+
+    /// <summary>
+    /// Whether the logger is enabled.
+    /// </summary>
+    /// <param name="logLevel">Current log level.</param>
+    /// <returns>Whether the logger is enabled.</returns>
+    public bool IsEnabled(LogLevel logLevel) => true;
 
     /// <summary>
     /// Log a message.
@@ -91,27 +84,23 @@ public class HierarchicalLogger : ILogger
     {
         try
         {
-            var message = formatter(state, exception);
-            var parsedMessage = JsonConvert.DeserializeObject<LogItem>(message);
-
-            if (parsedMessage == default) return;
-
             // Determine log item's parent scope.
             var activeScopesLatestFirst = _scopes
                 .Where(s => s.Status == LogStatus.Busy && s.Type == LogType.ScopeRoot)
                 .Reverse();
             var activeScope = activeScopesLatestFirst.FirstOrDefault();
-            parsedMessage.Scope = activeScope;
-            parsedMessage.Status = LogStatus.Busy;
+            var parsedMessage = new LogItem
+            {
+                Scope = activeScope,
+                Status = LogStatus.Busy,
+                Message = state.ToString()
+            };
 
             activeScope?.Logs.ForEach(l => l.Status = LogStatus.Succeeded);
             activeScope?.Logs.Add(parsedMessage);
             _onEventHandler.Invoke(_scopes, parsedMessage);
         }
-        catch (Exception e)
-        {
-            /* Ignore non-semantic errors. */
-            Console.WriteLine($"[ERROR][{GetType().Name}] {e.Message}");
-        }
+        catch (Exception ex)
+        { /* Swallow non-semantic errors. */ }
     }
 }

@@ -112,6 +112,10 @@ public class TextToSpeechChain : BaseChain
         [Description("The text to synthesize speech for.")] string text,
         CancellationToken token = default)
     {
-        return ExecuteChainAsync(text.ThrowIfNullOrWhitespace(nameof(text)), token: token);
+        using (_logger.BeginScope("{MethodName}", nameof(SpeakTextAndGetFilePathAsync)))
+        {
+            _logger.LogInformation("Starting speech synthesis for {Text}", text);
+            return ExecuteChainAsync(text.ThrowIfNullOrWhitespace(nameof(text)), token: token);
+        }
     }
 }

@@ -66,50 +66,53 @@ namespace FrostAura.Libraries.Semantic.Core.Thoughts.Media
             [Description("The space-delimited tags for the video.")] string tags,
             CancellationToken token = default)
         {
-            // Create a video object with metadata.
-            var video = new Video
+            using (_logger.BeginScope("{MethodName}", nameof(PublishLocalVideoToYouTubeAsync)))
             {
-                Snippet = new VideoSnippet
+                // Create a video object with metadata.
+                var video = new Video
                 {
-                    Title = title.ThrowIfNullOrWhitespace(nameof(title)),
-                    Description = description.ThrowIfNullOrWhitespace(nameof(description)),
-                    Tags = tags.ThrowIfNullOrWhitespace(nameof(tags)).Split(" "),
-                    CategoryId = $"{int.Parse(categoryId.ThrowIfNullOrWhitespace(nameof(categoryId)))}"
-                },
-                Status = new VideoStatus
+                    Snippet = new VideoSnippet
+                    {
+                        Title = title.ThrowIfNullOrWhitespace(nameof(title)),
+                        Description = description.ThrowIfNullOrWhitespace(nameof(description)),
+                        Tags = tags.ThrowIfNullOrWhitespace(nameof(tags)).Split(" "),
+                        CategoryId = $"{int.Parse(categoryId.ThrowIfNullOrWhitespace(nameof(categoryId)))}"
+                    },
+                    Status = new VideoStatus
+                    {
+                        PrivacyStatus = "public"
+                    }
+                };
+
+                // Create a video upload request.
+                var insertRequest = _youtubeService
+                    .Videos
+                    .Insert(video, "snippet,status", File.OpenRead(filePath.ThrowIfNullOrWhitespace(nameof(filePath))), "video/*");
+
+                insertRequest.ProgressChanged += (progress) =>
                 {
-                    PrivacyStatus = "public"
-                }
-            };
+                    // Handle upload progress.
+                    switch (progress.Status)
+                    {
+                        case UploadStatus.Uploading:
+                            _logger.LogInformation("Uploading: {BytesSent} bytes sent.", progress.BytesSent);
+                            break;
+                        case UploadStatus.Completed:
+                            _logger.LogInformation("Upload completed.");
+                            break;
+                        case UploadStatus.Failed:
+                            _logger.LogInformation("Upload failed: {Exception}", progress.Exception);
+                            break;
+                    }
+                };
 
-            // Create a video upload request.
-            var insertRequest = _youtubeService
-                .Videos
-                .Insert(video, "snippet,status", File.OpenRead(filePath.ThrowIfNullOrWhitespace(nameof(filePath))), "video/*");
+                // Execute the upload request.
+                await insertRequest.UploadAsync(token);
 
-            insertRequest.ProgressChanged += (progress) =>
-            {
-                // Handle upload progress.
-                switch (progress.Status)
-                {
-                    case UploadStatus.Uploading:
-                        LogSemanticInformation($"Uploading: {progress.BytesSent} bytes sent.");
-                        break;
-                    case UploadStatus.Completed:
-                        LogSemanticInformation("Upload completed.");
-                        break;
-                    case UploadStatus.Failed:
-                        LogSemanticError($"Upload failed: {progress.Exception}", progress.Exception);
-                        break;
-                }
-            };
+                var uploadedVideo = insertRequest.ResponseBody;
 
-            // Execute the upload request.
-            await insertRequest.UploadAsync(token);
-
-            var uploadedVideo = insertRequest.ResponseBody;
-
-            return $"Video uploaded successfully! Video ID: {uploadedVideo.Id}";
+                return $"Video uploaded successfully! Video ID: {uploadedVideo.Id}";
+            }
         }
     }
 }

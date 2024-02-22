@@ -52,7 +52,7 @@ public abstract class BaseChain : BaseThought
     /// <returns>The chain's final output.</returns>
     protected virtual async Task<string> ExecuteChainAsync(string input = "", Dictionary<string, string> state = default, CancellationToken token = default)
     {
-        using (BeginSemanticScope(nameof(ExecuteChainAsync)))
+        using (_logger.BeginScope("{MethodName} with input: {Input}", nameof(ExecuteChainAsync), input))
         {
             if (state == default) state = new Dictionary<string, string>();
 
@@ -62,7 +62,7 @@ public abstract class BaseChain : BaseThought
 
             foreach (var thought in ChainOfThoughts)
             {
-                LogSemanticDebug($"Executing {thought} in the chain.");
+                _logger.LogDebug("Executing {Thought} in the chain.", thought);
 
                 // If there is already the state that this thought is expected to provide, use that state and skip executing the thought.
                 if (state.ContainsKey($"${thought.OutputKey}"))
@@ -78,7 +78,7 @@ public abstract class BaseChain : BaseThought
 
                 output = thought.Observation;
 
-                LogSemanticInformation(thought.ToString());
+                _logger.LogInformation("{Thought}", thought);
             };
 
             return output;
@@ -94,42 +94,46 @@ public abstract class BaseChain : BaseThought
     /// <returns>The thought's response / observation.</returns>
     protected Task<string> ExecuteThoughtAsync(Thought thought, Dictionary<string, string> state, CancellationToken token)
     {
-        // Interpolate arguments based on the context passed.
-        foreach (var argument in thought.Arguments)
+        using (_logger.BeginScope("{MethodName} => {Thought}", nameof(ExecuteThoughtAsync), thought))
         {
-            thought.Arguments[argument.Key] = argument.Value;
-
-            foreach (var variable in state)
+            // Interpolate arguments based on the context passed.
+            foreach (var argument in thought.Arguments)
             {
-                thought.Arguments[argument.Key] = thought.Arguments[argument.Key].Replace(variable.Key, variable.Value);
+                thought.Arguments[argument.Key] = argument.Value;
+
+                foreach (var variable in state)
+                {
+                    thought.Arguments[argument.Key] = thought.Arguments[argument.Key].Replace(variable.Key, variable.Value);
+                }
             }
+
+            // Perform dynamic method execution.
+            var thoughName = thought.Action.Split('.')[0];
+            var thoughFunctionName = thought.Action.Split('.')[1];
+            var thoughtInstance = _serviceProvider.GetThoughtByName(thoughName);
+            var methodInfo = thoughtInstance.GetType().GetMethod(thoughFunctionName);
+            var parameters = new List<object>();
+
+            foreach (var parameterInfo in methodInfo.GetParameters())
+            {
+                if (thought.Arguments.ContainsKey(parameterInfo.Name))
+                {
+                    parameters.Add(Convert.ChangeType(thought.Arguments[parameterInfo.Name], parameterInfo.ParameterType));
+                }
+                else if (parameterInfo.ParameterType == typeof(CancellationToken))
+                {
+                    parameters.Add(token);
+                }
+                else
+                {
+                    throw new ArgumentException($"Missing argument value for parameter: {parameterInfo.Name}");
+                }
+            }
+
+            _logger.LogInformation("Invoking {Thought} now.", thought);
+            var resultTask = (Task<string>)methodInfo.Invoke(thoughtInstance, parameters.ToArray());
+
+            return resultTask;
         }
-
-        // Perform dynamic method execution.
-        var thoughName = thought.Action.Split('.')[0];
-        var thoughFunctionName = thought.Action.Split('.')[1];
-        var thoughtInstance = _serviceProvider.GetThoughtByName(thoughName);
-        var methodInfo = thoughtInstance.GetType().GetMethod(thoughFunctionName);
-        var parameters = new List<object>();
-
-        foreach (var parameterInfo in methodInfo.GetParameters())
-        {
-            if (thought.Arguments.ContainsKey(parameterInfo.Name))
-            {
-                parameters.Add(Convert.ChangeType(thought.Arguments[parameterInfo.Name], parameterInfo.ParameterType));
-            }
-            else if (parameterInfo.ParameterType == typeof(CancellationToken))
-            {
-                parameters.Add(token);
-            }
-            else
-            {
-                throw new ArgumentException($"Missing argument value for parameter: {parameterInfo.Name}");
-            }
-        }
-
-        var resultTask = (Task<string>)methodInfo.Invoke(thoughtInstance, parameters.ToArray());
-
-        return resultTask;
     }
 }

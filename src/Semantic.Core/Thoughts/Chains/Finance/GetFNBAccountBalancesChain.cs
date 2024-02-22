@@ -7,6 +7,7 @@ using FrostAura.Libraries.Semantic.Core.Thoughts.Finance;
 using FrostAura.Libraries.Semantic.Core.Thoughts.IO;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive;
 
@@ -81,6 +82,9 @@ public class GetFNBAccountBalancesChain : BaseChain
     public Task<string> GetFNBAccountBalancesTableAsync(
         CancellationToken token = default)
     {
-        return ExecuteChainAsync(string.Empty, token: token);
+        using (_logger.BeginScope("{MethodName}", nameof(GetFNBAccountBalancesTableAsync)))
+        {
+            return ExecuteChainAsync(string.Empty, token: token);
+        }
     }
 }

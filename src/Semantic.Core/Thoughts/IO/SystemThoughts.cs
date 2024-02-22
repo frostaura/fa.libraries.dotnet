@@ -41,9 +41,9 @@ public class SystemThoughts : BaseThought
         [Description("The question to ask the end-user.")] string question,
         CancellationToken token = default)
     {
-        using (BeginSemanticScope(nameof(AskForInputAsync)))
+        using (_logger.BeginScope("{MethodName}", nameof(AskForInputAsync)))
         {
-            LogSemanticInformation($"Asking the user a question: '{question}'");
+            _logger.LogInformation("Asking the user a question: '{Question}'", question);
 
             return _userProxy
                 .AskUserAsync(question.ThrowIfNullOrWhitespace(nameof(question)), token);
@@ -60,9 +60,9 @@ public class SystemThoughts : BaseThought
         [Description("The text to output.")] string output,
         CancellationToken token = default)
     {
-        using (BeginSemanticScope(nameof(OutputTextAsync)))
+        using (_logger.BeginScope("{MethodName}", nameof(OutputTextAsync)))
         {
-            LogSemanticInformation($"Returning output to the user: '{output}'");
+            _logger.LogInformation("Returning output to the user: '{Output}'", output);
 
             return Task.FromResult(output.ThrowIfNullOrWhitespace(nameof(output)));
         }

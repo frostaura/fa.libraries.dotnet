@@ -34,19 +34,25 @@ public class OpenAILanguageModelsDataAccess : ISemanticKernelLanguageModelsDataA
     /// Configuration for OpenAI models.
     /// </summary>
     private readonly OpenAIConfig _openAIConfig;
+    /// <summary>
+    /// Instance logger.
+    /// </summary>
+    private readonly ILogger _logger;
 
     /// <summary>
     /// Constructor to allow for injecting dependencies.
     /// </summary>
     /// <param name="serviceProvider">The dependency service provider.</param>
     /// <param name="openAIConfigOptions">Configuration for OpenAI models.</param>
-    public OpenAILanguageModelsDataAccess(IServiceProvider serviceProvider, IOptions<OpenAIConfig> openAIConfigOptions)
+    /// <param name="logger">Instance logger.</param>
+    public OpenAILanguageModelsDataAccess(IServiceProvider serviceProvider, IOptions<OpenAIConfig> openAIConfigOptions, ILogger<OpenAILanguageModelsDataAccess> logger)
 	{
         _serviceProvider = serviceProvider.ThrowIfNull(nameof(serviceProvider));
         _openAIConfig = openAIConfigOptions
             .ThrowIfNull(nameof(openAIConfigOptions))
             .Value
             .ThrowIfNull(nameof(openAIConfigOptions));
+        _logger = logger.ThrowIfNull(nameof(logger));
     }
 
     /// <summary>
@@ -57,10 +63,15 @@ public class OpenAILanguageModelsDataAccess : ISemanticKernelLanguageModelsDataA
     /// <returns>Chat model instance.</returns>
     public async Task<IChatCompletionService> GetChatCompletionModelAsync(ModelType modelType, CancellationToken token)
     {
-        var kernel = await GetKernelAsync(token);
-        var model = kernel.GetRequiredService<IChatCompletionService>(serviceKey: modelType.ToString());
+        using (_logger.BeginScope("{MethodName}", nameof(GetChatCompletionModelAsync)))
+        {
+            _logger.LogInformation("Getting a chat completion model of type {ModelType}.", modelType);
 
-        return model;
+            var kernel = await GetKernelAsync(token);
+            var model = kernel.GetRequiredService<IChatCompletionService>(serviceKey: modelType.ToString());
+
+            return model;
+        }
     }
 
     /// <summary>
@@ -70,10 +81,13 @@ public class OpenAILanguageModelsDataAccess : ISemanticKernelLanguageModelsDataA
     /// <returns>Text embedding generation service instance.</returns>
     public async Task<ITextEmbeddingGenerationService> GetEmbeddingModelAsync(CancellationToken token)
     {
-        var kernel = await GetKernelAsync(token);
-        var model = kernel.GetRequiredService<ITextEmbeddingGenerationService>();
+        using (_logger.BeginScope("{MethodName}", nameof(GetEmbeddingModelAsync)))
+        {
+            var kernel = await GetKernelAsync(token);
+            var model = kernel.GetRequiredService<ITextEmbeddingGenerationService>();
 
-        return model;
+            return model;
+        }
     }
 
     /// <summary>
@@ -84,27 +98,23 @@ public class OpenAILanguageModelsDataAccess : ISemanticKernelLanguageModelsDataA
     /// <returns>Semantic memory instance.</returns>
     public async Task<string> GenerateImageAndGetUrlAsync(string prompt, CancellationToken token)
     {
-        var enhancedPrompt = $"""
-            Think about {prompt}.
-            Describe the image with one detailed sentence. The description cannot contain numbers.
-        """;
-        var executionSettings = new OpenAIPromptExecutionSettings
+        using (_logger.BeginScope("{MethodName}", nameof(GenerateImageAndGetUrlAsync)))
         {
-            MaxTokens = 256,
-            Temperature = 1
-        };
-        var kernel = await GetKernelAsync(token);
-        var dallE = kernel.GetRequiredService<ITextToImageService>();
+            var executionSettings = new OpenAIPromptExecutionSettings
+            {
+                MaxTokens = 256,
+                Temperature = 1
+            };
+            var kernel = await GetKernelAsync(token);
+            var dallE = kernel.GetRequiredService<ITextToImageService>();
 
-        // Create a semantic function that generate a random image description.
-        var genImgDescription = kernel.CreateFunctionFromPrompt(enhancedPrompt, executionSettings);
-        var imageDescriptionResult = await kernel.InvokeAsync(genImgDescription);
-        var imageDescription = imageDescriptionResult.ToString();
+            // Use DALL-E 3 to generate an image. OpenAI in this case returns a URL (though you can ask to return a base64 image)
+            _logger.LogInformation("Generating image using Dall-E 3: {Prompt}", prompt);
+            var imageUrl = await dallE.GenerateImageAsync(prompt, 1024, 1024);
+            _logger.LogInformation("Image generated successfully: {ImageUrl}", imageUrl);
 
-        // Use DALL-E 3 to generate an image. OpenAI in this case returns a URL (though you can ask to return a base64 image)
-        var imageUrl = await dallE.GenerateImageAsync(imageDescription.Trim(), 1024, 1024);
-
-        return imageUrl;
+            return imageUrl;
+        }
     }
 
     /// <summary>

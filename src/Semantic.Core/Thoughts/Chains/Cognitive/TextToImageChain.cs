@@ -7,6 +7,7 @@ using FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive;
 using FrostAura.Libraries.Semantic.Core.Thoughts.IO;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive;
 
@@ -91,6 +92,10 @@ public class TextToImageChain : BaseChain
         [Description("The prompt to use to generate an image.")] string prompt,
         CancellationToken token = default)
     {
-        return ExecuteChainAsync(prompt.ThrowIfNullOrWhitespace(nameof(prompt)), token: token);
+        using (_logger.BeginScope("{MethodName}", nameof(GenerateImageAndGetFilePathAsync)))
+        {
+            _logger.LogInformation("Starting image generation for {Prompt}", prompt);
+            return ExecuteChainAsync(prompt.ThrowIfNullOrWhitespace(nameof(prompt)), token: token);
+        }
     }
 }

@@ -85,6 +85,10 @@ public class AudioTranscriptionChain : BaseChain
         [Description("The absolute path to an Audio file to transcrobe. For example a .mp3 or .wav file path.")] string audioFilePath,
         CancellationToken token = default)
     {
-        return ExecuteChainAsync(audioFilePath.ThrowIfNullOrWhitespace(nameof(audioFilePath)), token: token);
+        using (_logger.BeginScope("{MethodName}", nameof(TranscribeAudioFileAsync)))
+        {
+            _logger.LogInformation("Starting audio transcription for the file {FileName}", audioFilePath);
+            return ExecuteChainAsync(audioFilePath.ThrowIfNullOrWhitespace(nameof(audioFilePath)), token: token);
+        }
     }
 }

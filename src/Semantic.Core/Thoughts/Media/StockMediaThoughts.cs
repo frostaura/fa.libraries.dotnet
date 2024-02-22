@@ -59,9 +59,9 @@ public class StockMediaThoughts : BaseThought
         [Description("The video orientation (portrait|landscape|square|all).")] string orientation = "all",
         CancellationToken token = default)
     {
-        using (BeginSemanticScope(nameof(DownloadAndGetStockVideoAsync)))
+        using (_logger.BeginScope("{MethodName}", nameof(DownloadAndGetStockVideoAsync)))
         {
-            LogSemanticInformation($"Searching for videos on '{searchQuery}'.");
+            _logger.LogInformation("Searching for videos on {SearchQuery}.", searchQuery);
 
             var result = await _pexelsClient.SearchVideosAsync(
                 searchQuery.ThrowIfNullOrWhitespace(nameof(searchQuery)),
@@ -92,15 +92,18 @@ public class StockMediaThoughts : BaseThought
     {
         return Task.Run(async () =>
         {
-            using (var client = _httpClientFactory.CreateClient())
+            using (_logger.BeginScope("{MethodName}", nameof(DownloadVideoUrlToFileAsync)))
             {
-                using (var response = await client.GetAsync(videoUrl, token))
+                using (var client = _httpClientFactory.CreateClient())
                 {
-                    using (Stream contentStream = await response.Content.ReadAsStreamAsync(),
-                                    stream = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
+                    using (var response = await client.GetAsync(videoUrl, token))
                     {
-                        LogSemanticInformation($"Downloading video file '{videoUrl}' to '{savePath}'.");
-                        await contentStream.CopyToAsync(stream);
+                        using (Stream contentStream = await response.Content.ReadAsStreamAsync(),
+                                        stream = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
+                        {
+                            _logger.LogInformation("Downloading video file {VideoUrl} to {SavePath}.", videoUrl, savePath);
+                            await contentStream.CopyToAsync(stream);
+                        }
                     }
                 }
             }

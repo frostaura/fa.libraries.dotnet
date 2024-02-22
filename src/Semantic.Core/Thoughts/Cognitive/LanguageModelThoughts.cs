@@ -64,7 +64,7 @@ public class LanguageModelThoughts : BaseThought
         [Description("The LLM prompt.")] string prompt,
         CancellationToken token = default)
     {
-        using (BeginSemanticScope(nameof(PromptSmallLLMAsync)))
+        using (_logger.BeginScope("{MethodName}", nameof(PromptSmallLLMAsync)))
         {
             var chatSettings = new OpenAIPromptExecutionSettings
             {
@@ -87,7 +87,7 @@ public class LanguageModelThoughts : BaseThought
         [Description("The LLM prompt.")] string prompt,
         CancellationToken token = default)
     {
-        using (BeginSemanticScope(nameof(PromptLLMAsync)))
+        using (_logger.BeginScope("{MethodName}", nameof(PromptLLMAsync)))
         {
             var chatSettings = new OpenAIPromptExecutionSettings
             {
@@ -112,13 +112,13 @@ public class LanguageModelThoughts : BaseThought
         [Description("bool: Whether to save the generated image from it's hoted URL to a local file. Example: 'true' | 'false'. Defaults to 'false'.")] string saveToLocalFile = "false",
         CancellationToken token = default)
     {
-        using (BeginSemanticScope(nameof(GenerateImageAndGetUrlAsync)))
+        using (_logger.BeginScope("{MethodName}", nameof(GenerateImageAndGetUrlAsync)))
         {
-            LogSemanticInformation($"Generating an image for '{prompt}' with Dall-E 3.");
+            _logger.LogInformation("Generating an image for '{Prompt}' with Dall-E 3.", prompt);
 
             var imageUrl = await _semanticKernelLanguageModels.GenerateImageAndGetUrlAsync(prompt, token);
 
-            LogSemanticDebug($"Generating completed: {imageUrl}.");
+            _logger.LogDebug("Generating completed: {ImageUrl}.", imageUrl);
 
             var shouldSaveFileToLocal = saveToLocalFile.ToLower().Trim() == "true";
 
@@ -130,16 +130,16 @@ public class LanguageModelThoughts : BaseThought
                 {
                     try
                     {
-                        LogSemanticInformation($"Downloading image from '{imageUrl}' to '{fileName}'.");
+                        _logger.LogInformation("Downloading image from '{ImageUrl}' to '{FileName}'.", imageUrl, fileName);
 
                         var imageBytes = await client.GetByteArrayAsync(imageUrl);
 
                         File.WriteAllBytes(fileName, imageBytes);
-                        LogSemanticDebug("Image downloaded successfully!");
+                        _logger.LogDebug("Image downloaded successfully!");
                     }
                     catch (Exception ex)
                     {
-                        LogSemanticError($"An error occurred downloading '{imageUrl}' to '{fileName}'.", ex);
+                        _logger.LogError("An error occurred downloading '{ImageUrl}' to '{FileName}': {Exception}", imageUrl, fileName, ex);
                         throw;
                     }
                 }
@@ -162,9 +162,9 @@ public class LanguageModelThoughts : BaseThought
         [Description("The input text to embed.")] string input,
         CancellationToken token = default)
     {
-        using (BeginSemanticScope(nameof(GetStringEmbeddingsAsync)))
+        using (_logger.BeginScope("{MethodName}", nameof(GetStringEmbeddingsAsync)))
         {
-            LogSemanticInformation($"Generating text embeddings.");
+            _logger.LogInformation($"Generating text embeddings.");
 
             var model = await _semanticKernelLanguageModels.GetEmbeddingModelAsync(token);
             var response = await model.GenerateEmbeddingAsync(input.ThrowIfNullOrWhitespace(nameof(input)), cancellationToken: token);
@@ -188,10 +188,10 @@ public class LanguageModelThoughts : BaseThought
     {
         if (!Uri.IsWellFormedUriString(imageUrl, UriKind.Absolute)) throw new ArgumentException($"The imageUrl has to be an absolute URL.");
 
-        using (BeginSemanticScope(nameof(PromptLLMAboutImageFromUrlAsync)))
+        using (_logger.BeginScope("{MethodName}", nameof(PromptLLMAboutImageFromUrlAsync)))
         {
-            LogSemanticInformation($"Asking the vision model about the image (remote file).");
-            LogSemanticDebug($"Image URL: '{imageUrl.ThrowIfNullOrWhitespace(nameof(imageUrl))}', Prompt: {prompt.ThrowIfNullOrWhitespace(nameof(prompt))}.");
+            _logger.LogInformation("Asking the vision model '{Prompt}' about the image ({ImageUrl}).", prompt, imageUrl);
+            _logger.LogDebug($"Image URL: '{imageUrl.ThrowIfNullOrWhitespace(nameof(imageUrl))}', Prompt: {prompt.ThrowIfNullOrWhitespace(nameof(prompt))}.");
 
             var chatSettings = new OpenAIPromptExecutionSettings
             {
@@ -214,10 +214,9 @@ public class LanguageModelThoughts : BaseThought
     /// <returns>The LLM response that can be a continued conversation.</returns>
     public async Task<Conversation> ChatAsync(string prompt, ModelType modelType, CancellationToken token)
     {
-        using (BeginSemanticScope(nameof(ChatAsync)))
+        using (_logger.BeginScope("{MethodName}", nameof(ChatAsync)))
         {
-            LogSemanticInformation($"Staring a new conversation.");
-            LogSemanticInformation($"First Message: '{prompt}'.");
+            _logger.LogInformation("Staring a new conversation: {Prompt}", prompt);
 
             var chatSettings = new OpenAIPromptExecutionSettings
             {
@@ -249,16 +248,15 @@ public class LanguageModelThoughts : BaseThought
     /// <returns>The LLM response.</returns>
     private async Task<string> PromptAsync(string prompt, ModelType modelType, OpenAIPromptExecutionSettings settings, ChatHistory chatHistory, CancellationToken token, string imageUrl = default)
     {
-        using (BeginSemanticScope(nameof(PromptAsync)))
+        using (_logger.BeginScope("{MethodName}", nameof(PromptAsync)))
         {
             var kernel = await _semanticKernelLanguageModels.GetKernelAsync(token);
             var chatCompletionService = await _semanticKernelLanguageModels.GetChatCompletionModelAsync(modelType, token);
 
             if(imageUrl == default) settings.ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions;
 
-            LogSemanticInformation($"Prompting model '{chatCompletionService.Attributes["DeploymentName"]}' with functions enabled.");
-            LogSemanticDebug($"Prompt: '{prompt}'.");
-            LogSemanticDebug($"Chat History Count (Before): '{chatHistory.Count}'.");
+            _logger.LogInformation("Prompting model '{ModelName}' ({ModelType}) with functions enabled: {Prompt}", chatCompletionService.Attributes["DeploymentName"], modelType, prompt);
+            _logger.LogDebug("Chat History Count (Before): '{ChatHistoryCount}'.", chatHistory.Count);
 
             var systemMessage = string.Empty;
 
@@ -314,10 +312,10 @@ public class LanguageModelThoughts : BaseThought
 
             chatHistory.AddAssistantMessage(result.Content);
 
-            LogSemanticDebug($"Chat History Count (After): '{chatHistory.Count}'.");
-            LogSemanticInformation($"Model Responded Successfully.");
-            LogSemanticDebug($"Model Response: {result.Content}");
-            LogSemanticDebug($"Trimming chat history to the configured {_openAIConfig.MaxConversationMessageCount} last messages.");
+            _logger.LogDebug("Chat History Count (After): '{ChatHistoryCount}'.", chatHistory.Count);
+            _logger.LogInformation("Model Responded Successfully.");
+            _logger.LogDebug("Model Response: {ModelResponse}", result.Content);
+            _logger.LogDebug("Trimming chat history to the configured {MaxChatWindowSize} last messages.", _openAIConfig.MaxConversationMessageCount);
 
             var historyWithoutToolUsage = chatHistory
                 .TakeLast(_openAIConfig.MaxConversationMessageCount);
