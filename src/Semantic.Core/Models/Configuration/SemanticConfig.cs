@@ -41,4 +41,8 @@ public class SemanticConfig
     /// Configuration for Medium blogging platform.
     /// </summary>
     public MediumConfig MediumConfig { get; set; }
+    /// <summary>
+    /// Configuration for IMGBB.
+    /// </summary>
+    public ImgbbConfig ImgbbConfig { get; set; }
 }

@@ -88,16 +88,6 @@ public class TextToSpeechChain : BaseChain
                         """ }
             },
             OutputKey = "1"
-        },
-        new Thought
-        {
-            Action = $"{nameof(SystemThoughts)}.{nameof(SystemThoughts.OutputTextAsync)}",
-            Reasoning = "I can simply proxy the response as a direct and the response is appropriate for an exact transcription.",
-            Arguments = new Dictionary<string, string>
-            {
-                { "output", "$1" }
-            },
-            OutputKey = "2"
         }
     };
 

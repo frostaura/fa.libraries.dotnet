@@ -59,16 +59,6 @@ public class GetFNBAccountBalancesChain : BaseChain
                     """ }
             },
             OutputKey = "2"
-        },
-        new Thought
-        {
-            Action = $"{nameof(SystemThoughts)}.{nameof(SystemThoughts.OutputTextAsync)}",
-            Reasoning = "I can simply proxy the response as the LLM already did the formatting for me.",
-            Arguments = new Dictionary<string, string>
-            {
-                { "output", "$2" }
-            },
-            OutputKey = "3"
         }
     };
 

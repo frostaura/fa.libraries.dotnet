@@ -55,7 +55,7 @@ public class SystemThoughts : BaseThought
     /// </summary>
     /// <param name="token">The token to use to request cancellation.</param>
     /// <returns>The response body as a string.</returns>
-    [KernelFunction, Description("Output text content to the end-user.")]
+    // [KernelFunction, Description("Output text content to the end-user.")]
     public Task<string> OutputTextAsync(
         [Description("The text to output.")] string output,
         CancellationToken token = default)

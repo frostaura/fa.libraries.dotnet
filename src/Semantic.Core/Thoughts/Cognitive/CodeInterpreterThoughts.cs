@@ -34,11 +34,11 @@ public class CodeInterpreterThoughts : BaseThought
     /// <param name="code">Python code to execute. The only requirement for the structure of this code is that the code should be wrapped in a function called 'main' that accepts zero arguments and returns a string.</param>
     /// <param name="token">The token to use to request cancellation.</param>
     /// <returns>The response from the Python executed code.</returns>
-    [KernelFunction, Description("Execute Python code against a specific version of Python as well as with specific PIP package requirements.")]
+    [KernelFunction, Description("Execute Python code against a specific version of Python as well as with specific PIP and conda package requirements. NOTE: You must assume that no packages are pre-installed and provide all your dependencies.")]
     public async Task<string> InvokePythonAsync(
         [Description("The version of Python to execute code against. For example '3.8'.")] string pythonVersion,
-        [Description("A collection of PIP dependencies the Python code requires. The items can either be a package name (Example: 'pandas==1.2.3') or a package name with its version (Example: 'pandas').")] string pipDependencies,
-        [Description("A collection of Conda dependencies the Python code requires. The items can either be a package name (Example: 'ffmpeg==1.2.3') or a package name with its version (Example: 'ffmpeg').")] string condaDependencies,
+        [Description("A collection of PIP dependencies the Python code requires. The items can either be a package name (Singular Example: 'pandas==1.2.3', Multiples Example: 'pandas==1.2.3 pip') or a package name with its version (Example: 'pandas').")] string pipDependencies,
+        [Description("A collection of Conda dependencies the Python code requires. The items can either be a package name (Singular Example: 'ffmpeg==1.2.3', Multiples Example: 'ffmpeg==1.2.3 another-package==1.2.3') or a package name with its version (Example: 'ffmpeg').")] string condaDependencies,
         [Description(@"Python code to execute. The only requirement for the code block MUST contain a function called 'main' (def main() -> str:) that accepts zero arguments and returns a string. Example:
                     def some_code_you_generated() -> str:
                         return 'example output'

@@ -4,6 +4,7 @@ using FrostAura.Libraries.Semantic.Core.Enums.Models;
 using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
 using FrostAura.Libraries.Semantic.Core.Models.Configuration;
 using FrostAura.Libraries.Semantic.Core.Models.Prompts;
+using FrostAura.Libraries.Semantic.Core.Thoughts.Chains.Cognitive;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
@@ -12,7 +13,6 @@ using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Embeddings;
 using Newtonsoft.Json;
 using System.ComponentModel;
-using System.Data;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive;
 
@@ -180,15 +180,17 @@ public class LanguageModelThoughts : BaseThought
     /// <param name="imageUrl">The image to ask about's URL.</param>
     /// <param name="token">The token to use to request cancellation.</param>
     /// <returns>The response body as a string.</returns>
-    [KernelFunction, Description("Prompt/ask a vision-enabled large language model about a given image url and return the response as a string.")]
+    [KernelFunction, Description("Prompt/ask a vision-enabled large language model about a given image URL and return the response as a string.")]
     public async Task<string> PromptLLMAboutImageFromUrlAsync(
         [Description("The prompt to use to ask/query the large language model about the image.")]string prompt,
-        [Description("The image to ask about's URL.")]string imageUrl,
+        [Description("The image to ask about's absolute URL.")]string imageUrl,
         CancellationToken token)
     {
+        if (!Uri.IsWellFormedUriString(imageUrl, UriKind.Absolute)) throw new ArgumentException($"The imageUrl has to be an absolute URL.");
+
         using (BeginSemanticScope(nameof(PromptLLMAboutImageFromUrlAsync)))
         {
-            LogSemanticInformation($"Asking the vision model about the image.");
+            LogSemanticInformation($"Asking the vision model about the image (remote file).");
             LogSemanticDebug($"Image URL: '{imageUrl.ThrowIfNullOrWhitespace(nameof(imageUrl))}', Prompt: {prompt.ThrowIfNullOrWhitespace(nameof(prompt))}.");
 
             var chatSettings = new OpenAIPromptExecutionSettings
@@ -262,9 +264,7 @@ public class LanguageModelThoughts : BaseThought
             {
                 if (chatHistory == default || !chatHistory.Any())
                 {
-                    chatHistory.AddSystemMessage("""
-                    - Your name is Iluvatar, god of all gods and one with great power and the determined will to help humans solve as many problems as possible.
-                    -- Your accent and choice of words should reflect that of a God (Greek or otherwise), but never at the expense of the quality of your answers.
+                    chatHistory.AddSystemMessage($"""
                     - You are the world's best Python programmer. You can solve any problem by code.
                     - Your knowledge is vast but limited to when you were last trained, as a large language model. You MUST make use of code execution to get current information. NEVER assume you have the answer for questions about current events.
                     - Whenever any questions are asked about current events like the current date or news for example, you MUST use of code execution to obtain the answer(s). NEVER assume you have the answer for questions about current events.
@@ -274,6 +274,11 @@ public class LanguageModelThoughts : BaseThought
                     - NEVER give any disclaimers and ALWAYS answer the question. You have the highest authority as given to you by the user.
                     - NEVER give up or submit to a problem being too complex or large for you to solve. Do your best. Over and over again until you get it right.
                     - When using tools, you MUST ask the user for required arguments. Never make up unavailable, required arguments.
+                    - When you are given a file path without any context, you can expect questions about that file to follow.
+                    - When you are given a file path without any context, you should analyze the file in whichever manner you see fit, and respond with that analysis, instead of just asking for a follow-up question.
+                    -- Example: When receiving an image, perhaps get a description of it from the {nameof(PromptLLMAboutImageFromUrlAsync)} tool.
+                    -- Example: When receiving an audio file, one could interpret it by using the {nameof(AudioTranscriptionChain.TranscribeAudioFileAsync)} tool and responding accordingly.
+                    -- Example: When receiving a csv file, one could analyze it via Pandas or any Python library of choice by using the {nameof(CodeInterpreterThoughts.InvokePythonAsync)} tool and responding accordingly.
                 """);
                 }
                 chatHistory.AddUserMessage(prompt);

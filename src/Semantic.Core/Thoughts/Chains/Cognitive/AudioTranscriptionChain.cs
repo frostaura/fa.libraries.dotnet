@@ -4,7 +4,6 @@ using FrostAura.Libraries.Semantic.Core.Abstractions.Thoughts;
 using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
 using FrostAura.Libraries.Semantic.Core.Models.Thoughts;
 using FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive;
-using FrostAura.Libraries.Semantic.Core.Thoughts.IO;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 
@@ -62,16 +61,6 @@ public class AudioTranscriptionChain : BaseChain
                         """ }
             },
             OutputKey = "1"
-        },
-        new Thought
-        {
-            Action = $"{nameof(SystemThoughts)}.{nameof(SystemThoughts.OutputTextAsync)}",
-            Reasoning = "I can simply proxy the response as a direct and response is appropriate for an exact transcription.",
-            Arguments = new Dictionary<string, string>
-            {
-                { "output", "$1" }
-            },
-            OutputKey = "2"
         }
     };
 

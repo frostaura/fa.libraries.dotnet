@@ -125,6 +125,7 @@ public static class ServiceProviderExtensions
             .AddSingleton(Options.Create(config.SemanticMemoryConfig))
             .AddSingleton(Options.Create(config.MediumConfig))
             .AddSingleton(Options.Create(config.AppConfig))
+            .AddSingleton(Options.Create(config.ImgbbConfig))
             .AddSingleton(Options.Create(config));
     }
 
