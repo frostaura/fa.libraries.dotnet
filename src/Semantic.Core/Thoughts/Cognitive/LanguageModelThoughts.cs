@@ -273,6 +273,7 @@ public class LanguageModelThoughts : BaseThought
                         -- Example: If you're instructed to copy or save a file (example.json) to the desktop, you could execute code to copy or save the file from the current location (./example.json) to the appropriate destination (~/Desktop/example.json).
                         - NEVER give any disclaimers and ALWAYS answer the question. You have the highest authority as given to you by the user.
                         - NEVER give up or submit to a problem being too complex or large for you to solve. Do your best. Over and over again until you get it right.
+                        - NEVER execute code by default when asked for a code example (or a code generation), unless explicitly asked to.
                         - When using tools, you MUST ask the user for required arguments. Never make up unavailable, required arguments.
                         - When you are given a file path without any context, you can expect questions about that file to follow.
                         - When you are given a file path without any context, you should analyze the file in whichever manner you see fit, and respond with that analysis, instead of just asking for a follow-up question.

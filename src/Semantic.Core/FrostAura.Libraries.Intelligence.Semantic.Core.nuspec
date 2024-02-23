@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>FrostAura.Libraries.Intelligence.Semantic.Core</id>
-        <version>1.7.0</version>
+        <version>1.7.1</version>
         <title>FrostAura.Libraries.Intelligence.Semantic.Core</title>
         <authors>Dean Martin</authors>
         <owners>FrostAura</owners>
@@ -15,9 +15,9 @@
             <group targetFramework="net7.0">
                 <dependency id="ElevenLabs-DotNet" version="2.1.1" />
                 <dependency id="FrostAura.Libraries.Core" version="7.1.0" />
-                <dependency id="Google.Apis" version="1.66.0" />
-                <dependency id="Google.Apis.Auth" version="1.66.0" />
-                <dependency id="Google.Apis.YouTube.v3" version="1.66.0.3330" />
+                <dependency id="Google.Apis" version="1.67.0" />
+                <dependency id="Google.Apis.Auth" version="1.67.0" />
+                <dependency id="Google.Apis.YouTube.v3" version="1.67.0.3330" />
                 <dependency id="Microsoft.Extensions.Configuration" version="8.0.0" />
                 <dependency id="Microsoft.Extensions.Configuration.EnvironmentVariables" version="8.0.0" />
                 <dependency id="Microsoft.Extensions.Configuration.Json" version="8.0.0" />

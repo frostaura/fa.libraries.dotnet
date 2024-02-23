@@ -6,6 +6,7 @@ using Microsoft.SemanticKernel;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
+using Polly;
 using System.ComponentModel;
 
 namespace FrostAura.Libraries.Semantic.Core.Thoughts.IO;
@@ -60,40 +61,58 @@ public class WebDriverThoughts : BaseThought
             // Initialize the ChromeDriver with options
             using (var driver = new ChromeDriver(chromeOptions))
             {
-                // Navigate to the website.
-                _logger.LogDebug("Navigating to {URI}.", uri);
-                driver.Navigate().GoToUrl(uri);
-
-                // Wait for the page to load completely (you can adjust the timeout as needed).
-                _logger.LogDebug("Waiting for the document state to become complete.");
-                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-                wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-
-                // Call the middleware, if any.
-                if (OnPageLoadedAsync is not null)
+                try
                 {
-                    _logger.LogDebug("Calling OnPageLoadedAsync middleware, if any.");
-                    await OnPageLoadedAsync.Invoke(driver);
+                    // Navigate to the website.
+                    _logger.LogDebug("Navigating to {URI}.", uri);
+                    driver.Navigate().GoToUrl(uri);
+
+                    // Wait for the page to load completely (you can adjust the timeout as needed).
+                    _logger.LogDebug("Waiting for the document state to become complete.");
+                    var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+                    wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+
+                    // Call the middleware, if any.
+                    if (OnPageLoadedAsync is not null)
+                    {
+                        _logger.LogDebug("Calling OnPageLoadedAsync middleware, if any.");
+                        await OnPageLoadedAsync.Invoke(driver);
+                    }
+
+                    // Extract all the text from the page.
+                    var websiteText = await Policy
+                        .Handle<Exception>()
+                        .OrResult<string>(result => result.Length <= 0)
+                        .WaitAndRetryAsync(5, retryCount => TimeSpan.FromSeconds(retryCount * 0.5))
+                        .ExecuteAsync(() =>
+                        {
+                            var body = driver.FindElement(By.TagName("body"));
+
+                            return Task.FromResult(body.Text);
+                        });
+
+                    _logger.LogInformation("Website loaded successfully ({ResponseCharCount} characters).", websiteText?.Length);
+
+                    // Call the middleware, if any.
+                    if (OnCleanupAsync is not null)
+                    {
+                        _logger.LogDebug("Calling OnCleanupAsync middleware, if any.");
+                        await OnCleanupAsync.Invoke(driver);
+                    }
+
+                    return websiteText
+                        .ThrowIfNullOrWhitespace(nameof(websiteText));
                 }
-
-                // Extract all the text from the page.
-                var websiteText = driver.FindElement(By.TagName("body")).Text;
-
-                _logger.LogDebug("Website loaded successfully ({ResponseCharCount} characters).", websiteText.Length);
-
-                // Call the middleware, if any.
-                if (OnCleanupAsync is not null)
+                catch (Exception ex)
                 {
-                    _logger.LogDebug("Calling OnCleanupAsync middleware, if any.");
-                    await OnCleanupAsync.Invoke(driver);
+                    throw;
                 }
-
-                // Close the WebDriver.
-                _logger.LogDebug("Closing the web driver.");
-                driver.Quit();
-
-                return websiteText
-                    .ThrowIfNullOrWhitespace(nameof(websiteText));
+                finally
+                {
+                    // Close the WebDriver.
+                    _logger.LogDebug("Closing the web driver.");
+                    driver.Quit();
+                }
             };
         }
     }
