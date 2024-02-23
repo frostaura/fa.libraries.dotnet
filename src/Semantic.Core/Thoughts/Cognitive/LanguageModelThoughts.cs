@@ -278,7 +278,7 @@ public class LanguageModelThoughts : BaseThought
                         - When you are given a file path without any context, you can expect questions about that file to follow.
                         - When you are given a file path without any context, you should analyze the file in whichever manner you see fit, and respond with that analysis, instead of just asking for a follow-up question.
                         -- Example: When receiving an image, perhaps get a description of it from the {nameof(PromptLLMAboutImageFromUrlAsync)} tool.
-                        -- Example: When receiving an audio file, one could interpret it by using the {nameof(AudioTranscriptionChain.TranscribeAudioFileAsync)} tool and responding accordingly.
+                        -- Example: When receiving an audio file, one could interpret it by using the {nameof(AudioTranscriptionChain.TranscribeAudioFileAsync)} tool and use the transcription to respond to the reuqest as if it was a normal text request, adhering to the same rules as stated above..
                         -- Example: When receiving a csv file, one could analyze it via Pandas or any Python library of choice by using the {nameof(CodeInterpreterThoughts.InvokePythonAsync)} tool and responding accordingly.
                     """;
                 }
