@@ -203,7 +203,7 @@ public class CodeInterpreterThoughts : BaseThought
                 }
 
                 // If on macOS or Linux, use zsh
-                process.StartInfo.FileName = "/bin/zsh";
+                process.StartInfo.FileName = "/bin/bash";
                 process.StartInfo.Arguments = $"-c \"{fileName} {command}\"";
             }
 
