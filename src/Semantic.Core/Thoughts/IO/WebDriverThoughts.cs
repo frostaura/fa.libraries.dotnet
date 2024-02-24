@@ -58,6 +58,7 @@ public class WebDriverThoughts : BaseThought
             chromeOptions.AddArguments("--headless");
             chromeOptions.AddArguments("--disable-dev-shm-usage");
             chromeOptions.AddArguments("--whitelisted-ips=");
+            chromeOptions.AddArguments("--verbose");
             chromeOptions.AddArguments("--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0");
 
             // Initialize the ChromeDriver with options
