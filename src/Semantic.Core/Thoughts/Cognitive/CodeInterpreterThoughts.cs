@@ -202,7 +202,7 @@ public class CodeInterpreterThoughts : BaseThought
                     fileName = $"~/miniconda3/bin/{fileName}";
                 }
 
-                // If on macOS or Linux, use zsh
+                // If on macOS or Linux, use bash
                 process.StartInfo.FileName = "/bin/bash";
                 process.StartInfo.Arguments = $"-c \"{fileName} {command}\"";
             }
@@ -269,8 +269,8 @@ public class CodeInterpreterThoughts : BaseThought
                     fileName = $"~/miniconda3/bin/{fileName}";
                 }
 
-                // If on macOS or Linux, use zsh.
-                process.StartInfo.FileName = "/bin/zsh";
+                // If on macOS or Linux, use bash.
+                process.StartInfo.FileName = "/bin/bash";
                 process.StartInfo.Arguments = $"-c \"{fileName} {tempScriptFilePath}\"";
             }
 
