@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using FrostAura.Libraries.Semantic.Core.Enums.Logging;
+using FrostAura.Libraries.Semantic.Core.Models.Prompts;
 using Newtonsoft.Json;
 
 namespace FrostAura.Libraries.Semantic.Core.Models.Logging;
@@ -31,6 +32,10 @@ public class LogItem
     /// The current status of the log item.
     /// </summary>
     public LogStatus Status { get; set; }
+    /// <summary>
+    /// The semantic operational context.
+    /// </summary>
+    public OperationContext OperationContext { get; set; }
     /// <summary>
     /// A collection of attributes to associate with the log item.
     /// </summary>

@@ -113,7 +113,7 @@ public class WebDriverThoughts : BaseThought
                 finally
                 {
                     // Close the WebDriver.
-                    _logger.LogDebug("Closing the web driver.");
+                    _logger.LogInformation("Closing the web driver.");
                     driver.Quit();
                 }
             };

@@ -18,17 +18,22 @@ public class Conversation
     /// <summary>
     /// A delegate to allow for calling back into a model.
     /// </summary>
-    public Func<string, Task<string>> CallModel { get;set;}
+    public Func<string, OperationContext, Task<string>> CallModel { get;set;}
+    /// <summary>
+    /// Conversation operation context.
+    /// </summary>
+    public OperationContext RootOperationContext { get; set; }
 
     /// <summary>
     /// Continue the conversation with a follow-up question / query.
     /// </summary>
     /// <param name="prompt">The LLM prompt.</param>
     /// <param name="token">The token to use to request cancellation.</param>
+    /// <param name="operationContext">Semantic request operation context.</param>
     /// <returns>The response string.</returns>
-    public async Task<string> ChatAsync(string prompt, CancellationToken token)
+    public async Task<string> ChatAsync(string prompt, CancellationToken token, OperationContext operationContext = default)
     {
-        var response = await CallModel(prompt);
+        var response = await CallModel(prompt, operationContext);
         LastMessage = response;
 
         return response;

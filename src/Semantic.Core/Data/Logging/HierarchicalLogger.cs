@@ -1,10 +1,9 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using FrostAura.Libraries.Core.Extensions.Validation;
+﻿using FrostAura.Libraries.Core.Extensions.Validation;
 using FrostAura.Libraries.Semantic.Core.Data.Adapters;
 using FrostAura.Libraries.Semantic.Core.Enums.Logging;
 using FrostAura.Libraries.Semantic.Core.Models.Logging;
+using FrostAura.Libraries.Semantic.Core.Models.Prompts;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace FrostAura.Libraries.Semantic.Core.Data.Logging;
 
@@ -13,6 +12,10 @@ namespace FrostAura.Libraries.Semantic.Core.Data.Logging;
 /// </summary>
 public class HierarchicalLogger : ILogger
 {
+    /// <summary>
+    /// The current semantic operation context.
+    /// </summary>
+    public static AsyncLocal<OperationContext> CurrentSemanticOperationContext = new AsyncLocal<OperationContext>();
     /// <summary>
     /// Scopes collection.
     /// </summary>
@@ -93,7 +96,8 @@ public class HierarchicalLogger : ILogger
             {
                 Scope = activeScope,
                 Status = LogStatus.Busy,
-                Message = state.ToString()
+                Message = state.ToString(),
+                OperationContext = CurrentSemanticOperationContext.Value
             };
 
             activeScope?.Logs.ForEach(l => l.Status = LogStatus.Succeeded);
