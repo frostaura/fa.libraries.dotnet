@@ -95,12 +95,16 @@ public class HierarchicalLogger : ILogger
             var parsedMessage = new LogItem
             {
                 Scope = activeScope,
-                Status = LogStatus.Busy,
+                Status = logLevel == LogLevel.Error ? LogStatus.Failed : LogStatus.Busy,
                 Message = state.ToString(),
                 OperationContext = CurrentSemanticOperationContext.Value
             };
 
-            activeScope?.Logs.ForEach(l => l.Status = LogStatus.Succeeded);
+            activeScope?
+                .Logs
+                .Where(l => l.Status != LogStatus.Failed)
+                .ToList()
+                .ForEach(l => l.Status = LogStatus.Succeeded);
             activeScope?.Logs.Add(parsedMessage);
             _onEventHandler.Invoke(_scopes, parsedMessage);
         }

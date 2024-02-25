@@ -5,7 +5,7 @@ namespace FrostAura.Libraries.Semantic.Core.Models.Prompts;
 /// <summary>
 /// Semantic request operation context.
 /// </summary>
-[DebuggerDisplay("[{Id}] {UserIdentifier}")]
+[DebuggerDisplay("[{Id}] {Name}")]
 public class OperationContext
 {
     /// <summary>

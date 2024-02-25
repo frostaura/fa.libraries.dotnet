@@ -37,6 +37,10 @@ public class LogItem
     /// </summary>
     public OperationContext OperationContext { get; set; }
     /// <summary>
+    /// The timestamp of the creation of the log item.
+    /// </summary>
+    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+    /// <summary>
     /// A collection of attributes to associate with the log item.
     /// </summary>
     public readonly Dictionary<string, object> Attributes = new Dictionary<string, object>();

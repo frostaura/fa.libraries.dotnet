@@ -14,6 +14,7 @@ using System.Reflection;
 using FrostAura.Libraries.Semantic.Core.Enums.Models;
 using FrostAura.Libraries.Semantic.Core.Extensions.Configuration;
 using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
+using FrostAura.Libraries.Semantic.Core.Models.Prompts;
 using FrostAura.Libraries.Semantic.Core.Thoughts.Cognitive;
 using Microsoft.Extensions.DependencyInjection;
 using Semantic.Core.Examples.Data;
@@ -40,13 +41,25 @@ var token = CancellationToken.None;
 Console.Write("Question / Query: ");
 
 var query = Console.ReadLine();
+var operationId = 1;
+var operationContext = new OperationContext
+{
+    Id = $"{operationId}",
+    Name = $"Operation {operationId}"
+};
 var conversation = await llmThought
-    .ChatAsync(query, ModelType.LargeLLM, token);
+    .ChatAsync(query, ModelType.LargeLLM, token, operationContext);
 
 // Finally, simply create an infinite while loop to print the previous language model response and allow for a follow-up query.
 while(true)
 {
+    operationId += 1;
+    operationContext = new OperationContext
+    {
+        Id = $"{operationId}",
+        Name = $"Operation {operationId}"
+    };
     Console.WriteLine($"{Environment.NewLine}{conversation.LastMessage}");
     Console.Write($"{Environment.NewLine}{Environment.NewLine}Question / Query (Follow-Up): ");
-    await conversation.ChatAsync(Console.ReadLine(), token);
+    await conversation.ChatAsync(Console.ReadLine(), token, operationContext);
 }
