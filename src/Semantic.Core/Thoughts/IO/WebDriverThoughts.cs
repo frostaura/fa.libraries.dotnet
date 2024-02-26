@@ -1,10 +1,13 @@
 ﻿using FrostAura.Libraries.Core.Extensions.Validation;
 using FrostAura.Libraries.Semantic.Core.Abstractions.Thoughts;
 using FrostAura.Libraries.Semantic.Core.Interfaces.Data;
+using FrostAura.Libraries.Semantic.Core.Models.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
 using Polly;
 using System.ComponentModel;
@@ -24,16 +27,26 @@ public class WebDriverThoughts : BaseThought
     /// A function to call after the page read is done.
     /// </summary>
     public Func<WebDriver, Task> OnCleanupAsync;
+    /// <summary>
+    /// Configuration for the App config.
+    /// </summary>
+    private AppConfig _appConfig;
 
     /// <summary>
     /// Overloaded constructor to provide dependencies.
     /// </summary>
     /// <param name="serviceProvider">The dependency service provider.</param>
     /// <param name="semanticKernelLanguageModels">A component for communicating with language models.</param>
+    /// <param name="appConfigOptions">Configuration for the App options.</param>
     /// <param name="logger">Instance logger.</param>
-    public WebDriverThoughts(IServiceProvider serviceProvider, ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels, ILogger<WebDriverThoughts> logger)
+    public WebDriverThoughts(IServiceProvider serviceProvider, ISemanticKernelLanguageModelsDataAccess semanticKernelLanguageModels, IOptions<AppConfig> appConfigOptions, ILogger<WebDriverThoughts> logger)
         : base(serviceProvider, semanticKernelLanguageModels, logger)
-    { }
+    {
+        _appConfig = appConfigOptions
+            .ThrowIfNull(nameof(appConfigOptions))
+            .Value
+            .ThrowIfNull(nameof(appConfigOptions));
+    }
 
     /// <summary>
     /// Fetch a website's text content by loading it and waiting for all content (including lazy content), using a web driver.
@@ -62,7 +75,7 @@ public class WebDriverThoughts : BaseThought
             chromeOptions.AddArguments("--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0");
 
             // Initialize the ChromeDriver with options
-            using (var driver = new ChromeDriver(chromeOptions))
+            using (var driver = new RemoteWebDriver(new Uri(_appConfig.SeleniumGridUrl), chromeOptions))
             {
                 try
                 {

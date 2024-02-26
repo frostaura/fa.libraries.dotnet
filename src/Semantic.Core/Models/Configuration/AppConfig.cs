@@ -12,4 +12,8 @@ public class AppConfig
     /// The identifier for the application.
     /// </summary>
     public string Name { get; set; }
+    /// <summary>
+    /// The selenium grid URL for webdriver operations.
+    /// </summary>
+    public string SeleniumGridUrl { get; set; }
 }
