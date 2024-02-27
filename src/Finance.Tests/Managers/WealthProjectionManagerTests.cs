@@ -25,9 +25,9 @@ namespace Finance.Tests.Managers
                 Accounts = new List<Account>
                 {
 
-                    new Account("Alexander Forbes", balance: 617971)
+                    new Account("Alexander Forbes", balance: 671213)
                     {
-                        InterestRate = 0.07, // Conservative percentage.
+                        InterestRate = 0.1, // Growth percentage yearly.
                         ScheduledTransactions = new List<PricedItem>
                         {
                             // The double amount being defined and subtracted from the salary account, is offset by an income item.
@@ -36,25 +36,25 @@ namespace Finance.Tests.Managers
                             new PricedItem{ Name = "AF Provident Fund (Company Deposit)", Amount = 0.05, Type = PricedItemType.SalaryRatio }
                         }
                     },
-                    new Account("Securities", balance: 10949)
+                    new Account("Securities", balance: 10713)
                     {
                         InterestRate = 0.07, // Conservative percentage.
                         DefaultInvestmentAccount = true,
                         ScheduledTransactions = new List<PricedItem>
                         {
-                            new PricedItem{ Name = "AAPL", Amount = 333, FromSalary = true },
-                            new PricedItem{ Name = "DIS", Amount = 333, FromSalary = true },
+                            new PricedItem{ Name = "AAPL", Amount = 0, FromSalary = true },
+                            new PricedItem{ Name = "DIS", Amount = 0, FromSalary = true },
                             new PricedItem{ Name = "SPY", Amount = 2000, FromSalary = true },
-                            new PricedItem{ Name = "WBD", Amount = 333, FromSalary = true }
+                            new PricedItem{ Name = "WBD", Amount = 1000, FromSalary = true }
                         }
                     },
-                    new Account("Crypto", balance: 10987)
+                    new Account("Crypto", balance: 16717)
                     {
-                        InterestRate = 0.07, // Conservative percentage.
+                        InterestRate = 0.1, // Growth percentage yearly.
                         DefaultInvestmentAccount = true,
                         ScheduledTransactions = new List<PricedItem>
                         {
-                            new PricedItem{ Name = "BTC", Amount = 1000, FromSalary = true }
+                            new PricedItem{ Name = "BTC", Amount = 2000, FromSalary = true }
                         }
                     },
                     new Account("MTN Mobile (iPhone 14 Pro Max)", accountType: AccountType.Repeat)
@@ -89,7 +89,7 @@ namespace Finance.Tests.Managers
                             new PricedItem{ Name = "Payment", Amount = 450, FromSalary = true }
                         }
                     },
-                    new Account("MFC Vehicle Finance", balance: -486016, accountType: AccountType.StopAtZero)
+                    new Account("MFC Vehicle Finance", balance: -474696, accountType: AccountType.StopAtZero)
                     {
                         InterestRate = 0.1465,
                         ScheduledTransactions = new List<PricedItem>
@@ -112,12 +112,12 @@ namespace Finance.Tests.Managers
                     {
                         InterestRate = 0.2225
                     },
-                    new Account("FNB Credit", balance: -293191, accountType: AccountType.StopAtZero)
+                    new Account("FNB Credit", balance: -196283, accountType: AccountType.StopAtZero)
                     {
                         Name = "FNB Credit",
                         InterestRate = 0.1975
                     },
-                    new Account("SA Home Loan", balance: -1746153, accountType: AccountType.StopAtZero)
+                    new Account("SA Home Loan", balance: -1742877, accountType: AccountType.StopAtZero)
                     {
                         InterestRate = 0.119,
                         ScheduledTransactions = new List<PricedItem>
@@ -129,7 +129,7 @@ namespace Finance.Tests.Managers
                 },
                 Income = new List<TaxablePricedItem>
                 {
-                    new TaxablePricedItem{ Name = "Basic Salary", Amount = 132378, Taxable = true },
+                    new TaxablePricedItem{ Name = "Basic Salary", Amount = 145615, Taxable = true },
                     new TaxablePricedItem{ Name = "Medical Aid Allowance", Amount = 2000 },
                     new TaxablePricedItem{ Name = "AF Provident Fund", Amount = 0.05, Type = PricedItemType.SalaryRatio },
                     new TaxablePricedItem{ Name = "AF Provident Fund Admin Fee", Amount = 173 },
@@ -260,24 +260,27 @@ namespace Finance.Tests.Managers
                 return !isNetWorthAboveZero;
             });
 
+            // Set projection start date.
+            request.ProjectionStartDate = new DateTime(2024, 3, 28);
+
             var projectionForSpecificDate = await instance.ProjectToDateAsync(request, new DateTime(2024, 12, 31));
 
-            // Mar 2026 (Dec 2025 with 10% increase.)
+            // Oct 2025
             var projectionForWhenNetWorthExceedsZero = await instance.ProjectTillIsTerminalAsync(request, belowZeroNetWorthTerminalCondition);
 
-            // Feb 2028 (Jul 2027 with 10% increase.)
+            // Jul 2027
             var projectionForAllDebtSettled = await instance.ProjectTillIsTerminalAsync(request, hasUnsettledAccountsTerminalCondition);
 
-            // Sept 2037 (Nov 2036 with 10% increase.)
+            // June 2036
             var projectionTillFinancialGoalsMet = await instance.ProjectTillIsTerminalAsync(request, hasNotMetFinancialGoalsYetTerminalCondition);
 
-            // R 9m (10m with 10% increase.)
+            // 11.5m
             var projectTillRetirementAt40 = await instance.ProjectToDateAsync(request, new DateTime(2023 + (40 - 32), 09, 05));
 
-            // R 54m (61m with 10% increase.)
+            // 67.1m
             var projectTillRetirementAt50 = await instance.ProjectToDateAsync(request, new DateTime(2023 + (50 - 32), 09, 05));
 
-            // Sept 2025 (Jul 2025 with 10% increase.)
+            // May 2025
             var projectTillCarIsPaidOff = await instance.ProjectTillIsTerminalAsync(request, new Func<ProjectionRequest, int, DateTime, bool>((req, monthIndex, monthDate) =>
             {
                 var accSettled = req
@@ -287,7 +290,7 @@ namespace Finance.Tests.Managers
                 return accSettled.Balance < 0;
             }));
 
-            // Feb 2028 (Jul 2027 with 10% increase.)
+            // Jul 2027
             var projectTillHouseIsPaidOff = await instance.ProjectTillIsTerminalAsync(request, new Func<ProjectionRequest, int, DateTime, bool>((req, monthIndex, monthDate) =>
             {
                 var accSettled = req

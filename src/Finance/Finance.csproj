@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FrostAura.Libraries.Core" Version="7.0.2" />
+    <PackageReference Include="FrostAura.Libraries.Core" Version="7.1.0" />
     <PackageReference Include="NSubstitute" Version="5.1.0" />
     <PackageReference Include="FrostAura.Libraries.Data" Version="7.0.5" />
   </ItemGroup>
