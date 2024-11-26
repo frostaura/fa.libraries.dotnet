@@ -3,3 +3,5 @@ bin/
 obj/
 .DS_Store
 src/*/appsettings.development.json
+src/.idea/
+*.sln.*.user

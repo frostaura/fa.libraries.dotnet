@@ -25,7 +25,7 @@ namespace Finance.Tests.Managers
                 Accounts = new List<Account>
                 {
 
-                    new Account("Alexander Forbes", balance: 755947)
+                    new Account("Alexander Forbes", balance: 816000)
                     {
                         InterestRate = 0.1, // Growth percentage yearly.
                         ScheduledTransactions = new List<PricedItem>
@@ -36,30 +36,22 @@ namespace Finance.Tests.Managers
                             new PricedItem{ Name = "AF Provident Fund (Company Deposit)", Amount = 0.05, Type = PricedItemType.SalaryRatio }
                         }
                     },
-                    new Account("Securities", balance: 17932)
+                    new Account("Securities", balance: 61731)
                     {
-                        InterestRate = 0.07, // Conservative percentage.
+                        InterestRate = 0.575, // Conservative percentage.
                         DefaultInvestmentAccount = true,
                         ScheduledTransactions = new List<PricedItem>
                         {
-                            new PricedItem{ Name = "SPY", Amount = 1000, FromSalary = true }
+                            new PricedItem{ Name = "MSTR", Amount = 2000, FromSalary = true }
                         }
                     },
-                    new Account("Crypto", balance: 42889)
+                    new Account("Crypto", balance: 29507)
                     {
-                        InterestRate = 0.1, // Growth percentage yearly.
+                        InterestRate = 0.575, // Growth percentage yearly: https://www.reddit.com/r/Bitcoin/comments/1d9zrow/btc_average_yearlyanually_return/?rdt=53218
                         DefaultInvestmentAccount = true,
                         ScheduledTransactions = new List<PricedItem>
                         {
-                            new PricedItem{ Name = "BTC", Amount = 1000, FromSalary = true }
-                        }
-                    },
-                    new Account("MTN Mobile (iPhone 14 Pro Max)", accountType: AccountType.Repeat)
-                    {
-                        ExpirationDate = new DateTime(2024, 10, 31),
-                        ScheduledTransactions = new List<PricedItem>
-                        {
-                            new PricedItem{ Name = "Payment", Amount = 1500, FromSalary = true }
+                            new PricedItem{ Name = "BTC", Amount = 3000, FromSalary = true }
                         }
                     },
                     new Account("MTN Mobile (iPhone 15 Pro Max)", accountType: AccountType.Repeat)
@@ -70,15 +62,7 @@ namespace Finance.Tests.Managers
                             new PricedItem{ Name = "Payment", Amount = 1500, FromSalary = true }
                         }
                     },
-                    new Account("Apple Watch (Discovery)", accountType: AccountType.Repeat)
-                    {
-                        ExpirationDate = new DateTime(2024, 12, 31),
-                        ScheduledTransactions = new List<PricedItem>
-                        {
-                            new PricedItem{ Name = "Payment", Amount = 450, FromSalary = true }
-                        }
-                    },
-                    new Account("MFC Vehicle Finance", balance: -406831, accountType: AccountType.StopAtZero)
+                    new Account("MFC Vehicle Finance", balance: -320000, accountType: AccountType.StopAtZero)
                     {
                         InterestRate = 0.1465,
                         ScheduledTransactions = new List<PricedItem>
@@ -97,11 +81,11 @@ namespace Finance.Tests.Managers
                             new PricedItem{ Name = "Bank Account Charges", Amount = -650 }
                         }
                     },
-                    new Account("FNB Fusion (Overdraft)", balance: -35776, accountType: AccountType.StopAtZero)
+                    new Account("FNB Fusion (Overdraft)", balance: -1000, accountType: AccountType.StopAtZero)
                     {
                         InterestRate = 0.2225
                     },
-                    new Account("FNB Credit", balance: -290704, accountType: AccountType.StopAtZero)
+                    new Account("FNB Credit", balance: -292704, accountType: AccountType.StopAtZero)
                     {
                         Name = "FNB Credit",
                         InterestRate = 0.1975
@@ -182,6 +166,30 @@ namespace Finance.Tests.Managers
             // Register custom conditional transactions.
             request.Conditions[(req, monthIndex, monthDate) =>
             {
+                // Once-off for end 2024 year.
+                return monthDate.Month == 12 && monthDate.Year == 2024;
+            }] = new TaxablePricedItem
+            {
+                Name = "Options",
+                Amount = 135000,
+                Taxable = false,
+                OnceOff = true,
+                Type = PricedItemType.Absolute
+            };
+            request.Conditions[(req, monthIndex, monthDate) =>
+            {
+                // Once-off for end 2025 year.
+                return monthDate.Month == 12 && monthDate.Year == 2025;
+            }] = new TaxablePricedItem
+            {
+                Name = "Options",
+                Amount = 135000,
+                Taxable = false,
+                OnceOff = true,
+                Type = PricedItemType.Absolute
+            };
+            request.Conditions[(req, monthIndex, monthDate) =>
+            {
                 var bonusMonths = new[] { 7, 12 };
 
                 return bonusMonths.Contains(monthDate.Month);
@@ -205,21 +213,6 @@ namespace Finance.Tests.Managers
                 Taxable = true,
                 OnceOff = true,
                 Type = PricedItemType.SalaryRatio
-            };
-
-            // Once-off expense(s)
-            request.Conditions[(req, monthIndex, monthDate) =>
-            {
-                // Specifically for this month.
-                var now = DateTime.Now;
-
-                return monthDate.Month == now.Month && monthDate.Year == now.Year;
-            }] = new TaxablePricedItem
-            {
-                Name = "Discovery Credit Settlement (VET Bill)",
-                Amount = -13000,
-                OnceOff = true,
-                Type = PricedItemType.Absolute
             };
 
             // End conditions.
@@ -254,22 +247,22 @@ namespace Finance.Tests.Managers
 
             var projectionForSpecificDate = await instance.ProjectToDateAsync(request, new DateTime(2024, 12, 31));
 
-            // Feb 2026 (Prev: Oct 2025)
+            // Sept 2025 (Prev: Feb 2025)
             var projectionForWhenNetWorthExceedsZero = await instance.ProjectTillIsTerminalAsync(request, belowZeroNetWorthTerminalCondition);
 
-            // Aug 2027 (Prev: Jul 2027)
+            // May 2027 (Prev: Aug 2027)
             var projectionForAllDebtSettled = await instance.ProjectTillIsTerminalAsync(request, hasUnsettledAccountsTerminalCondition);
 
-            // July 2036 (Prev: June 2036)
+            // June 2031 (Prev: July 2036)
             var projectionTillFinancialGoalsMet = await instance.ProjectTillIsTerminalAsync(request, hasNotMetFinancialGoalsYetTerminalCondition);
 
-            // 11m (Prev: 11.5m)
+            // 33.15m (Prev: 11m)
             var projectTillRetirementAt40 = await instance.ProjectToDateAsync(request, new DateTime(2023 + (40 - 32), 09, 05));
 
-            // 66.2m (Prev: 67.1m)
+            // 8b 6m 700k (Prev: 66.2m)
             var projectTillRetirementAt50 = await instance.ProjectToDateAsync(request, new DateTime(2023 + (50 - 32), 09, 05));
 
-            // Aug 2025 (Prev: May 2025)
+            // June 2025 (Prev: Aug 2025)
             var projectTillCarIsPaidOff = await instance.ProjectTillIsTerminalAsync(request, new Func<ProjectionRequest, int, DateTime, bool>((req, monthIndex, monthDate) =>
             {
                 var accSettled = req
@@ -279,7 +272,7 @@ namespace Finance.Tests.Managers
                 return accSettled.Balance < 0;
             }));
 
-            // Aug 2027 (Prev: Jul 2027)
+            // May 2027 (Prev: Aug 2027)
             var projectTillHouseIsPaidOff = await instance.ProjectTillIsTerminalAsync(request, new Func<ProjectionRequest, int, DateTime, bool>((req, monthIndex, monthDate) =>
             {
                 var accSettled = req
