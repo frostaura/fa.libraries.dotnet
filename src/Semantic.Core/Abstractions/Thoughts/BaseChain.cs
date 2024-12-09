@@ -72,7 +72,14 @@ public abstract class BaseChain : BaseThought
                 // The state should be created by executing the thought.
                 else
                 {
-                    thought.Observation = await ExecuteThoughtAsync(thought, state, token);
+                    if (thought is LoopThought loopThought)
+                    {
+                        thought.Observation = await ExecuteLoopAsync(loopThought, state, token);
+                    }
+                    else
+                    {
+                        thought.Observation = await ExecuteThoughtAsync(thought, state, token);
+                    }
                     state[$"${thought.OutputKey}"] = thought.Observation;
                 }
 
@@ -140,6 +147,54 @@ public abstract class BaseChain : BaseThought
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to execute {Thought}: {ErrorMessage}", thought, ex.Message);
+                throw;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Execute a loop thought and return its observation.
+    /// </summary>
+    /// <param name="loopThought">The loop thought context.</param>
+    /// <param name="state">The global context. Used to interpolate dependencies.</param>
+    /// <param name="token">The token to use to request cancellation.</param>
+    /// <returns>The loop thought's response / observation.</returns>
+    private async Task<string> ExecuteLoopAsync(LoopThought loopThought, Dictionary<string, string> state, CancellationToken token)
+    {
+        using (_logger.BeginScope("{MethodName} => {LoopThought}", nameof(ExecuteLoopAsync), loopThought))
+        {
+            try
+            {
+                // Get the collection to iterate over from the state.
+                var collection = JsonConvert.DeserializeObject<List<string>>(state[$"${loopThought.CollectionKey}"]);
+                var loopObservations = new List<string>();
+
+                foreach (var item in collection)
+                {
+                    // Update the state with the current item.
+                    state[$"${loopThought.ItemKey}"] = item;
+
+                    foreach (var nestedThought in loopThought.NestedThoughts)
+                    {
+                        if (state.ContainsKey($"${nestedThought.OutputKey}"))
+                        {
+                            nestedThought.Observation = state[$"${nestedThought.OutputKey}"];
+                        }
+                        else
+                        {
+                            nestedThought.Observation = await ExecuteThoughtAsync(nestedThought, state, token);
+                            state[$"${nestedThought.OutputKey}"] = nestedThought.Observation;
+                        }
+
+                        loopObservations.Add(nestedThought.Observation);
+                    }
+                }
+
+                return JsonConvert.SerializeObject(loopObservations);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to execute {LoopThought}: {ErrorMessage}", loopThought, ex.Message);
                 throw;
             }
         }

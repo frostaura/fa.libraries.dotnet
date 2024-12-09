@@ -33,6 +33,10 @@ public class Thought
     /// The response from the action taken.
     /// </summary>
     public string Observation { get; set; } = "Pending";
+    /// <summary>
+    /// Indicates if the thought is a loop.
+    /// </summary>
+    public bool IsLoop { get; set; } = false;
 
     /// <summary>
     /// Overridden string display for the thought.
