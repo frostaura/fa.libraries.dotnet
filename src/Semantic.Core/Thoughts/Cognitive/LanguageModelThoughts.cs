@@ -344,4 +344,32 @@ public class LanguageModelThoughts : BaseThought
             }
         }
     }
+
+    /// <summary>
+    /// Weigh a list of forecasts based on the reputation of the source.
+    /// </summary>
+    /// <param name="forecasts">A list of forecasts.</param>
+    /// <param name="token">The token to use to request cancellation.</param>
+    /// <returns>A weighted forecast.</returns>
+    [KernelFunction, Description("Weigh a list of forecasts based on the reputation of the source.")]
+    public async Task<string> WeighForecastsAsync(
+        [Description("A list of forecasts.")] List<string> forecasts,
+        CancellationToken token = default)
+    {
+        using (_logger.BeginScope("{MethodName}", nameof(WeighForecastsAsync)))
+        {
+            _logger.LogInformation("Weighing forecasts based on the reputation of the source.");
+
+            var prompt = $"""
+                Given the following forecasts, weigh them based on the reputation of the source and provide a final weighted forecast.
+
+                Forecasts:
+                {string.Join(Environment.NewLine, forecasts)}
+
+                Weighted Forecast:
+                """;
+
+            return await PromptLLMAsync(prompt, token);
+        }
+    }
 }
