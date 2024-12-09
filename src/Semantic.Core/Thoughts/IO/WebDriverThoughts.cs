@@ -128,4 +128,72 @@ public class WebDriverThoughts : BaseThought
             };
         }
     }
+
+    /// <summary>
+    /// Search the internet for relevant and trusted sources of forecasts for a given asset and timeframe.
+    /// </summary>
+    /// <param name="assetName">The name or ticker of the asset. For example, BTC or Bitcoin.</param>
+    /// <param name="timeframe">The timeframe for the forecast. For example, "for today", "for tomorrow" or "in 6 months".</param>
+    /// <param name="token">The token to use to request cancellation.</param>
+    /// <returns>A list of forecast URLs.</returns>
+    [KernelFunction, Description("Search the internet for relevant and trusted sources of forecasts for a given asset and timeframe.")]
+    public async Task<List<string>> SearchForecastsAsync(
+        [Description("The name or ticker of the asset. For example, BTC or Bitcoin.")] string assetName,
+        [Description("The timeframe for the forecast. For example, 'for today', 'for tomorrow' or 'in 6 months'.")] string timeframe,
+        CancellationToken token = default)
+    {
+        using (_logger.BeginScope("{MethodName}", nameof(SearchForecastsAsync)))
+        {
+            var searchQuery = $"{assetName} forecast {timeframe}";
+            var searchUrl = $"https://duckduckgo.com/?q={Uri.EscapeDataString(searchQuery)}";
+            var forecastUrls = new List<string>();
+
+            _logger.LogInformation("Searching for forecasts for {AssetName} {Timeframe} using DuckDuckGo.", assetName, timeframe);
+
+            // Set Chrome options for headless mode
+            var chromeOptions = new ChromeOptions();
+
+            _logger.LogDebug("Using headless mode and a custom user agent string.");
+            chromeOptions.AddArguments("--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0");
+
+            // Initialize the ChromeDriver with options
+            using (var driver = new RemoteWebDriver(new Uri(_appConfig.SeleniumGridUrl), chromeOptions))
+            {
+                try
+                {
+                    // Navigate to the search URL.
+                    _logger.LogDebug("Navigating to {SearchUrl}.", searchUrl);
+                    driver.Navigate().GoToUrl(searchUrl);
+
+                    // Wait for the page to load completely (you can adjust the timeout as needed).
+                    _logger.LogDebug("Waiting for the document state to become complete.");
+                    var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+                    wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+
+                    // Extract all the forecast URLs from the search results.
+                    var searchResults = driver.FindElements(By.CssSelector(".result__a"));
+
+                    foreach (var result in searchResults)
+                    {
+                        var url = result.GetAttribute("href");
+                        forecastUrls.Add(url);
+                    }
+
+                    _logger.LogInformation("Found {ForecastCount} forecast URLs.", forecastUrls.Count);
+
+                    return forecastUrls;
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+                finally
+                {
+                    // Close the WebDriver.
+                    _logger.LogInformation("Closing the web driver.");
+                    driver.Quit();
+                }
+            };
+        }
+    }
 }
