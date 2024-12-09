@@ -61,6 +61,46 @@ public class AudioTranscriptionChain : BaseChain
                         """ }
             },
             OutputKey = "1"
+        },
+        new LoopThought
+        {
+            CollectionKey = "audioFiles",
+            ItemKey = "audioFile",
+            NestedThoughts = new List<Thought>
+            {
+                new Thought
+                {
+                    Action = $"{nameof(CodeInterpreterThoughts)}.{nameof(CodeInterpreterThoughts.InvokePythonAsync)}",
+                    Reasoning = "I will use my code Python code interpreter to construct a script that can use the OpenAI Whisper model to transcribe the Audio file.",
+                    Critisism = "I need to ensure that I use the correct package versions so that the Python environment has the required dependencies installed.",
+                    Arguments = new Dictionary<string, string>
+                    {
+                        { "pythonVersion", "3.8" },
+                        { "pipDependencies", "pip pydub git+https://github.com/openai/whisper.git" },
+                        { "condaDependencies", "ffmpeg" },
+                        { "code", """
+                                def transcribe(file_path: str) -> str:
+                                    import whisper
+
+                                    model = whisper.load_model('base')
+
+                                    print('Transcribing ' + file_path)
+
+                                    try:
+                                        result = model.transcribe(file_path)
+
+                                        return result['text']
+                                    except Exception as e:
+                                        print(e)
+                                        raise e
+
+                                def main() -> str:
+                                    return transcribe('$audioFile')
+                                """ }
+                    },
+                    OutputKey = "transcription"
+                }
+            }
         }
     };
 
@@ -89,6 +129,24 @@ public class AudioTranscriptionChain : BaseChain
         {
             _logger.LogInformation("Starting audio transcription for the file {FileName}", audioFilePath);
             return ExecuteChainAsync(audioFilePath.ThrowIfNullOrWhitespace(nameof(audioFilePath)), token: token);
+        }
+    }
+
+    /// <summary>
+    /// Take a collection of input Audio file paths and get the transcribe text for each.
+    /// </summary>
+    /// <param name="audioFilePaths">The JSON array of absolute paths to Audio files to transcribe. For example a .mp3 or .wav file paths.</param>
+    /// <param name="token">The token to use to request cancellation.</param>
+    /// <returns>The JSON array of transcriptions.</returns>
+    [KernelFunction, Description("Take a collection of input Audio file paths and get the transcribe text for each.")]
+    public Task<string> TranscribeAudioFilesAsync(
+        [Description("The JSON array of absolute paths to Audio files to transcribe. For example a .mp3 or .wav file paths.")] string audioFilePaths,
+        CancellationToken token = default)
+    {
+        using (_logger.BeginScope("{MethodName}", nameof(TranscribeAudioFilesAsync)))
+        {
+            _logger.LogInformation("Starting audio transcription for the files {FileNames}", audioFilePaths);
+            return ExecuteChainAsync(audioFilePaths.ThrowIfNullOrWhitespace(nameof(audioFilePaths)), token: token);
         }
     }
 }

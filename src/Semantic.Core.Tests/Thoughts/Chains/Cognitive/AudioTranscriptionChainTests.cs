@@ -99,4 +99,24 @@ public class AudioTranscriptionChainTests
 
         Assert.Contains(expected, actual);
     }
+
+    [Fact]
+    public async Task TranscribeAudioFilesAsync_WithValidInput_ShouldCallInvokeAsync()
+    {
+        var userProxy = Substitute.For<IUserProxyDataAccess>();
+        var serviceCollection = new ServiceCollection()
+            .AddSemanticCore(out var configuration)
+            .AddSingleton(userProxy);
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        var semanticKernelLanguageModels = Substitute.For<ISemanticKernelLanguageModelsDataAccess>();
+        var logger = Substitute.For<ILogger<AudioTranscriptionChain>>();
+        var instance = new AudioTranscriptionChain(serviceProvider, semanticKernelLanguageModels, logger);
+        var input = "[\"./harvard.wav\", \"./harvard2.wav\"]";
+        var expected = "[\"The stale smell of old beer lingers. It takes heat to bring out the odor. A cold dip restores health and zest. A salt pickle tastes fine with ham. Tacos al pastor are my favorite. A zestful food is the hot cross bun.\", \"The quick brown fox jumps over the lazy dog.\"]";
+
+        var actual = await instance.TranscribeAudioFilesAsync(input);
+
+        Assert.Contains(expected, actual);
+    }
 }
