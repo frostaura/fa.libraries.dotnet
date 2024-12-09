@@ -519,3 +519,24 @@ public class YouTubeShortFactualVideoGenerationChain : BaseChain
         }
     }
 }
+
+/// <summary>
+/// Mermaid diagram for the YouTubeShortFactualVideoGenerationChain class.
+/// </summary>
+/// <remarks>
+/// This diagram provides a visual representation of the YouTubeShortFactualVideoGenerationChain class, its methods, and their interactions.
+/// </remarks>
+/// <code>
+/// classDiagram
+///     class YouTubeShortFactualVideoGenerationChain {
+///         +YouTubeShortFactualVideoGenerationChain(IServiceProvider, ISemanticKernelLanguageModelsDataAccess, ILogger<YouTubeShortFactualVideoGenerationChain>)
+///         +Task~string~ GenerateDocumentaryVideoAsync(string, CancellationToken)
+///         +Task~string~ GenerateDocumentaryVideoWithStateAsync(string, Dictionary~string, string~, CancellationToken)
+///     }
+///     YouTubeShortFactualVideoGenerationChain --> BaseChain
+///     BaseChain <|-- YouTubeShortFactualVideoGenerationChain
+///     YouTubeShortFactualVideoGenerationChain : +string QueryExample
+///     YouTubeShortFactualVideoGenerationChain : +string QueryInputExample
+///     YouTubeShortFactualVideoGenerationChain : +string Reasoning
+///     YouTubeShortFactualVideoGenerationChain : +List~Thought~ ChainOfThoughts
+/// </code>

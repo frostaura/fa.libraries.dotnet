@@ -119,3 +119,23 @@ public class TextToSpeechChain : BaseChain
         }
     }
 }
+
+/// <summary>
+/// Mermaid diagram for the TextToSpeechChain class.
+/// </summary>
+/// <remarks>
+/// This diagram provides a visual representation of the TextToSpeechChain class, its methods, and their interactions.
+/// </remarks>
+/// <code>
+/// classDiagram
+///     class TextToSpeechChain {
+///         +TextToSpeechChain(IServiceProvider, ISemanticKernelLanguageModelsDataAccess, ILogger<TextToSpeechChain>)
+///         +Task~string~ SpeakTextAndGetFilePathAsync(string, CancellationToken)
+///     }
+///     TextToSpeechChain --> BaseChain
+///     BaseChain <|-- TextToSpeechChain
+///     TextToSpeechChain : +string QueryExample
+///     TextToSpeechChain : +string QueryInputExample
+///     TextToSpeechChain : +string Reasoning
+///     TextToSpeechChain : +List~Thought~ ChainOfThoughts
+/// </code>

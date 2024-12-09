@@ -150,3 +150,24 @@ public class AudioTranscriptionChain : BaseChain
         }
     }
 }
+
+/// <summary>
+/// Mermaid diagram for the AudioTranscriptionChain class.
+/// </summary>
+/// <remarks>
+/// This diagram provides a visual representation of the AudioTranscriptionChain class, its methods, and their interactions.
+/// </remarks>
+/// <code>
+/// classDiagram
+///     class AudioTranscriptionChain {
+///         +AudioTranscriptionChain(IServiceProvider, ISemanticKernelLanguageModelsDataAccess, ILogger<AudioTranscriptionChain>)
+///         +Task~string~ TranscribeAudioFileAsync(string, CancellationToken)
+///         +Task~string~ TranscribeAudioFilesAsync(string, CancellationToken)
+///     }
+///     AudioTranscriptionChain --> BaseChain
+///     BaseChain <|-- AudioTranscriptionChain
+///     AudioTranscriptionChain : +string QueryExample
+///     AudioTranscriptionChain : +string QueryInputExample
+///     AudioTranscriptionChain : +string Reasoning
+///     AudioTranscriptionChain : +List~Thought~ ChainOfThoughts
+/// </code>
