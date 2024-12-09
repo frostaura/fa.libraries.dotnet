@@ -88,3 +88,23 @@ public class GetFNBAccountBalancesChain : BaseChain
         }
     }
 }
+
+/// <summary>
+/// Mermaid diagram for the GetFNBAccountBalancesChain class.
+/// </summary>
+/// <remarks>
+/// This diagram provides a visual representation of the GetFNBAccountBalancesChain class, its methods, and their interactions.
+/// </remarks>
+/// <code>
+/// classDiagram
+///     class GetFNBAccountBalancesChain {
+///         +GetFNBAccountBalancesChain(IServiceProvider, ISemanticKernelLanguageModelsDataAccess, ILogger<GetFNBAccountBalancesChain>)
+///         +Task~string~ GetFNBAccountBalancesTableAsync(CancellationToken)
+///     }
+///     GetFNBAccountBalancesChain --> BaseChain
+///     BaseChain <|-- GetFNBAccountBalancesChain
+///     GetFNBAccountBalancesChain : +string QueryExample
+///     GetFNBAccountBalancesChain : +string QueryInputExample
+///     GetFNBAccountBalancesChain : +string Reasoning
+///     GetFNBAccountBalancesChain : +List~Thought~ ChainOfThoughts
+/// </code>

@@ -99,3 +99,23 @@ public class TextToImageChain : BaseChain
         }
     }
 }
+
+/// <summary>
+/// Mermaid diagram for the TextToImageChain class.
+/// </summary>
+/// <remarks>
+/// This diagram provides a visual representation of the TextToImageChain class, its methods, and their interactions.
+/// </remarks>
+/// <code>
+/// classDiagram
+///     class TextToImageChain {
+///         +TextToImageChain(IServiceProvider, ISemanticKernelLanguageModelsDataAccess, ILogger<TextToImageChain>)
+///         +Task~string~ GenerateImageAndGetFilePathAsync(string, CancellationToken)
+///     }
+///     TextToImageChain --> BaseChain
+///     BaseChain <|-- TextToImageChain
+///     TextToImageChain : +string QueryExample
+///     TextToImageChain : +string QueryInputExample
+///     TextToImageChain : +string Reasoning
+///     TextToImageChain : +List~Thought~ ChainOfThoughts
+/// </code>
